@@ -11,7 +11,10 @@ import (
 	"github.com/frain-dev/convoy-go/models"
 )
 
-const MethodPost = "POST"
+const (
+	MethodPost = "POST"
+	MethodPut  = "PUT"
+)
 
 type HTTPClient interface {
 	Do(*http.Request) (*http.Response, error)
@@ -35,6 +38,19 @@ func (c *Convoy) CreateAppEndpoint(appId string, request *models.EndpointRequest
 	var respPtr = &response
 
 	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appId+"/endpoints", respPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	respPtr = i.(*models.EndpointResponse)
+	return respPtr, nil
+}
+
+func (c *Convoy) UpdateAppEndpoint(appId string, request *models.EndpointRequest) (*models.EndpointResponse, error) {
+	var response models.EndpointResponse
+	var respPtr = &response
+
+	i, err := c.processRequest(request, MethodPut, c.options.APIEndpoint+"/apps/"+appId+"/endpoints", respPtr)
 	if err != nil {
 		return nil, err
 	}
