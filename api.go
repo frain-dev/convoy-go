@@ -1,10 +1,10 @@
-package convoy_client
+package convoy_go
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"frain-dev/convoy-client/models"
+	"frain-dev/convoy-go/models"
 	"io/ioutil"
 	"log"
 	"net/http"

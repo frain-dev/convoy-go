@@ -1,1 +1,2 @@
-# convoy-client
+# convoy-go
+Golang SDK for Convoy.

@@ -1,3 +1,3 @@
-module frain-dev/convoy-client
+module frain-dev/convoy-go
 
 go 1.16

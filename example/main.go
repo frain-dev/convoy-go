@@ -1,8 +1,8 @@
 package main
 
 import (
-	convoy "frain-dev/convoy-client"
-	"frain-dev/convoy-client/models"
+	convoy "frain-dev/convoy-go"
+	"frain-dev/convoy-go/models"
 	"log"
 )
 

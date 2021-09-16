@@ -1,4 +1,4 @@
-package convoy_client
+package convoy_go
 
 import (
 	"log"
