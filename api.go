@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"frain-dev/convoy-go/models"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/frain-dev/convoy-go/models"
 )
 
-const ApiEndpoint = "http://localhost:5005/v1"
 const MethodPost = "POST"
 
 type HTTPClient interface {
@@ -21,7 +21,7 @@ func (c *Convoy) CreateApp(request *models.ApplicationRequest) (*models.Applicat
 	var response models.ApplicationResponse
 	var respPtr = &response
 
-	i, err := c.processRequest(request, MethodPost, ApiEndpoint+"/apps", respPtr)
+	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps", respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (c *Convoy) CreateAppEndpoint(appId string, request *models.EndpointRequest
 	var response models.EndpointResponse
 	var respPtr = &response
 
-	i, err := c.processRequest(request, MethodPost, ApiEndpoint+"/apps/"+appId+"/endpoints", respPtr)
+	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appId+"/endpoints", respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *Convoy) CreateAppEvent(appId string, request *models.EventRequest) (*mo
 	var response models.EventResponse
 	var respPtr = &response
 
-	i, err := c.processRequest(request, MethodPost, ApiEndpoint+"/apps/"+appId+"/events", respPtr)
+	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appId+"/events", respPtr)
 	if err != nil {
 		return nil, err
 	}

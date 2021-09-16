@@ -1,12 +1,13 @@
 package main
 
 import (
-	convoy "frain-dev/convoy-go"
-	"frain-dev/convoy-go/models"
 	"log"
+
+	convoy "github.com/frain-dev/convoy-go"
+	"github.com/frain-dev/convoy-go/models"
 )
 
-const orgId = "85911815-8af5-46ec-9435-252e99aea7d0"
+const orgID = "bb5e3b67-ea7b-4b28-87e5-37ea1876e9b1"
 
 func main() {
 
@@ -16,11 +17,13 @@ func main() {
 
 func createApp() *models.ApplicationResponse {
 
-	c := convoy.NewWithCredentials("username", "password")
+	url := "https://convoy-staging.herokuapp.com/v1"
+	c := convoy.NewWithCredentials(url, "username", "password")
 	app, err := c.CreateApp(&models.ApplicationRequest{
-		OrgID:   orgId,
+		OrgID:   orgID,
 		AppName: "Test App",
 	})
+
 	if err != nil {
 		log.Fatal("failed to create app \n", err)
 		return nil

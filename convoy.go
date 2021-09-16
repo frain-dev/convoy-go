@@ -12,10 +12,9 @@ type Convoy struct {
 }
 
 type Options struct {
-	HTTPClient HTTPClient
-
+	HTTPClient  HTTPClient
+	APIEndpoint string
 	APIUsername string
-
 	APIPassword string
 }
 
@@ -24,6 +23,7 @@ func New() *Convoy {
 		HTTPClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
+		APIEndpoint: retrieveUrlFromEnv(),
 		APIUsername: retrieveUsernameFromEnv(),
 		APIPassword: retrievePasswordFromEnv(),
 	}
@@ -32,17 +32,26 @@ func New() *Convoy {
 	}
 }
 
-func NewWithCredentials(username, password string) *Convoy {
+func NewWithCredentials(url, username, password string) *Convoy {
 	options := Options{
 		HTTPClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
+		APIEndpoint: url,
 		APIUsername: username,
 		APIPassword: password,
 	}
 	return &Convoy{
 		options: options,
 	}
+}
+
+func retrieveUrlFromEnv() string {
+	url := os.Getenv("CONVOY_URL")
+	if url == "" || len(url) == 0 {
+		log.Println("Unable to retrieve Convoy URL")
+	}
+	return url
 }
 
 func retrieveUsernameFromEnv() string {
