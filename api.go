@@ -46,11 +46,12 @@ func (c *Convoy) CreateAppEndpoint(appId string, request *models.EndpointRequest
 	return respPtr, nil
 }
 
-func (c *Convoy) UpdateAppEndpoint(appId string, request *models.EndpointRequest) (*models.EndpointResponse, error) {
+func (c *Convoy) UpdateAppEndpoint(appId, endpointId string, request *models.EndpointRequest) (*models.EndpointResponse, error) {
 	var response models.EndpointResponse
 	var respPtr = &response
 
-	i, err := c.processRequest(request, MethodPut, c.options.APIEndpoint+"/apps/"+appId+"/endpoints", respPtr)
+	uri := c.options.APIEndpoint + "/apps/" + appId + "/endpoints/" + endpointId
+	i, err := c.processRequest(request, MethodPut, uri, respPtr)
 	if err != nil {
 		return nil, err
 	}
