@@ -21,11 +21,11 @@ type HTTPClient interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-func (c *Convoy) GetApp(Id string) (*models.ApplicationResponse, error) {
+func (c *Convoy) GetApp(ID string) (*models.ApplicationResponse, error) {
 	var response models.ApplicationResponse
 	var respPtr = &response
 
-	url := c.options.APIEndpoint + "/apps/" + Id
+	url := c.options.APIEndpoint + "/apps/" + ID
 	i, err := c.processRequest("", MethodGet, url, respPtr)
 	if err != nil {
 		return nil, err
@@ -48,11 +48,25 @@ func (c *Convoy) CreateApp(request *models.ApplicationRequest) (*models.Applicat
 	return respPtr, nil
 }
 
-func (c *Convoy) CreateAppEndpoint(appId string, request *models.EndpointRequest) (*models.EndpointResponse, error) {
+func (c *Convoy) UpdateApp(appID string, request *models.ApplicationRequest) (*models.ApplicationResponse, error) {
+	var response models.ApplicationResponse
+	var respPtr = &response
+
+	url := c.options.APIEndpoint + "/apps/" + appID
+	i, err := c.processRequest(request, MethodPut, url, respPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	respPtr = i.(*models.ApplicationResponse)
+	return respPtr, nil
+}
+
+func (c *Convoy) CreateAppEndpoint(appID string, request *models.EndpointRequest) (*models.EndpointResponse, error) {
 	var response models.EndpointResponse
 	var respPtr = &response
 
-	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appId+"/endpoints", respPtr)
+	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appID+"/endpoints", respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -61,11 +75,11 @@ func (c *Convoy) CreateAppEndpoint(appId string, request *models.EndpointRequest
 	return respPtr, nil
 }
 
-func (c *Convoy) UpdateAppEndpoint(appId, endpointId string, request *models.EndpointRequest) (*models.EndpointResponse, error) {
+func (c *Convoy) UpdateAppEndpoint(appID, endpointID string, request *models.EndpointRequest) (*models.EndpointResponse, error) {
 	var response models.EndpointResponse
 	var respPtr = &response
 
-	uri := c.options.APIEndpoint + "/apps/" + appId + "/endpoints/" + endpointId
+	uri := c.options.APIEndpoint + "/apps/" + appID + "/endpoints/" + endpointID
 	i, err := c.processRequest(request, MethodPut, uri, respPtr)
 	if err != nil {
 		return nil, err
@@ -75,11 +89,11 @@ func (c *Convoy) UpdateAppEndpoint(appId, endpointId string, request *models.End
 	return respPtr, nil
 }
 
-func (c *Convoy) CreateAppEvent(appId string, request *models.EventRequest) (*models.EventResponse, error) {
+func (c *Convoy) CreateAppEvent(appID string, request *models.EventRequest) (*models.EventResponse, error) {
 	var response models.EventResponse
 	var respPtr = &response
 
-	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appId+"/events", respPtr)
+	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appID+"/events", respPtr)
 	if err != nil {
 		return nil, err
 	}

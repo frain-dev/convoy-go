@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	URL        = "https://convoy-staging.herokuapp.com/v1"
-	USERNAME   = "USERNAME"
-	PASSWORD   = "PASSWORD"
+	URL        = "https://buycoins-convoy-staging.herokuapp.com/v1"
+	USERNAME   = "sherlock"
+	PASSWORD   = "@#sherlock.12"
 	orgID      = "f38d5014-efb2-4766-9b49-a69eec6d86c3"
 	appID      = "526245c4-f5de-4239-84ca-a6eac99689ef"
 	endpointID = "931c80ae-7f4c-4b6f-8bd0-84189c3a4bdc"
@@ -19,8 +19,9 @@ const (
 func main() {
 
 	// createApp()
-	getApp()
-	updateAppEndpoint()
+	// getApp()
+	updateApp("Subomi's Local Computer.", "subomi")
+	//updateAppEndpoint()
 
 }
 
@@ -73,6 +74,22 @@ func getApp() *models.ApplicationResponse {
 
 	log.Printf("App: %+v\n", app)
 	log.Printf("Endpoint: %+v\n", app.Endpoints[0].UID)
+
+	return nil
+}
+
+func updateApp(name, secret string) *models.ApplicationResponse {
+	c := convoy.NewWithCredentials(URL, USERNAME, PASSWORD)
+	app, err := c.UpdateApp(appID, &models.ApplicationRequest{
+		OrgID:   orgID,
+		AppName: name,
+		Secret:  secret,
+	})
+	if err != nil {
+		log.Fatalf("Failed to update app %s \n", err)
+	}
+
+	log.Printf("App: %+v\n", app)
 
 	return nil
 }
