@@ -14,7 +14,8 @@ type APIResponse struct {
 type ApplicationResponse struct {
 	OrgID string `json:"org_id"`
 
-	Secret string `json:"secret"`
+	Secret    string             `json:"secret"`
+	Endpoints []EndpointResponse `json:"endpoints"`
 
 	UID  string `json:"uid"`
 	Name string `json:"name"`

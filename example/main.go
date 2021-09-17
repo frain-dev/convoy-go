@@ -7,18 +7,26 @@ import (
 	"github.com/frain-dev/convoy-go/models"
 )
 
-const orgID = "bb5e3b67-ea7b-4b28-87e5-37ea1876e9b1"
+const (
+	URL        = "https://convoy-staging.herokuapp.com/v1"
+	USERNAME   = "USERNAME"
+	PASSWORD   = "PASSWORD"
+	orgID      = "f38d5014-efb2-4766-9b49-a69eec6d86c3"
+	appID      = "526245c4-f5de-4239-84ca-a6eac99689ef"
+	endpointID = "931c80ae-7f4c-4b6f-8bd0-84189c3a4bdc"
+)
 
 func main() {
 
-	createApp()
+	// createApp()
+	getApp()
+	updateAppEndpoint()
 
 }
 
 func createApp() *models.ApplicationResponse {
 
-	url := "https://convoy-staging.herokuapp.com/v1"
-	c := convoy.NewWithCredentials(url, "username", "password")
+	c := convoy.NewWithCredentials(URL, USERNAME, PASSWORD)
 	app, err := c.CreateApp(&models.ApplicationRequest{
 		OrgID:   orgID,
 		AppName: "Test App",
@@ -54,4 +62,31 @@ func createApp() *models.ApplicationResponse {
 	log.Printf("\nApp event app_metadata - %+v\n", *event.AppMetadata)
 
 	return nil
+}
+
+func getApp() *models.ApplicationResponse {
+	c := convoy.NewWithCredentials(URL, USERNAME, PASSWORD)
+	app, err := c.GetApp(appID)
+	if err != nil {
+		log.Fatalf("Failed to retrieve app %s \n", err)
+	}
+
+	log.Printf("App: %+v\n", app)
+	log.Printf("Endpoint: %+v\n", app.Endpoints[0].UID)
+
+	return nil
+}
+
+func updateAppEndpoint() {
+	c := convoy.NewWithCredentials(URL, USERNAME, PASSWORD)
+	endpoint, err := c.UpdateAppEndpoint(appID, endpointID, &models.EndpointRequest{
+		URL:         "https://658a-102-89-1-190.ngrok.io",
+		Description: "Subomi's Local Computer.",
+	})
+
+	if err != nil {
+		log.Fatalf("Failed to update endpoint %s", err)
+	}
+
+	log.Printf("Endpoint: %+v\n", endpoint.TargetURL)
 }

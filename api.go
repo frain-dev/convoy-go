@@ -14,10 +14,25 @@ import (
 const (
 	MethodPost = "POST"
 	MethodPut  = "PUT"
+	MethodGet  = "GET"
 )
 
 type HTTPClient interface {
 	Do(*http.Request) (*http.Response, error)
+}
+
+func (c *Convoy) GetApp(Id string) (*models.ApplicationResponse, error) {
+	var response models.ApplicationResponse
+	var respPtr = &response
+
+	url := c.options.APIEndpoint + "/apps/" + Id
+	i, err := c.processRequest("", MethodGet, url, respPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	respPtr = i.(*models.ApplicationResponse)
+	return respPtr, nil
 }
 
 func (c *Convoy) CreateApp(request *models.ApplicationRequest) (*models.ApplicationResponse, error) {
