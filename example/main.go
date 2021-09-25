@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	URL        = "https://buycoins-convoy-staging.herokuapp.com/v1"
-	USERNAME   = "sherlock"
-	PASSWORD   = "@#sherlock.12"
-	orgID      = "f38d5014-efb2-4766-9b49-a69eec6d86c3"
+	URL        = "<url>"
+	USERNAME   = "<username>"
+	PASSWORD   = "<password>"
+	orgID      = "<org-id>"
 	appID      = "526245c4-f5de-4239-84ca-a6eac99689ef"
 	endpointID = "931c80ae-7f4c-4b6f-8bd0-84189c3a4bdc"
 )
