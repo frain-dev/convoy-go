@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/frain-dev/convoy-go/models"
 )
@@ -89,11 +90,11 @@ func (c *Convoy) UpdateAppEndpoint(appID, endpointID string, request *models.End
 	return respPtr, nil
 }
 
-func (c *Convoy) CreateAppEvent(appID string, request *models.EventRequest) (*models.EventResponse, error) {
+func (c *Convoy) CreateAppEvent(request *models.EventRequest) (*models.EventResponse, error) {
 	var response models.EventResponse
 	var respPtr = &response
 
-	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/apps/"+appID+"/events", respPtr)
+	i, err := c.processRequest(request, MethodPost, c.options.APIEndpoint+"/events", respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +110,7 @@ func (c *Convoy) processRequest(request interface{}, method, endpoint string, re
 	}
 
 	httpClient := c.options.HTTPClient
+	apiKey := c.options.APIKey
 	username := c.options.APIUsername
 	password := c.options.APIPassword
 
@@ -121,13 +123,30 @@ func (c *Convoy) processRequest(request interface{}, method, endpoint string, re
 		buf = bytes.NewBuffer(b)
 	}
 
+	if !isStringEmpty(c.options.GroupID) {
+		url, err := url.Parse(endpoint)
+		if err != nil {
+			return nil, fmt.Errorf("error adding groupID - %+v", err)
+		}
+		params := url.Query()
+		params.Set("groupID", c.options.GroupID)
+		url.RawQuery = params.Encode()
+		endpoint = url.String()
+	}
+
 	req, err := http.NewRequest(method, endpoint, buf)
 	if err != nil {
 		return nil, fmt.Errorf("error creating new request - %+v", err)
 	}
-	req.SetBasicAuth(username, password)
-	req.Header.Add("Content-Type", "application/json;charset=utf-8")
 
+	if !isStringEmpty(apiKey) {
+		authHeader := fmt.Sprintf("Bearer %s", apiKey)
+		req.Header.Add("Authorization", authHeader)
+	} else if (!isStringEmpty(username)) && (!isStringEmpty(password)) {
+		req.SetBasicAuth(username, password)
+	}
+
+	req.Header.Add("Content-Type", "application/json;charset=utf-8")
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error processing request - %+v", err)

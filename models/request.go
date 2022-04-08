@@ -18,6 +18,7 @@ type EndpointRequest struct {
 }
 
 type EventRequest struct {
+	AppID string          `json:"app_id"`
 	Event string          `json:"event_type" bson:"event_type"`
 	Data  json.RawMessage `json:"data" bson:"data"`
 }
