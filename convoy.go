@@ -68,7 +68,7 @@ func NewWithAPIKey(url, groupID, apiKey string) *Convoy {
 
 func retrieveGroupIDFromEnv() string {
 	groupID := os.Getenv("CONVOY_GROUP_ID")
-	if !isStringEmpty(groupID) {
+	if isStringEmpty(groupID) {
 		log.Println("Unable to retrieve Convoy groupID")
 	}
 	return groupID

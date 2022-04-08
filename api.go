@@ -177,7 +177,6 @@ func parseAPIResponse(resp *http.Response, resultPtr interface{}) error {
 
 	err = json.Unmarshal(b, &response)
 	if err != nil {
-		fmt.Printf("Response: %+v\n", string(b))
 		return fmt.Errorf("error while unmarshalling the response bytes %+v ", err)
 	}
 
