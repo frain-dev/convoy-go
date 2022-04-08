@@ -13,6 +13,8 @@ type Convoy struct {
 
 type Options struct {
 	HTTPClient  HTTPClient
+	GroupID     string
+	APIKey      string
 	APIEndpoint string
 	APIUsername string
 	APIPassword string
@@ -23,7 +25,9 @@ func New() *Convoy {
 		HTTPClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
-		APIEndpoint: retrieveUrlFromEnv(),
+		GroupID:     retrieveGroupIDFromEnv(),
+		APIKey:      retrieveAPIKeyFromEnv(),
+		APIEndpoint: retrieveURLFromEnv(),
 		APIUsername: retrieveUsernameFromEnv(),
 		APIPassword: retrievePasswordFromEnv(),
 	}
@@ -32,23 +36,47 @@ func New() *Convoy {
 	}
 }
 
-func NewWithCredentials(url, username, password string) *Convoy {
+func NewWithCredentials(url, groupID, username, password string) *Convoy {
 	options := Options{
 		HTTPClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
+		GroupID:     groupID,
 		APIEndpoint: url,
 		APIUsername: username,
 		APIPassword: password,
 	}
+
 	return &Convoy{
 		options: options,
 	}
 }
 
-func retrieveUrlFromEnv() string {
+func NewWithAPIKey(url, groupID, apiKey string) *Convoy {
+	options := Options{
+		HTTPClient: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+		GroupID: groupID,
+		APIKey:  apiKey,
+	}
+
+	return &Convoy{
+		options: options,
+	}
+}
+
+func retrieveGroupIDFromEnv() string {
+	groupID := os.Getenv("CONVOY_GROUP_ID")
+	if !isStringEmpty(groupID) {
+		log.Println("Unable to retrieve Convoy groupID")
+	}
+	return groupID
+}
+
+func retrieveURLFromEnv() string {
 	url := os.Getenv("CONVOY_URL")
-	if url == "" || len(url) == 0 {
+	if isStringEmpty(url) {
 		log.Println("Unable to retrieve Convoy URL")
 	}
 	return url
@@ -56,7 +84,7 @@ func retrieveUrlFromEnv() string {
 
 func retrieveUsernameFromEnv() string {
 	username := os.Getenv("CONVOY_API_USERNAME")
-	if username == "" || len(username) == 0 {
+	if isStringEmpty(username) {
 		log.Println("Unable to retrieve Convoy API username")
 	}
 	return username
@@ -64,8 +92,16 @@ func retrieveUsernameFromEnv() string {
 
 func retrievePasswordFromEnv() string {
 	password := os.Getenv("CONVOY_API_PASSWORD")
-	if password == "" || len(password) == 0 {
+	if isStringEmpty(password) {
 		log.Println("Unable to retrieve Convoy API password")
 	}
 	return password
+}
+
+func retrieveAPIKeyFromEnv() string {
+	apiKey := os.Getenv("CONVOY_API_KEY")
+	if isStringEmpty(apiKey) {
+		log.Println("Unable to retrieve api key")
+	}
+	return apiKey
 }
