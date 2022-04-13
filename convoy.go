@@ -1,107 +1,64 @@
 package convoy_go
 
 import (
-	"log"
-	"net/http"
-	"os"
-	"time"
+	"encoding/json"
 )
 
+type APIResponse struct {
+	Status  bool             `json:"status"`
+	Message string           `json:"message"`
+	Data    *json.RawMessage `json:"data,omitempty"`
+}
 type Convoy struct {
-	options Options
+	options          Options
+	Applications     *Application
+	Groups           *Group
+	Endpoints        *Endpoint
+	Events           *Event
+	EventDeliveries  *EventDelivery
+	DeliveryAttempts *DeliveryAttempt
+}
+
+type Pagination struct {
+	Total     int `json:"total"`
+	Page      int `json:"page"`
+	PerPage   int `json:"perPage"`
+	Prev      int `json:"prev"`
+	Next      int `json:"next"`
+	TotalPage int `json:"totalPage"`
 }
 
 type Options struct {
-	HTTPClient  HTTPClient
-	GroupID     string
 	APIKey      string
 	APIEndpoint string
 	APIUsername string
 	APIPassword string
 }
 
-func New() *Convoy {
-	options := Options{
-		HTTPClient: &http.Client{
-			Timeout: 10 * time.Second,
-		},
-		GroupID:     retrieveGroupIDFromEnv(),
-		APIKey:      retrieveAPIKeyFromEnv(),
-		APIEndpoint: retrieveURLFromEnv(),
-		APIUsername: retrieveUsernameFromEnv(),
-		APIPassword: retrievePasswordFromEnv(),
-	}
-	return &Convoy{
-		options: options,
-	}
-}
-
-func NewWithCredentials(url, groupID, username, password string) *Convoy {
-	options := Options{
-		HTTPClient: &http.Client{
-			Timeout: 10 * time.Second,
-		},
-		GroupID:     groupID,
-		APIEndpoint: url,
-		APIUsername: username,
-		APIPassword: password,
-	}
+func New(opts Options) *Convoy {
+	c := NewClient(opts)
 
 	return &Convoy{
-		options: options,
+		options:          opts,
+		Groups:           newGroup(c),
+		Applications:     newApplication(c),
+		Endpoints:        newEndpoint(c),
+		Events:           newEvent(c),
+		EventDeliveries:  newEventDelivery(c),
+		DeliveryAttempts: newDeliveryAttempt(c),
 	}
 }
 
-func NewWithAPIKey(url, groupID, apiKey string) *Convoy {
-	options := Options{
-		HTTPClient: &http.Client{
-			Timeout: 10 * time.Second,
-		},
-		GroupID: groupID,
-		APIKey:  apiKey,
-	}
+type QueryParameter struct {
+	Parameters map[string]string
+}
 
-	return &Convoy{
-		options: options,
+func newQueryParameter() *QueryParameter {
+	return &QueryParameter{
+		Parameters: make(map[string]string, 0),
 	}
 }
 
-func retrieveGroupIDFromEnv() string {
-	groupID := os.Getenv("CONVOY_GROUP_ID")
-	if isStringEmpty(groupID) {
-		log.Println("Unable to retrieve Convoy groupID")
-	}
-	return groupID
-}
-
-func retrieveURLFromEnv() string {
-	url := os.Getenv("CONVOY_URL")
-	if isStringEmpty(url) {
-		log.Println("Unable to retrieve Convoy URL")
-	}
-	return url
-}
-
-func retrieveUsernameFromEnv() string {
-	username := os.Getenv("CONVOY_API_USERNAME")
-	if isStringEmpty(username) {
-		log.Println("Unable to retrieve Convoy API username")
-	}
-	return username
-}
-
-func retrievePasswordFromEnv() string {
-	password := os.Getenv("CONVOY_API_PASSWORD")
-	if isStringEmpty(password) {
-		log.Println("Unable to retrieve Convoy API password")
-	}
-	return password
-}
-
-func retrieveAPIKeyFromEnv() string {
-	apiKey := os.Getenv("CONVOY_API_KEY")
-	if isStringEmpty(apiKey) {
-		log.Println("Unable to retrieve api key")
-	}
-	return apiKey
+func (q *QueryParameter) addParameter(name, value string) {
+	q.Parameters[name] = value
 }
