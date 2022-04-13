@@ -147,12 +147,14 @@ func parseAPIResponse(resp *http.Response, resultPtr interface{}) error {
 
 func invalidStatusCode(actual int) bool {
 	//Valid list of good HTTP response codes to expect from Convoy's API
-	var expected = []int{200, 202, 204}
+	expected := map[int]bool{
+		200: true,
+		202: true,
+		204: true,
+	}
 
-	for _, i := range expected {
-		if actual == i {
-			return false
-		}
+	if _, ok := expected[actual]; ok {
+		return false
 	}
 
 	return true

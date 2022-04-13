@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrNotListApplicationResponse = errors.New("invalid list application response")
-	ErrNotApplicationResponse = errors.New("invalid application response")
+	ErrNotApplicationResponse     = errors.New("invalid application response")
 )
 
 type Application struct {
@@ -151,7 +151,7 @@ func (a *Application) Update(id string, opts *CreateApplicationRequest, query *A
 	if !ok {
 		return nil, ErrNotApplicationResponse
 	}
-	
+
 	return respPtr, nil
 }
 

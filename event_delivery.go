@@ -14,7 +14,6 @@ var (
 	ErrNotEventDeliveryResponse     = errors.New("invalid event delivery response")
 )
 
-
 type EventDelivery struct {
 	client *HttpClient
 }
@@ -158,7 +157,7 @@ func (e *EventDelivery) Resend(id string, query *EventDeliveryQueryParam) (*Even
 	if !ok {
 		return nil, ErrNotEventDeliveryResponse
 	}
-	
+
 	return respPtr, nil
 }
 

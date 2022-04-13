@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrNotListEndpointResponse = errors.New("invalid list endpoint response")
-	ErrNotEndpointResponse = errors.New("invalid endpoint response")
+	ErrNotEndpointResponse     = errors.New("invalid endpoint response")
 )
 
 type Endpoint struct {
@@ -153,7 +153,7 @@ func (e *Endpoint) Update(appId, endpointId string, opts *CreateEndpointRequest,
 	if !ok {
 		return nil, ErrNotEndpointResponse
 	}
-	
+
 	return respPtr, nil
 }
 

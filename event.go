@@ -11,7 +11,7 @@ import (
 
 var (
 	ErrNotListEventResponse = errors.New("invalid list event response")
-	ErrNotEventResponse = errors.New("invalid event response")
+	ErrNotEventResponse     = errors.New("invalid event response")
 )
 
 type Event struct {
@@ -130,7 +130,7 @@ func (e *Event) Find(id string, query *EventQueryParam) (*EventResponse, error) 
 	if !ok {
 		return nil, ErrNotEventResponse
 	}
-	
+
 	return respPtr, nil
 }
 
