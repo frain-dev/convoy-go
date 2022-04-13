@@ -1,9 +1,15 @@
 package convoy_go
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
+)
+
+var (
+	ErrNotListGroupResponse = errors.New("invalid list group response")
+	ErrNotGroupResponse     = errors.New("invalid group response")
 )
 
 type Group struct {
@@ -91,7 +97,11 @@ func (g *Group) All(query *GroupQueryParams) (*ListGroupResponse, error) {
 		return nil, err
 	}
 
-	respPtr = i.(*ListGroupResponse)
+	respPtr, ok := i.(*ListGroupResponse)
+	if !ok {
+		return nil, ErrNotListGroupResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -111,7 +121,11 @@ func (g *Group) Create(opts *CreateGroupRequest) (*GroupResponse, error) {
 		return nil, err
 	}
 
-	respPtr = i.(*GroupResponse)
+	respPtr, ok := i.(*GroupResponse)
+	if !ok {
+		return nil, ErrNotGroupResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -130,7 +144,11 @@ func (g *Group) Find(id string) (*GroupResponse, error) {
 		return nil, err
 	}
 
-	respPtr = i.(*GroupResponse)
+	respPtr, ok := i.(*GroupResponse)
+	if !ok {
+		return nil, ErrNotGroupResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -150,7 +168,11 @@ func (g *Group) Update(id string, opts *CreateGroupRequest) (*GroupResponse, err
 		return nil, err
 	}
 
-	respPtr = i.(*GroupResponse)
+	respPtr, ok := i.(*GroupResponse)
+	if !ok {
+		return nil, ErrNotGroupResponse
+	}
+
 	return respPtr, nil
 }
 

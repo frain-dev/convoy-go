@@ -2,10 +2,16 @@ package convoy_go
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
+)
+
+var (
+	ErrNotListEventResponse = errors.New("invalid list event response")
+	ErrNotEventResponse = errors.New("invalid event response")
 )
 
 type Event struct {
@@ -71,7 +77,11 @@ func (e *Event) All(query *EventQueryParam) (*ListEventResponse, error) {
 		return nil, err
 	}
 
-	respPtr = i.(*ListEventResponse)
+	respPtr, ok := i.(*ListEventResponse)
+	if !ok {
+		return nil, ErrNotListEventResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -92,7 +102,11 @@ func (e *Event) Create(opts *CreateEventRequest, query *EventQueryParam) (*Event
 		return nil, err
 	}
 
-	respPtr = i.(*EventResponse)
+	respPtr, ok := i.(*EventResponse)
+	if !ok {
+		return nil, ErrNotEventResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -112,7 +126,11 @@ func (e *Event) Find(id string, query *EventQueryParam) (*EventResponse, error) 
 		return nil, err
 	}
 
-	respPtr = i.(*EventResponse)
+	respPtr, ok := i.(*EventResponse)
+	if !ok {
+		return nil, ErrNotEventResponse
+	}
+	
 	return respPtr, nil
 }
 

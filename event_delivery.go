@@ -2,11 +2,18 @@ package convoy_go
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 )
+
+var (
+	ErrNotListEventDeliveryResponse = errors.New("invalid list event delivery response")
+	ErrNotEventDeliveryResponse     = errors.New("invalid event delivery response")
+)
+
 
 type EventDelivery struct {
 	client *HttpClient
@@ -99,7 +106,11 @@ func (e *EventDelivery) All(query *EventDeliveryQueryParam) (*ListEventDeliveryR
 		return nil, err
 	}
 
-	respPtr = i.(*ListEventDeliveryResponse)
+	respPtr, ok := i.(*ListEventDeliveryResponse)
+	if !ok {
+		return nil, ErrNotListEventDeliveryResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -119,7 +130,11 @@ func (e *EventDelivery) Find(id string, query *EventDeliveryQueryParam) (*EventD
 		return nil, err
 	}
 
-	respPtr = i.(*EventDeliveryResponse)
+	respPtr, ok := i.(*EventDeliveryResponse)
+	if !ok {
+		return nil, ErrNotEventDeliveryResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -139,7 +154,11 @@ func (e *EventDelivery) Resend(id string, query *EventDeliveryQueryParam) (*Even
 		return nil, err
 	}
 
-	respPtr = i.(*EventDeliveryResponse)
+	respPtr, ok := i.(*EventDeliveryResponse)
+	if !ok {
+		return nil, ErrNotEventDeliveryResponse
+	}
+	
 	return respPtr, nil
 }
 

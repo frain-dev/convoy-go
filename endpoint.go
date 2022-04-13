@@ -1,9 +1,15 @@
 package convoy_go
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
+)
+
+var (
+	ErrNotListEndpointResponse = errors.New("invalid list endpoint response")
+	ErrNotEndpointResponse = errors.New("invalid endpoint response")
 )
 
 type Endpoint struct {
@@ -65,7 +71,11 @@ func (e *Endpoint) All(appId string, query *EndpointQueryParam) (*ListEndpointRe
 		return nil, err
 	}
 
-	respPtr = i.(*ListEndpointResponse)
+	respPtr, ok := i.(*ListEndpointResponse)
+	if !ok {
+		return nil, ErrNotListEndpointResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -87,7 +97,11 @@ func (e *Endpoint) Create(appId string, opts *CreateEndpointRequest, query *Endp
 		return nil, err
 	}
 
-	respPtr = i.(*EndpointResponse)
+	respPtr, ok := i.(*EndpointResponse)
+	if !ok {
+		return nil, ErrNotEndpointResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -108,7 +122,11 @@ func (e *Endpoint) Find(appId, endpointId string, query *EndpointQueryParam) (*E
 		return nil, err
 	}
 
-	respPtr = i.(*EndpointResponse)
+	respPtr, ok := i.(*EndpointResponse)
+	if !ok {
+		return nil, ErrNotEndpointResponse
+	}
+
 	return respPtr, nil
 
 }
@@ -131,7 +149,11 @@ func (e *Endpoint) Update(appId, endpointId string, opts *CreateEndpointRequest,
 		return nil, err
 	}
 
-	respPtr = i.(*EndpointResponse)
+	respPtr, ok := i.(*EndpointResponse)
+	if !ok {
+		return nil, ErrNotEndpointResponse
+	}
+	
 	return respPtr, nil
 }
 

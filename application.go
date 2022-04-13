@@ -1,10 +1,16 @@
 package convoy_go
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
+)
+
+var (
+	ErrNotListApplicationResponse = errors.New("invalid list application response")
+	ErrNotApplicationResponse = errors.New("invalid application response")
 )
 
 type Application struct {
@@ -67,7 +73,11 @@ func (a *Application) All(query *ApplicationQueryParam) (*ListApplicationRespons
 		return nil, err
 	}
 
-	respPtr = i.(*ListApplicationResponse)
+	respPtr, ok := i.(*ListApplicationResponse)
+	if !ok {
+		return nil, ErrNotListApplicationResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -88,7 +98,11 @@ func (a *Application) Create(opts *CreateApplicationRequest, query *ApplicationQ
 		return nil, err
 	}
 
-	respPtr = i.(*ApplicationResponse)
+	respPtr, ok := i.(*ApplicationResponse)
+	if !ok {
+		return nil, ErrNotApplicationResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -108,7 +122,11 @@ func (a *Application) Find(id string, query *ApplicationQueryParam) (*Applicatio
 		return nil, err
 	}
 
-	respPtr = i.(*ApplicationResponse)
+	respPtr, ok := i.(*ApplicationResponse)
+	if !ok {
+		return nil, ErrNotApplicationResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -129,7 +147,11 @@ func (a *Application) Update(id string, opts *CreateApplicationRequest, query *A
 		return nil, err
 	}
 
-	respPtr = i.(*ApplicationResponse)
+	respPtr, ok := i.(*ApplicationResponse)
+	if !ok {
+		return nil, ErrNotApplicationResponse
+	}
+	
 	return respPtr, nil
 }
 

@@ -1,9 +1,15 @@
 package convoy_go
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
+)
+
+var (
+	ErrNotListDeliveryAttemptResponse = errors.New("invalid list delivery attempt response")
+	ErrNotDeliveryAttemptResponse     = errors.New("invalid delivery attempt response")
 )
 
 type DeliveryAttempt struct {
@@ -60,7 +66,11 @@ func (d *DeliveryAttempt) All(eventDeliveryId string, query *DeliveryAttemptQuer
 		return nil, err
 	}
 
-	respPtr = i.(*ListDeliveryAttemptResponse)
+	respPtr, ok := i.(*ListDeliveryAttemptResponse)
+	if !ok {
+		return nil, ErrNotListDeliveryAttemptResponse
+	}
+
 	return respPtr, nil
 }
 
@@ -81,7 +91,11 @@ func (d *DeliveryAttempt) Find(eventDeliveryId, deliveryAttemptId string, query 
 		return nil, err
 	}
 
-	respPtr = i.(*DeliveryAttemptResponse)
+	respPtr, ok := i.(*DeliveryAttemptResponse)
+	if !ok {
+		return nil, ErrNotDeliveryAttemptResponse
+	}
+
 	return respPtr, nil
 }
 
