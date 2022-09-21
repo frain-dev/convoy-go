@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultBaseUrl = "https://cloud.getconvoy.io/api/v1"
+	defaultBaseUrl = "https://dashboard.getconvoy.io/api/v1"
 )
 
 type HttpClient struct {

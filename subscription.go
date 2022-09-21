@@ -43,11 +43,6 @@ type FilterConfiguration struct {
 	EventTypes []string `json:"event_types" bson:"event_types,omitempty"`
 }
 
-type RateLimitConfiguration struct {
-	Count    int    `json:"count" bson:"count"`
-	Duration uint64 `json:"duration" bson:"duration"`
-}
-
 type SubscriptionResponse struct {
 	UID      string `json:"uid"`
 	Name     string `json:"name"`
