@@ -17,6 +17,8 @@ type Convoy struct {
 	Events           *Event
 	EventDeliveries  *EventDelivery
 	DeliveryAttempts *DeliveryAttempt
+	Sources          *Source
+	Subscriptions    *Subscription
 }
 
 type Pagination struct {
@@ -46,6 +48,8 @@ func New(opts Options) *Convoy {
 		Events:           newEvent(c),
 		EventDeliveries:  newEventDelivery(c),
 		DeliveryAttempts: newDeliveryAttempt(c),
+		Sources:          newSource(c),
+		Subscriptions:    newSubscription(c),
 	}
 }
 
