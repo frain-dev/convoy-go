@@ -44,10 +44,10 @@ type FilterConfiguration struct {
 }
 
 type SubscriptionResponse struct {
-	UID      string `json:"uid"`
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Status   string `json:"status"`
+	UID    string `json:"uid"`
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+	Status string `json:"status"`
 
 	Source   *Source      `json:"source_metadata,omitempty"`
 	Endpoint *Endpoint    `json:"endpoint_metadata,omitempty"`
@@ -80,8 +80,7 @@ func newSubscription(client *HttpClient) *Subscription {
 }
 
 func (s *Subscription) All(query *SubscriptionQueryParam) (*ListSubscriptionResponse, error) {
-	var response ListSubscriptionResponse
-	var respPtr = &response
+	respPtr := &ListSubscriptionResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -105,8 +104,7 @@ func (s *Subscription) All(query *SubscriptionQueryParam) (*ListSubscriptionResp
 }
 
 func (s *Subscription) Create(opts *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
-	var response SubscriptionResponse
-	var respPtr = &response
+	respPtr := &SubscriptionResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
@@ -129,8 +127,7 @@ func (s *Subscription) Create(opts *CreateSubscriptionRequest) (*SubscriptionRes
 }
 
 func (s *Subscription) Find(id string) (*SubscriptionResponse, error) {
-	var response SubscriptionResponse
-	var respPtr = &response
+	respPtr := &SubscriptionResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -152,8 +149,7 @@ func (s *Subscription) Find(id string) (*SubscriptionResponse, error) {
 }
 
 func (s *Subscription) Update(id string, opts *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
-	var response SubscriptionResponse
-	var respPtr = &response
+	respPtr := &SubscriptionResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPut,

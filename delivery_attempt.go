@@ -50,8 +50,7 @@ func newDeliveryAttempt(client *HttpClient) *DeliveryAttempt {
 }
 
 func (d *DeliveryAttempt) All(eventDeliveryId string, query *DeliveryAttemptQueryParam) (*ListDeliveryAttemptResponse, error) {
-	var response ListDeliveryAttemptResponse
-	var respPtr = &response
+	respPtr := &ListDeliveryAttemptResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -75,8 +74,7 @@ func (d *DeliveryAttempt) All(eventDeliveryId string, query *DeliveryAttemptQuer
 }
 
 func (d *DeliveryAttempt) Find(eventDeliveryId, deliveryAttemptId string, query *DeliveryAttemptQueryParam) (*DeliveryAttemptResponse, error) {
-	var response DeliveryAttemptResponse
-	var respPtr = &response
+	respPtr := &DeliveryAttemptResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,

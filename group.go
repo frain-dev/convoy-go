@@ -92,8 +92,7 @@ func newGroup(client *HttpClient) *Group {
 }
 
 func (g *Group) All(query *GroupQueryParams) (*ListGroupResponse, error) {
-	var response ListGroupResponse
-	var respPtr = &response
+	respPtr := &ListGroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -117,8 +116,7 @@ func (g *Group) All(query *GroupQueryParams) (*ListGroupResponse, error) {
 }
 
 func (g *Group) Create(opts *CreateGroupRequest) (*GroupResponse, error) {
-	var response GroupResponse
-	var respPtr = &response
+	respPtr := &GroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
@@ -141,8 +139,7 @@ func (g *Group) Create(opts *CreateGroupRequest) (*GroupResponse, error) {
 }
 
 func (g *Group) Find(id string) (*GroupResponse, error) {
-	var response GroupResponse
-	var respPtr = &response
+	respPtr := &GroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -164,8 +161,7 @@ func (g *Group) Find(id string) (*GroupResponse, error) {
 }
 
 func (g *Group) Update(id string, opts *CreateGroupRequest) (*GroupResponse, error) {
-	var response GroupResponse
-	var respPtr = &response
+	respPtr := &GroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPut,

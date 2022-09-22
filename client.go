@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -112,7 +112,7 @@ func (c *HttpClient) generateUrl(endpoint string, query *QueryParameter) (string
 }
 
 func parseAPIResponse(resp *http.Response, resultPtr interface{}) error {
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("error while reading the response bytes - %+v", err)
 	}

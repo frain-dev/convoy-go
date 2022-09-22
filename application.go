@@ -57,8 +57,7 @@ func newApplication(client *HttpClient) *Application {
 }
 
 func (a *Application) All(query *ApplicationQueryParam) (*ListApplicationResponse, error) {
-	var response ListApplicationResponse
-	var respPtr = &response
+	respPtr := &ListApplicationResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -82,8 +81,7 @@ func (a *Application) All(query *ApplicationQueryParam) (*ListApplicationRespons
 }
 
 func (a *Application) Create(opts *CreateApplicationRequest, query *ApplicationQueryParam) (*ApplicationResponse, error) {
-	var response ApplicationResponse
-	var respPtr = &response
+	respPtr := &ApplicationResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
@@ -107,8 +105,7 @@ func (a *Application) Create(opts *CreateApplicationRequest, query *ApplicationQ
 }
 
 func (a *Application) Find(id string, query *ApplicationQueryParam) (*ApplicationResponse, error) {
-	var response ApplicationResponse
-	var respPtr = &response
+	respPtr := &ApplicationResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -131,8 +128,7 @@ func (a *Application) Find(id string, query *ApplicationQueryParam) (*Applicatio
 }
 
 func (a *Application) Update(id string, opts *CreateApplicationRequest, query *ApplicationQueryParam) (*ApplicationResponse, error) {
-	var response ApplicationResponse
-	var respPtr = &response
+	respPtr := &ApplicationResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPut,

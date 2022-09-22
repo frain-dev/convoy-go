@@ -62,8 +62,7 @@ func newEvent(client *HttpClient) *Event {
 }
 
 func (e *Event) All(query *EventQueryParam) (*ListEventResponse, error) {
-	var response ListEventResponse
-	var respPtr = &response
+	respPtr := &ListEventResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -86,8 +85,7 @@ func (e *Event) All(query *EventQueryParam) (*ListEventResponse, error) {
 }
 
 func (e *Event) Create(opts *CreateEventRequest, query *EventQueryParam) (*EventResponse, error) {
-	var response EventResponse
-	var respPtr = &response
+	respPtr := &EventResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
@@ -111,8 +109,7 @@ func (e *Event) Create(opts *CreateEventRequest, query *EventQueryParam) (*Event
 }
 
 func (e *Event) Find(id string, query *EventQueryParam) (*EventResponse, error) {
-	var response EventResponse
-	var respPtr = &response
+	respPtr := &EventResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,

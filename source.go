@@ -91,8 +91,7 @@ func newSource(client *HttpClient) *Source {
 }
 
 func (s *Source) All(query *SourceQueryParam) (*ListSourceResponse, error) {
-	var response ListSourceResponse
-	var respPtr = &response
+	respPtr := &ListSourceResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -116,8 +115,7 @@ func (s *Source) All(query *SourceQueryParam) (*ListSourceResponse, error) {
 }
 
 func (s *Source) Create(opts *CreateSourceRequest) (*SourceResponse, error) {
-	var response SourceResponse
-	var respPtr = &response
+	respPtr := &SourceResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
@@ -140,8 +138,7 @@ func (s *Source) Create(opts *CreateSourceRequest) (*SourceResponse, error) {
 }
 
 func (s *Source) Find(id string) (*SourceResponse, error) {
-	var response SourceResponse
-	var respPtr = &response
+	respPtr := &SourceResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -163,8 +160,7 @@ func (s *Source) Find(id string) (*SourceResponse, error) {
 }
 
 func (s *Source) Update(id string, opts *CreateSourceRequest) (*SourceResponse, error) {
-	var response SourceResponse
-	var respPtr = &response
+	respPtr := &SourceResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPut,
