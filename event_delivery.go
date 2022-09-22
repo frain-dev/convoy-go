@@ -89,8 +89,7 @@ func newEventDelivery(client *HttpClient) *EventDelivery {
 }
 
 func (e *EventDelivery) All(query *EventDeliveryQueryParam) (*ListEventDeliveryResponse, error) {
-	var response ListEventDeliveryResponse
-	var respPtr = &response
+	respPtr := &ListEventDeliveryResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -114,8 +113,7 @@ func (e *EventDelivery) All(query *EventDeliveryQueryParam) (*ListEventDeliveryR
 }
 
 func (e *EventDelivery) Find(id string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
-	var response EventDeliveryResponse
-	var respPtr = &response
+	respPtr := &EventDeliveryResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -138,8 +136,7 @@ func (e *EventDelivery) Find(id string, query *EventDeliveryQueryParam) (*EventD
 }
 
 func (e *EventDelivery) Resend(id string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
-	var response EventDeliveryResponse
-	var respPtr = &response
+	respPtr := &EventDeliveryResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodPut,

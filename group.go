@@ -17,33 +17,37 @@ type Group struct {
 }
 
 type CreateGroupRequest struct {
-	Name              string      `json:"name"`
-	LogoUrl           string      `json:"logo_url,omitempty"`
-	RateLimit         int         `json:"rate_limit,omitempty"`
-	RateLimitDuration string      `json:"rate_limit_duration,omitempty"`
-	Group             GroupConfig `json:"config"`
+	Name              string       `json:"name"`
+	Type              string       `json:"type"`
+	LogoUrl           string       `json:"logo_url,omitempty"`
+	RateLimit         int          `json:"rate_limit,omitempty"`
+	RateLimitDuration string       `json:"rate_limit_duration,omitempty"`
+	Group             *GroupConfig `json:"config"`
 }
 
 type GroupConfig struct {
-	Strategy        StrategyConfiguration  `json:"strategy"`
-	Signature       SignatureConfiguration `json:"signature"`
-	DisableEndpoint bool                   `json:"disable_endpoint"`
-	ReplayAttacks   bool                   `json:"replay_attacks"`
+	RateLimit                *RateLimitConfiguration       `json:"ratelimit"`
+	Strategy                 *StrategyConfiguration        `json:"strategy"`
+	Signature                *SignatureConfiguration       `json:"signature"`
+	RetentionPolicy          *RetentionPolicyConfiguration `json:"retention_policy"`
+	DisableEndpoint          bool                          `json:"disable_endpoint"`
+	ReplayAttacks            bool                          `json:"replay_attacks"`
+	IsRetentionPolicyEnabled bool                          `json:"is_retention_policy_enabled"`
 }
 
 type StrategyConfiguration struct {
-	Type               string                                  `json:"type"`
-	Default            DefaultStrategyConfiguration            `json:"default"`
-	ExponentialBackoff ExponentialBackoffStrategyConfiguration `json:"exponentialBackoff,omitempty"`
+	Type       string `json:"type"`
+	Duration   uint64 `json:"duration"`
+	RetryCount uint64 `json:"retry_count"`
 }
 
-type DefaultStrategyConfiguration struct {
-	IntervalSeconds uint64 `json:"intervalSeconds"`
-	RetryLimit      uint64 `json:"retryLimit"`
+type RateLimitConfiguration struct {
+	Count    int    `json:"count"`
+	Duration uint64 `json:"duration"`
 }
 
-type ExponentialBackoffStrategyConfiguration struct {
-	RetryLimit uint64 `json:"retryLimit"`
+type RetentionPolicyConfiguration struct {
+	Policy string `json:"policy"`
 }
 
 type SignatureConfiguration struct {
@@ -52,19 +56,26 @@ type SignatureConfiguration struct {
 }
 
 type GroupResponse struct {
-	UID        string      `json:"uid"`
-	Name       string      `json:"name"`
-	LogoUrl    string      `json:"logo_url"`
-	Group      GroupConfig `json:"config"`
-	Statistics struct {
+	UID            string       `json:"uid"`
+	Name           string       `json:"name"`
+	LogoUrl        string       `json:"logo_url"`
+	OrganisationID string       `json:"organisation_id"`
+	Type           string       `json:"type"`
+	Config         *GroupConfig `json:"config"`
+	Statistics     struct {
 		MessageSent int `json:"messages_sent"`
 		TotalApps   int `json:"total_apps"`
 	} `json:"statistics"`
-	RateLimit         int    `json:"rate_limit"`
-	RateLimitDuration string `json:"rate_limit_duration"`
+	RateLimit         int            `json:"rate_limit"`
+	RateLimitDuration string         `json:"rate_limit_duration"`
+	Metadata          *GroupMetadata `json:"metadata"`
 
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+}
+
+type GroupMetadata struct {
+	RetainedEvents int `json:"retained_events"`
 }
 
 type GroupQueryParams struct {
@@ -81,8 +92,7 @@ func newGroup(client *HttpClient) *Group {
 }
 
 func (g *Group) All(query *GroupQueryParams) (*ListGroupResponse, error) {
-	var response ListGroupResponse
-	var respPtr = &response
+	respPtr := &ListGroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -106,8 +116,7 @@ func (g *Group) All(query *GroupQueryParams) (*ListGroupResponse, error) {
 }
 
 func (g *Group) Create(opts *CreateGroupRequest) (*GroupResponse, error) {
-	var response GroupResponse
-	var respPtr = &response
+	respPtr := &GroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
@@ -130,8 +139,7 @@ func (g *Group) Create(opts *CreateGroupRequest) (*GroupResponse, error) {
 }
 
 func (g *Group) Find(id string) (*GroupResponse, error) {
-	var response GroupResponse
-	var respPtr = &response
+	respPtr := &GroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -153,8 +161,7 @@ func (g *Group) Find(id string) (*GroupResponse, error) {
 }
 
 func (g *Group) Update(id string, opts *CreateGroupRequest) (*GroupResponse, error) {
-	var response GroupResponse
-	var respPtr = &response
+	respPtr := &GroupResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPut,

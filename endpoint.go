@@ -55,8 +55,7 @@ func newEndpoint(client *HttpClient) *Endpoint {
 }
 
 func (e *Endpoint) All(appId string, query *EndpointQueryParam) (*ListEndpointResponse, error) {
-	var response ListEndpointResponse
-	var respPtr = &response
+	respPtr := &ListEndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -80,8 +79,7 @@ func (e *Endpoint) All(appId string, query *EndpointQueryParam) (*ListEndpointRe
 }
 
 func (e *Endpoint) Create(appId string, opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
-	var response EndpointResponse
-	var respPtr = &response
+	respPtr := &EndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
@@ -106,8 +104,7 @@ func (e *Endpoint) Create(appId string, opts *CreateEndpointRequest, query *Endp
 }
 
 func (e *Endpoint) Find(appId, endpointId string, query *EndpointQueryParam) (*EndpointResponse, error) {
-	var response EndpointResponse
-	var respPtr = &response
+	respPtr := &EndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
@@ -132,8 +129,7 @@ func (e *Endpoint) Find(appId, endpointId string, query *EndpointQueryParam) (*E
 }
 
 func (e *Endpoint) Update(appId, endpointId string, opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
-	var response EndpointResponse
-	var respPtr = &response
+	respPtr := &EndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPut,
