@@ -157,31 +157,32 @@ func (w *Webhook) getHashFunction(algorithm string) (func() hash.Hash, error) {
 
 func (w *Webhook) decodeAdvanced(sh *signedHeader, pairs []string) (*signedHeader, error) {
 	for _, pair := range pairs {
-		parts := strings.Split(pair, "=")
+		parts := strings.SplitN(pair, "=", 2)
 		if len(parts) != 2 {
 			return sh, ErrInvalidHeader
 		}
 
-		switch parts[0] {
-		case "t":
+		item := parts[0]
+
+		if item == "t" {
 			timestamp, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
 				return sh, ErrInvalidHeader
 			}
 
 			sh.timestamp = time.Unix(timestamp, 0)
+		}
 
-		case "v1":
+		if strings.Contains(item, "v") {
 			sig, err := w.decodeString(parts[1])
 			if err != nil {
 				continue
 			}
 
 			sh.signatures = append(sh.signatures, sig)
-
-		default:
-			continue
 		}
+
+		continue
 	}
 
 	expiredTimestamp := time.Since(sh.timestamp) > w.Tolerance

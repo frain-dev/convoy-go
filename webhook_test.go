@@ -59,6 +59,15 @@ func Test_Webhook_Verifier(t *testing.T) {
 			},
 			expectedError: nil,
 		},
+		"should_verify_advanced_base64_signature": {
+			data: &CreateWebhook{
+				SigHeader: "t=1666171999082,v1=PAJW3vNs3v+vE1XK5IPygLLUPEFrsfbKBP61GtCX624=,v1=U5yBiZmFYHiom0A5hEnfLPCoQzndno4ocR45W/zkO+w=",
+				Payload:   []byte(`{"email":"test@gmail.com"}`),
+				Secret:    "8IX9njirDG",
+				Hash:      "SHA256",
+				Encoding:  "base64",
+			},
+		},
 		"invalid_timestamp_header": {
 			data: &CreateWebhook{
 				SigHeader: "t=2202-1-1,v1=U5yBiZmFYHiom0A5hEnfLPCoQzndno4ocR45W/zkO+w=",
