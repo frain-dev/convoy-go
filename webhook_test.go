@@ -1,15 +1,12 @@
 package convoy_go
 
 import (
-	"bytes"
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func Test_Webhook_Verifier(t *testing.T) {
-	bytes.NewBuffer(json.RawMessage("fuc"))
 	tests := map[string]struct {
 		data          *CreateWebhook
 		expectedError error
