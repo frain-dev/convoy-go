@@ -43,7 +43,7 @@ type Webhook struct {
 	Tolerance  time.Duration
 }
 
-type CreateWebhook struct {
+type ConfigOpts struct {
 	Payload    []byte
 	SigHeader  string
 	Secret     string
@@ -60,7 +60,7 @@ const (
 	HexEncoding    EncodingType = "hex"
 )
 
-func NewWebhook(data *CreateWebhook) *Webhook {
+func NewWebhook(data *ConfigOpts) *Webhook {
 	w := &Webhook{
 		Payload:   data.Payload,
 		SigHeader: data.SigHeader,
