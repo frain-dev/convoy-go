@@ -171,6 +171,7 @@ func (w *Webhook) decodeAdvanced(sh *signedHeader, pairs []string) (*signedHeade
 			}
 
 			sh.timestamp = time.Unix(timestamp, 0)
+			continue
 		}
 
 		if strings.Contains(item, "v") {
@@ -181,8 +182,6 @@ func (w *Webhook) decodeAdvanced(sh *signedHeader, pairs []string) (*signedHeade
 
 			sh.signatures = append(sh.signatures, sig)
 		}
-
-		continue
 	}
 
 	expiredTimestamp := time.Since(sh.timestamp) > w.Tolerance
