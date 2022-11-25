@@ -195,6 +195,10 @@ func (s *Subscription) addQueryParams(query *SubscriptionQueryParam) *QueryParam
 			qp.addParameter("groupId", query.GroupID)
 		}
 
+		if !isStringEmpty(query.AppId) {
+			qp.addParameter("appId", query.AppId)
+		}
+
 		if query.Page != 0 {
 			qp.addParameter("page", strconv.Itoa(query.Page))
 		}
