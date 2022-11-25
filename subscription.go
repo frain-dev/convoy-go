@@ -64,6 +64,7 @@ type SubscriptionResponse struct {
 
 type SubscriptionQueryParam struct {
 	GroupID string
+	AppId   string
 	PerPage int
 	Page    int
 }
