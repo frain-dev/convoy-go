@@ -64,7 +64,7 @@ type SubscriptionResponse struct {
 
 type SubscriptionQueryParam struct {
 	GroupID string
-	AppId   string
+	AppID   string
 	PerPage int
 	Page    int
 }
@@ -195,8 +195,8 @@ func (s *Subscription) addQueryParams(query *SubscriptionQueryParam) *QueryParam
 			qp.addParameter("groupId", query.GroupID)
 		}
 
-		if !isStringEmpty(query.AppId) {
-			qp.addParameter("appId", query.AppId)
+		if !isStringEmpty(query.AppID) {
+			qp.addParameter("appId", query.AppID)
 		}
 
 		if query.Page != 0 {
