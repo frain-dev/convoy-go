@@ -19,7 +19,6 @@ type Subscription struct {
 
 type CreateSubscriptionRequest struct {
 	Name       string `json:"name"`
-	AppID      string `json:"app_id"`
 	SourceID   string `json:"source_id"`
 	EndpointID string `json:"endpoint_id"`
 
@@ -49,9 +48,8 @@ type SubscriptionResponse struct {
 	Type   string `json:"type"`
 	Status string `json:"status"`
 
-	Source   *SourceResponse      `json:"source_metadata,omitempty"`
-	Endpoint *EndpointResponse    `json:"endpoint_metadata,omitempty"`
-	App      *ApplicationResponse `json:"app_metadata,omitempty"`
+	Source   *SourceResponse   `json:"source_metadata,omitempty"`
+	Endpoint *EndpointResponse `json:"endpoint_metadata,omitempty"`
 
 	// subscription config
 	AlertConfig  *AlertConfiguration  `json:"alert_config,omitempty"`
@@ -63,10 +61,10 @@ type SubscriptionResponse struct {
 }
 
 type SubscriptionQueryParam struct {
-	GroupID string
-	AppID   string
-	PerPage int
-	Page    int
+	GroupID    string
+	EndpointID string
+	PerPage    int
+	Page       int
 }
 
 type ListSubscriptionResponse struct {
@@ -195,8 +193,8 @@ func (s *Subscription) addQueryParams(query *SubscriptionQueryParam) *QueryParam
 			qp.addParameter("groupId", query.GroupID)
 		}
 
-		if !isStringEmpty(query.AppID) {
-			qp.addParameter("appId", query.AppID)
+		if !isStringEmpty(query.EndpointID) {
+			qp.addParameter("endpointId", query.EndpointID)
 		}
 
 		if query.Page != 0 {

@@ -48,7 +48,7 @@ func (c *HttpClient) SendRequest(opts *requestOpts) (interface{}, error) {
 		buf = bytes.NewBuffer(b)
 	}
 
-	url, err := c.generateUrl(opts.path, opts.query)
+	url, err := c.generateUrl(opts.path, c.options.ProjectID, opts.query)
 	if err != nil {
 		return nil, err
 	}
@@ -58,16 +58,7 @@ func (c *HttpClient) SendRequest(opts *requestOpts) (interface{}, error) {
 		return nil, fmt.Errorf("error creating new request - %+v", err)
 	}
 
-	apiKey := c.options.APIKey
-	username := c.options.APIUsername
-	password := c.options.APIPassword
-
-	if !isStringEmpty(apiKey) {
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-	} else if !isStringEmpty(username) && !isStringEmpty(password) {
-		req.SetBasicAuth(username, password)
-	}
-
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.options.APIKey))
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
 	resp, err := c.client.Do(req)
 
@@ -83,14 +74,14 @@ func (c *HttpClient) SendRequest(opts *requestOpts) (interface{}, error) {
 	return opts.respBody, nil
 }
 
-func (c *HttpClient) generateUrl(endpoint string, query *QueryParameter) (string, error) {
+func (c *HttpClient) generateUrl(path, projectID string, query *QueryParameter) (string, error) {
 	baseUrl := defaultBaseUrl
 
 	if !isStringEmpty(c.options.APIEndpoint) {
 		baseUrl = c.options.APIEndpoint
 	}
 
-	reqUrl := fmt.Sprintf("%s/%s", baseUrl, endpoint)
+	reqUrl := fmt.Sprintf("%s/projects/%s/%s", baseUrl, projectID, path)
 	url, err := url.Parse(reqUrl)
 	if err != nil {
 		return "", err

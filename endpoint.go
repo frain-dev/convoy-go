@@ -17,10 +17,17 @@ type Endpoint struct {
 }
 
 type CreateEndpointRequest struct {
-	URL         string   `json:"url"`
-	Secret      string   `json:"secret,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Events      []string `json:"events,omitempty"`
+	Name               string `json:"name"`
+	SupportEmail       string `json:"support_email"`
+	OwnerID            string `json:"owner_id"`
+	SlackWebhookUrl    string `json:"slack_webhook_url"`
+	URL                string `json:"url"`
+	Secret             string `json:"secret,omitempty"`
+	Description        string `json:"description,omitempty"`
+	AdvancedSignatures *bool  `json:"advanced_signatures"`
+	IsDisabled         bool   `json:"is_disabled"`
+
+	Authentication *EndpointAuth `json:"authentication"`
 
 	HttpTimeout       string `json:"http_timeout,omitempty"`
 	RateLimit         int    `json:"rate_limit,omitempty"`
@@ -28,21 +35,55 @@ type CreateEndpointRequest struct {
 }
 
 type EndpointResponse struct {
-	UID               string   `json:"uid"`
-	TargetUrl         string   `json:"target_url"`
-	Description       string   `json:"description"`
-	Status            string   `json:"status"`
-	Secret            string   `json:"secret"`
-	HttpTimeout       string   `json:"http_timeout"`
-	RateLimit         int      `json:"rate_limit"`
-	RateLimitDuration string   `json:"rate_limit_duration"`
-	Events            []string `json:"events"`
+	UID         string `json:"uid"`
+	GroupID     string `json:"group_id"`
+	OwnerID     string `json:"owner_id"`
+	TargetUrl   string `json:"target_url"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+
+	Status             string   `json:"status"`
+	Secrets            []Secret `json:"secrets"`
+	AdvancedSignatures bool     `json:"advanced_signatures"`
+	SlackWebhookUrl    string   `json:"slack_webhook_url"`
+	SupportEmail       string   `json:"support_email"`
+	IsDisabled         bool     `json:"is_disabled"`
+
+	HttpTimeout       string `json:"http_timeout"`
+	RateLimit         int    `json:"rate_limit"`
+	RateLimitDuration string `json:"rate_limit_duration"`
+
+	Authentication *EndpointAuth `json:"authentication"`
+	Events         int64         `json:"events"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type ListEndpointResponse []EndpointResponse
+type EndpointAuth struct {
+	Type   string      `json:"type"`
+	ApiKey *ApiKeyAuth `json:"api_key"`
+}
+
+type ApiKeyAuth struct {
+	HeaderValue string `json:"header_value"`
+	HeaderName  string `json:"header_name"`
+}
+
+type Secret struct {
+	UID   string `json:"uid" bson:"uid"`
+	Value string `json:"value" bson:"value"`
+
+	ExpiresAt time.Time  `json:"expires_at,omitempty"`
+	CreatedAt time.Time  `json:"created_at,omitempty"`
+	UpdatedAt time.Time  `json:"updated_at,omitempty"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+}
+
+type ListEndpointResponse struct {
+	Content    []EndpointResponse `json:"content"`
+	Pagination Pagination         `json:"pagination"`
+}
 
 type EndpointQueryParam struct {
 	GroupID string
@@ -54,12 +95,12 @@ func newEndpoint(client *HttpClient) *Endpoint {
 	}
 }
 
-func (e *Endpoint) All(appId string, query *EndpointQueryParam) (*ListEndpointResponse, error) {
+func (e *Endpoint) All(query *EndpointQueryParam) (*ListEndpointResponse, error) {
 	respPtr := &ListEndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
-		path:     fmt.Sprintf("applications/%s/endpoints", appId),
+		path:     "endpoints",
 		query:    e.addQueryParams(query),
 		respBody: respPtr,
 	}
@@ -78,12 +119,12 @@ func (e *Endpoint) All(appId string, query *EndpointQueryParam) (*ListEndpointRe
 	return respPtr, nil
 }
 
-func (e *Endpoint) Create(appId string, opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+func (e *Endpoint) Create(opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
 	respPtr := &EndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPost,
-		path:        fmt.Sprintf("applications/%s/endpoints", appId),
+		path:        "endpoints",
 		requestBody: opts,
 		respBody:    respPtr,
 		query:       e.addQueryParams(query),
@@ -103,12 +144,12 @@ func (e *Endpoint) Create(appId string, opts *CreateEndpointRequest, query *Endp
 	return respPtr, nil
 }
 
-func (e *Endpoint) Find(appId, endpointId string, query *EndpointQueryParam) (*EndpointResponse, error) {
+func (e *Endpoint) Find(endpointId string, query *EndpointQueryParam) (*EndpointResponse, error) {
 	respPtr := &EndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:   http.MethodGet,
-		path:     fmt.Sprintf("applications/%s/endpoints/%s", appId, endpointId),
+		path:     fmt.Sprintf("endpoints/%s", endpointId),
 		respBody: respPtr,
 		query:    e.addQueryParams(query),
 	}
@@ -128,12 +169,12 @@ func (e *Endpoint) Find(appId, endpointId string, query *EndpointQueryParam) (*E
 
 }
 
-func (e *Endpoint) Update(appId, endpointId string, opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+func (e *Endpoint) Update(endpointId string, opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
 	respPtr := &EndpointResponse{}
 
 	reqOpts := &requestOpts{
 		method:      http.MethodPut,
-		path:        fmt.Sprintf("applications/%s/endpoints/%s", appId, endpointId),
+		path:        fmt.Sprintf("endpoints/%s", endpointId),
 		requestBody: opts,
 		respBody:    respPtr,
 		query:       e.addQueryParams(query),
@@ -153,10 +194,10 @@ func (e *Endpoint) Update(appId, endpointId string, opts *CreateEndpointRequest,
 	return respPtr, nil
 }
 
-func (e *Endpoint) Delete(appId, endpointId string, query *EndpointQueryParam) error {
+func (e *Endpoint) Delete(endpointId string, query *EndpointQueryParam) error {
 	reqOpts := &requestOpts{
 		method: http.MethodDelete,
-		path:   fmt.Sprintf("applications/%s/endpoints/%s", appId, endpointId),
+		path:   fmt.Sprintf("endpoints/%s", endpointId),
 		query:  e.addQueryParams(query),
 	}
 

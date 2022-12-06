@@ -19,28 +19,21 @@ type Event struct {
 }
 
 type CreateEventRequest struct {
-	AppID     string          `json:"app_id"`
-	EventType string          `json:"event_type"`
-	Data      json.RawMessage `json:"data"`
+	EndpointID string          `json:"endpoint_id"`
+	EventType  string          `json:"event_type"`
+	Data       json.RawMessage `json:"data"`
 }
 
 type EventResponse struct {
-	UID              string          `json:"uid"`
-	EventType        string          `json:"event_type"`
-	MatchedEndpoints int             `json:"matched_endpoints"`
-	ProviderID       string          `json:"provider_id"`
-	Data             json.RawMessage `json:"data"`
-	AppMetadata      AppMetadata     `json:"app_metadata"`
+	UID              string              `json:"uid"`
+	EventType        string              `json:"event_type"`
+	MatchedEndpoints int                 `json:"matched_endpoints"`
+	ProviderID       string              `json:"provider_id"`
+	Data             json.RawMessage     `json:"data"`
+	EndpointMetadata []*EndpointResponse `json:"endpoint_metadata"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type AppMetadata struct {
-	UID          string `json:"uid"`
-	Title        string `json:"title"`
-	GroupID      string `json:"group_id"`
-	SupportEmail string `json:"support_email"`
 }
 
 type ListEventResponse struct {
@@ -49,10 +42,10 @@ type ListEventResponse struct {
 }
 
 type EventQueryParam struct {
-	GroupID string
-	AppID   string
-	PerPage int
-	Page    int
+	GroupID    string
+	EndpointID string
+	PerPage    int
+	Page       int
 }
 
 func newEvent(client *HttpClient) *Event {
@@ -140,8 +133,8 @@ func (e *Event) addQueryParams(query *EventQueryParam) *QueryParameter {
 			qp.addParameter("groupId", query.GroupID)
 		}
 
-		if !isStringEmpty(query.AppID) {
-			qp.addParameter("appId", query.AppID)
+		if !isStringEmpty(query.EndpointID) {
+			qp.addParameter("endpointId", query.EndpointID)
 		}
 
 		if query.Page != 0 {

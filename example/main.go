@@ -2,146 +2,115 @@ package main
 
 import (
 	"log"
-	"os"
 
 	convoy "github.com/frain-dev/convoy-go"
 )
 
 const (
 	URL        = "<url>"
-	USERNAME   = "<username>"
-	PASSWORD   = "<password>"
-	GROUPID    = "<group-id>"
-	appID      = "39e11a08-a15b-4453-8a69-273f43e39338"
-	endpointID = "931c80ae-7f4c-4b6f-8bd0-84189c3a4bdc"
+	PROJECTID  = "fea2f896-a197-4796-977c-4e2b04307450"
+	endpointID = "e7a44cd8-5c04-4952-b47e-c311ad4747c9"
+	apiKey     = "your_api_key"
 )
-
-var orgID = os.Getenv("CONVOY_ORG_ID")
 
 func main() {
 
-	createEvent()
-	//createApp()
-	// getApp()
-	//updateApp("Subomi's Local Computer.", "subomi")
-	//updateAppEndpoint()
+	// createEvent()
+	// createEndpoint()
+	// getEndpoint()
+	// updateEndpoint("GO Endpoint SDK2", "convoy")
 
 }
 
 func createEvent() {
 	c := convoy.New(convoy.Options{
-		APIUsername: "default",
-		APIPassword: "default",
+		APIKey:    apiKey,
+		ProjectID: PROJECTID,
 	})
 	event, err := c.Events.Create(&convoy.CreateEventRequest{
-		AppID:     appID,
-		EventType: "test.customer.event",
-		Data:      []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
+		EndpointID: endpointID,
+		EventType:  "test.customer.event",
+		Data:       []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
 	}, nil)
 
 	if err != nil {
-		log.Fatal("failed to create app event \n", err)
+		log.Fatal("failed to create endpoint event \n", err)
 		return
 	}
-	log.Printf("\nApp event created - %+v\n", event)
-	log.Printf("\nApp event data - %+v\n", string(event.Data))
+	log.Printf("\nEndpoint event created - %+v\n", event)
+	log.Printf("\nEndpoint event data - %+v\n", string(event.Data))
 }
 
-func createApp() *convoy.ApplicationResponse {
+func createEndpoint() *convoy.EndpointResponse {
 
 	//c := convoy.NewWithCredentials(URL, USERNAME, PASSWORD)
 	c := convoy.New(convoy.Options{
-		APIUsername: "default",
-		APIPassword: "default",
+		APIKey:    apiKey,
+		ProjectID: PROJECTID,
 	})
 
-	app, err := c.Applications.Create(&convoy.CreateApplicationRequest{
-		Name: "Test App",
-	}, nil)
-
-	if err != nil {
-		log.Fatal("failed to create app \n", err)
-		return nil
-	}
-	log.Printf("\nApp created - %+v\n", app)
-
-	endpoint, err := c.Endpoints.Create(app.UID, &convoy.CreateEndpointRequest{
-		URL:         "http://localhost:8081",
+	endpoint, err := c.Endpoints.Create(&convoy.CreateEndpointRequest{
+		Name:        "Endpoint GO SDK",
+		URL:         "https://webhook.site/4a5f8928-73fc-40e2-921c-e037afa9ea09",
 		Description: "Some description",
 	}, nil)
 
 	if err != nil {
-		log.Fatal("failed to create app endpoint \n", err)
+		log.Fatal("failed to create endpoint \n", err)
 		return nil
 	}
-	log.Printf("\nApp endpoint created - %+v\n", endpoint)
+	log.Printf("\nEndpoint created - %+v\n", endpoint)
 
 	event, err := c.Events.Create(&convoy.CreateEventRequest{
-		AppID:     app.UID,
-		EventType: "test.customer.event",
-		Data:      []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
+		EndpointID: endpoint.UID,
+		EventType:  "test.customer.event",
+		Data:       []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
 	}, nil)
 	if err != nil {
-		log.Fatal("failed to create app event \n", err)
+		log.Fatal("failed to create endpoint event \n", err)
 		return nil
 	}
-	log.Printf("\nApp event created - %+v\n", event)
-	log.Printf("\nApp event data - %+v\n", string(event.Data))
-	log.Printf("\nApp event app_metadata - %+v\n", event.AppMetadata)
+	log.Printf("\nEndpoint event created - %+v\n", event)
+	log.Printf("\nEndpoint event data - %+v\n", string(event.Data))
+	log.Printf("\nEndpoint event endpoint_metadata - %+v\n", event.EndpointMetadata)
 
 	return nil
 }
 
-func getApp() *convoy.ApplicationResponse {
+func getEndpoint() *convoy.EndpointResponse {
 	c := convoy.New(convoy.Options{
-		APIUsername: "default",
-		APIPassword: "default",
+		APIKey:    apiKey,
+		ProjectID: PROJECTID,
 	})
 
-	app, err := c.Applications.Find(appID, nil)
+	endpoint, err := c.Endpoints.Find(endpointID, nil)
 	if err != nil {
-		log.Fatalf("Failed to retrieve app %s \n", err)
+		log.Fatalf("Failed to retrieve endpoint %s \n", err)
 	}
 
-	log.Printf("App: %+v\n", app)
-	log.Printf("Endpoint: %+v\n", app.Endpoints[0].UID)
+	log.Printf("Endpoint: %+v\n", endpoint.UID)
 
 	return nil
 }
 
-func updateApp(name, secret string) *convoy.ApplicationResponse {
+func updateEndpoint(name, secret string) *convoy.EndpointResponse {
 	c := convoy.New(convoy.Options{
-		APIUsername: "default",
-		APIPassword: "default",
+		APIKey:    apiKey,
+		ProjectID: PROJECTID,
 	})
 
-	app, err := c.Applications.Update(appID, &convoy.CreateApplicationRequest{
-		Name: name,
+	endpoint, err := c.Endpoints.Update(endpointID, &convoy.CreateEndpointRequest{
+		Name:        name,
+		URL:         "https://webhook.site/4a5f8928-73fc-40e2-921c-e037afa9ea09",
+		Description: "Some description",
+		Secret:      secret,
 	}, nil)
 
 	if err != nil {
-		log.Fatalf("Failed to update app %s \n", err)
+		log.Fatalf("Failed to update endpoint %s \n", err)
 	}
 
-	log.Printf("App: %+v\n", app)
+	log.Printf("Endpoint: %+v\n", endpoint)
 
 	return nil
-}
-
-func updateAppEndpoint() {
-	c := convoy.New(convoy.Options{
-		APIUsername: "default",
-		APIPassword: "default",
-	})
-
-	endpoint, err := c.Endpoints.Update(appID, endpointID, &convoy.CreateEndpointRequest{
-		URL:         "https://658a-102-89-1-190.ngrok.io",
-		Description: "Subomi's Local Computer.",
-	}, nil)
-
-	if err != nil {
-		log.Fatalf("Failed to update endpoint %s", err)
-	}
-
-	log.Printf("Endpoint: %+v\n", endpoint.TargetUrl)
 }

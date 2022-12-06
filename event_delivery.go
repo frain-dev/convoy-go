@@ -21,8 +21,7 @@ type EventDelivery struct {
 type EventDeliveryResponse struct {
 	UID              string           `json:"uid"`
 	EventMetadata    EventMetadata    `json:"event_metadata"`
-	EndpointMetadata EndpointMetadata `json:"endpoint"`
-	AppMetadata      AppMetadata      `json:"app_metadata"`
+	EndpointMetadata EndpointResponse `json:"endpoint_metadata"`
 	Metadata         Metadata         `json:"metadata"`
 	Description      string           `json:"description,omitempty"`
 	Status           string           `json:"status"`
@@ -57,29 +56,17 @@ type Metadata struct {
 	RetryLimit uint64 `json:"retry_limit"`
 }
 
-type EndpointMetadata struct {
-	UID               string `json:"uid"`
-	TargetURL         string `json:"target_url"`
-	Status            string `json:"status"`
-	Secret            string `json:"secret"`
-	HttpTimeout       string `json:"http_timeout"`
-	RateLimit         int    `json:"rate_limit"`
-	RateLimitDuration string `json:"rate_limit_duration"`
-
-	Sent bool `json:"sent"`
-}
-
 type ListEventDeliveryResponse struct {
 	Content    []EventDeliveryResponse `json:"content"`
 	Pagination Pagination              `json:"pagination"`
 }
 
 type EventDeliveryQueryParam struct {
-	GroupID string
-	AppID   string
-	EventID string
-	PerPage int
-	Page    int
+	GroupID    string
+	EndpointID string
+	EventID    string
+	PerPage    int
+	Page       int
 }
 
 func newEventDelivery(client *HttpClient) *EventDelivery {
@@ -183,8 +170,8 @@ func (e *EventDelivery) addQueryParams(query *EventDeliveryQueryParam) *QueryPar
 			qp.addParameter("groupId", query.GroupID)
 		}
 
-		if !isStringEmpty(query.AppID) {
-			qp.addParameter("appId", query.AppID)
+		if !isStringEmpty(query.EndpointID) {
+			qp.addParameter("endpointId", query.EndpointID)
 		}
 
 		if !isStringEmpty(query.EventID) {
