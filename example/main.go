@@ -14,11 +14,8 @@ const (
 )
 
 func main() {
-
-	// createEvent()
-	// createEndpoint()
-	// getEndpoint()
-	// updateEndpoint("GO Endpoint SDK2", "convoy")
+	
+	createEvent()
 
 }
 
