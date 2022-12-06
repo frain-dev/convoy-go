@@ -144,7 +144,7 @@ func (w *Webhook) generateSignature(sh *signedHeader) ([]byte, error) {
 
 	h := hmac.New(fn, []byte(w.Secret))
 
-	if (sh.isAdvanced) {
+	if sh.isAdvanced {
 		h.Write([]byte(fmt.Sprintf("%d", sh.timestamp.Unix())))
 		h.Write([]byte(","))
 	}
