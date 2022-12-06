@@ -46,7 +46,7 @@ func New(opts Options) *Convoy {
 	}
 
 	c := NewClient(opts)
-	
+
 	return &Convoy{
 		options:          opts,
 		Projects:         newProject(c),

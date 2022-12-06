@@ -77,7 +77,6 @@ type ProjectMetadata struct {
 	RetainedEvents int `json:"retained_events"`
 }
 
-
 type ListProjectResponse []ProjectResponse
 
 func newProject(client *HttpClient) *Project {
