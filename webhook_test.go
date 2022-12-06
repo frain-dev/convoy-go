@@ -51,7 +51,7 @@ func Test_Webhook_Verifier(t *testing.T) {
 		},
 		"should_verify_advanced_hex_signature": {
 			data: &ConfigOpts{
-				SigHeader: "t=1666134587744,v1=3c0256def36cdeffaf1355cae483f280b2d43c416bb1f6ca04feb51ad097eb6e,v1=539c818999856078a89b40398449df2cf0a84339dd9e8e28711e395bfce43bec",
+				SigHeader: "t=2048976161,v1=c6c39e1bd410fc1dc4db90e97039f006d088c950a275296767595d330195088f,v1=6594ee0713f1cc1f54c3f713d06a60718cd10949c7684412f159034d49621e07",
 				Payload:   []byte(`{"email":"test@gmail.com"}`),
 				Secret:    "Convoy",
 				Hash:      "SHA256",
@@ -61,7 +61,7 @@ func Test_Webhook_Verifier(t *testing.T) {
 		},
 		"should_verify_advanced_base64_signature": {
 			data: &ConfigOpts{
-				SigHeader: "t=1666171999082,v1=PAJW3vNs3v+vE1XK5IPygLLUPEFrsfbKBP61GtCX624=,v1=U5yBiZmFYHiom0A5hEnfLPCoQzndno4ocR45W/zkO+w=",
+				SigHeader: "t=2048976161,v1=afdb90313acfa15a3fc425755ae651a204947710315bb2a90bccaa87fce88998,v1=fLBDCBUiX5iIs0L5zfNq45h23EkX1HAMpFF+2lHrnes=",
 				Payload:   []byte(`{"email":"test@gmail.com"}`),
 				Secret:    "8IX9njirDG",
 				Hash:      "SHA256",
