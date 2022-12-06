@@ -8,13 +8,13 @@ import (
 
 const (
 	URL        = "<url>"
-	PROJECTID  = "fea2f896-a197-4796-977c-4e2b04307450"
+	projectID  = "fea2f896-a197-4796-977c-4e2b04307450"
 	endpointID = "e7a44cd8-5c04-4952-b47e-c311ad4747c9"
 	apiKey     = "your_api_key"
 )
 
 func main() {
-	
+
 	createEvent()
 
 }
@@ -22,7 +22,7 @@ func main() {
 func createEvent() {
 	c := convoy.New(convoy.Options{
 		APIKey:    apiKey,
-		ProjectID: PROJECTID,
+		ProjectID: projectID,
 	})
 	event, err := c.Events.Create(&convoy.CreateEventRequest{
 		EndpointID: endpointID,
@@ -43,7 +43,7 @@ func createEndpoint() *convoy.EndpointResponse {
 	//c := convoy.NewWithCredentials(URL, USERNAME, PASSWORD)
 	c := convoy.New(convoy.Options{
 		APIKey:    apiKey,
-		ProjectID: PROJECTID,
+		ProjectID: projectID,
 	})
 
 	endpoint, err := c.Endpoints.Create(&convoy.CreateEndpointRequest{
@@ -77,7 +77,7 @@ func createEndpoint() *convoy.EndpointResponse {
 func getEndpoint() *convoy.EndpointResponse {
 	c := convoy.New(convoy.Options{
 		APIKey:    apiKey,
-		ProjectID: PROJECTID,
+		ProjectID: projectID,
 	})
 
 	endpoint, err := c.Endpoints.Find(endpointID, nil)
@@ -93,7 +93,7 @@ func getEndpoint() *convoy.EndpointResponse {
 func updateEndpoint(name, secret string) *convoy.EndpointResponse {
 	c := convoy.New(convoy.Options{
 		APIKey:    apiKey,
-		ProjectID: PROJECTID,
+		ProjectID: projectID,
 	})
 
 	endpoint, err := c.Endpoints.Update(endpointID, &convoy.CreateEndpointRequest{
