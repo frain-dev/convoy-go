@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"hash"
 	"strconv"
 	"strings"
@@ -31,6 +32,7 @@ var (
 type signedHeader struct {
 	timestamp  time.Time
 	signatures [][]byte
+	isAdvanced bool
 }
 
 type Webhook struct {
@@ -91,7 +93,7 @@ func (w *Webhook) Verify() error {
 		return err
 	}
 
-	expectedSignature, err := w.generateSignature()
+	expectedSignature, err := w.generateSignature(header)
 	if err != nil {
 		return err
 	}
@@ -134,13 +136,19 @@ func (w *Webhook) parseSignatureHeader() (*signedHeader, error) {
 	return sh, nil
 }
 
-func (w *Webhook) generateSignature() ([]byte, error) {
+func (w *Webhook) generateSignature(sh *signedHeader) ([]byte, error) {
 	fn, err := w.getHashFunction(w.Hash)
 	if err != nil {
 		return nil, err
 	}
 
 	h := hmac.New(fn, []byte(w.Secret))
+
+	if (sh.isAdvanced) {
+		h.Write([]byte(fmt.Sprintf("%d", sh.timestamp.Unix())))
+		h.Write([]byte(","))
+	}
+
 	h.Write(w.Payload)
 	return h.Sum(nil), nil
 }
@@ -189,6 +197,7 @@ func (w *Webhook) decodeAdvanced(sh *signedHeader, pairs []string) (*signedHeade
 		return nil, ErrTimestampExpired
 	}
 
+	sh.isAdvanced = true
 	return sh, nil
 }
 
