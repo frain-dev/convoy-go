@@ -2,6 +2,7 @@ package convoy_go
 
 import (
 	"encoding/json"
+	"log"
 )
 
 type APIResponse struct {
@@ -11,8 +12,7 @@ type APIResponse struct {
 }
 type Convoy struct {
 	options          Options
-	Applications     *Application
-	Groups           *Group
+	Projects         *Project
 	Endpoints        *Endpoint
 	Events           *Event
 	EventDeliveries  *EventDelivery
@@ -33,17 +33,23 @@ type Pagination struct {
 type Options struct {
 	APIKey      string
 	APIEndpoint string
-	APIUsername string
-	APIPassword string
+	ProjectID   string
 }
 
 func New(opts Options) *Convoy {
+	if isStringEmpty(opts.APIKey) {
+		log.Fatal("API Key is required")
+	}
+
+	if isStringEmpty(opts.ProjectID) {
+		log.Fatal("Project ID is required")
+	}
+
 	c := NewClient(opts)
 
 	return &Convoy{
 		options:          opts,
-		Groups:           newGroup(c),
-		Applications:     newApplication(c),
+		Projects:         newProject(c),
 		Endpoints:        newEndpoint(c),
 		Events:           newEvent(c),
 		EventDeliveries:  newEventDelivery(c),
