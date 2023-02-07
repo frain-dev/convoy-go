@@ -29,7 +29,7 @@ import (
 An endpoint represents a target URL to receive events.
 
 ```go
-endpoint, err := c.Endpoints.Create(&Convoy.CreateEndpointRequest{
+endpoint, err := c.Endpoints.Create(&convoy.CreateEndpointRequest{
     Name: "Default Endpoint",
     URL: "http://localhost:8081",
     Description: "Some description",
