@@ -25,6 +25,13 @@ type CreateEventRequest struct {
 	Data          json.RawMessage   `json:"data"`
 }
 
+type CreateFanoutEventRequest struct {
+	OwnerID       string            `json:"owner_id"`
+	EventType     string            `json:"event_type"`
+	CustomHeaders map[string]string `json:"custom_headers"`
+	Data          json.RawMessage   `json:"data"`
+}
+
 type EventResponse struct {
 	UID              string              `json:"uid"`
 	EventType        string              `json:"event_type"`
@@ -87,6 +94,29 @@ func (e *Event) Create(opts *CreateEventRequest, query *EventQueryParam) (*Event
 		requestBody: opts,
 		respBody:    respPtr,
 		query:       e.addQueryParams(query),
+	}
+
+	i, err := e.client.SendRequest(reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	respPtr, ok := i.(*EventResponse)
+	if !ok {
+		return nil, ErrNotEventResponse
+	}
+
+	return respPtr, nil
+}
+
+func (e *Event) CreateFanoutEvent(opts *CreateFanoutEventRequest) (*EventResponse, error) {
+	respPtr := &EventResponse{}
+
+	reqOpts := &requestOpts{
+		method:      http.MethodPost,
+		path:        "events/fanout",
+		requestBody: opts,
+		respBody:    respPtr,
 	}
 
 	i, err := e.client.SendRequest(reqOpts)

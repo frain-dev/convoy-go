@@ -87,6 +87,7 @@ type ListEndpointResponse struct {
 
 type EndpointQueryParam struct {
 	GroupID string
+	OwnerID string
 }
 
 func newEndpoint(client *HttpClient) *Endpoint {
@@ -216,6 +217,10 @@ func (e *Endpoint) addQueryParams(query *EndpointQueryParam) *QueryParameter {
 
 		if !isStringEmpty(query.GroupID) {
 			qp.addParameter("groupId", query.GroupID)
+		}
+
+		if !isStringEmpty(query.OwnerID) {
+			qp.addParameter("ownerId", query.OwnerID)
 		}
 	}
 
