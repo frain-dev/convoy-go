@@ -20,8 +20,8 @@ import (
 c := convoy.New(convoy.Options{
    APIKey: "your_api_key",
    ProjectID: "your_project_id",
-   # Uncomment this if you are hosting convoy on your own.
-   # APIEndpoint: "your_hosted_service",
+   // Uncomment this if you are hosting convoy on your own.
+   // APIEndpoint: "your_hosted_service",
 })
 ```
 
