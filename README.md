@@ -17,10 +17,12 @@ import (
     convoy "github.com/frain-dev/convoy-go"
 )
 
-  c := convoy.New(convoy.Options{
-      APIKey: "your_api_key",
-      ProjectID: "your_project_id"
-  })
+c := convoy.New(convoy.Options{
+   APIKey: "your_api_key",
+   ProjectID: "your_project_id",
+   # Uncomment this if you are hosting convoy on your own.
+   # APIEndpoint: "your_hosted_service",
+})
 ```
 
 
@@ -35,9 +37,9 @@ endpoint, err := c.Endpoints.Create(&convoy.CreateEndpointRequest{
     Description: "Some description",
 }, nil)
 
-  if err != nil {
-      log.Fatal("failed to create app endpoint \n", err)
-  }
+if err != nil {
+    log.Fatal("failed to create app endpoint \n", err)
+}
 ```
 
 ### Sending an Event
@@ -46,14 +48,14 @@ To send an event, you'll need the `uid` from the endpoint we created earlier.
 
 ```go
 event, err := c.Events.Create(&convoy.CreateEventRequest{
-		EndpointID:     endpoint.UID,
-		EventType: "test.customer.event",
-		Data:      []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
-	}, nil)
+	EndpointID:     endpoint.UID,
+	EventType: "test.customer.event",
+	Data:      []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
+}, nil)
 
-	if err != nil {
-		log.Fatal("failed to create app event \n", err)
-	}
+if err != nil {
+	log.Fatal("failed to create app event \n", err)
+}
 ```
 
 ## Contributing
