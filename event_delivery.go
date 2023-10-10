@@ -1,11 +1,10 @@
 package convoy_go
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -15,7 +14,7 @@ var (
 )
 
 type EventDelivery struct {
-	client *HttpClient
+	client *Client
 }
 
 type EventDeliveryResponse struct {
@@ -69,91 +68,65 @@ type EventDeliveryQueryParam struct {
 	Page       int
 }
 
-func newEventDelivery(client *HttpClient) *EventDelivery {
+func newEventDelivery(client *Client) *EventDelivery {
 	return &EventDelivery{
 		client: client,
 	}
 }
 
 func (e *EventDelivery) All(query *EventDeliveryQueryParam) (*ListEventDeliveryResponse, error) {
+	url, err := addOptions(e.generateUrl(), query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &ListEventDeliveryResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     "eventdeliveries",
-		respBody: respPtr,
-		query:    e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
-
+	err = getResource(context.Background(), url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*ListEventDeliveryResponse)
-	if !ok {
-		return nil, ErrNotListEventDeliveryResponse
 	}
 
 	return respPtr, nil
 }
 
-func (e *EventDelivery) Find(id string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
+func (e *EventDelivery) Find(eventDeliveryID string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+eventDeliveryID, query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &EventDeliveryResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     fmt.Sprintf("eventdeliveries/%s", id),
-		respBody: respPtr,
-		query:    e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
+	err = getResource(context.Background(), url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*EventDeliveryResponse)
-	if !ok {
-		return nil, ErrNotEventDeliveryResponse
 	}
 
 	return respPtr, nil
 }
 
-func (e *EventDelivery) Resend(id string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
+func (e *EventDelivery) Resend(eventDeliveryID string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+eventDeliveryID+"/resend", query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &EventDeliveryResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodPut,
-		path:     fmt.Sprintf("eventdeliveries/%s/resend", id),
-		respBody: respPtr,
-		query:    e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
+	err = putResource(context.Background(), url, nil, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*EventDeliveryResponse)
-	if !ok {
-		return nil, ErrNotEventDeliveryResponse
 	}
 
 	return respPtr, nil
 }
 
-func (e *EventDelivery) BatchResend(opts *BatchResendRequest, query *EventDeliveryQueryParam) error {
-	reqOpts := &requestOpts{
-		method:      http.MethodPut,
-		path:        "eventdeliveries/batchretry",
-		requestBody: opts,
-		query:       e.addQueryParams(query),
+func (e *EventDelivery) BatchResend(body *BatchResendRequest, query *EventDeliveryQueryParam) error {
+	url, err := addOptions(e.generateUrl()+"/batchretry", query)
+	if err != nil {
+		return err
 	}
 
-	_, err := e.client.SendRequest(reqOpts)
+	respPtr := &EventDeliveryResponse{}
+	err = putResource(context.Background(), url, nil, e.client.client, respPtr)
 	if err != nil {
 		return err
 	}
@@ -161,31 +134,6 @@ func (e *EventDelivery) BatchResend(opts *BatchResendRequest, query *EventDelive
 	return nil
 }
 
-func (e *EventDelivery) addQueryParams(query *EventDeliveryQueryParam) *QueryParameter {
-	qp := newQueryParameter()
-
-	if query != nil {
-
-		if !isStringEmpty(query.GroupID) {
-			qp.addParameter("groupId", query.GroupID)
-		}
-
-		if !isStringEmpty(query.EndpointID) {
-			qp.addParameter("endpointId", query.EndpointID)
-		}
-
-		if !isStringEmpty(query.EventID) {
-			qp.addParameter("eventId", query.EventID)
-		}
-
-		if query.Page != 0 {
-			qp.addParameter("page", strconv.Itoa(query.Page))
-		}
-
-		if query.PerPage != 0 {
-			qp.addParameter("perPage", strconv.Itoa(query.PerPage))
-		}
-	}
-
-	return qp
+func (e *EventDelivery) generateUrl() string {
+	return fmt.Sprintf("%s/projects/%s/eventdeliveries", e.client.baseURL, e.client.projectID)
 }

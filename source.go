@@ -1,10 +1,9 @@
 package convoy_go
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -14,7 +13,7 @@ var (
 )
 
 type Source struct {
-	client *HttpClient
+	client *Client
 }
 
 type CreateSourceRequest struct {
@@ -84,111 +83,79 @@ type ApiKey struct {
 	HeaderName  string `json:"header_name"`
 }
 
-func newSource(client *HttpClient) *Source {
+func newSource(client *Client) *Source {
 	return &Source{
 		client: client,
 	}
 }
 
 func (s *Source) All(query *SourceQueryParam) (*ListSourceResponse, error) {
+	url, err := addOptions(s.generateUrl(), query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &ListSourceResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     "sources",
-		respBody: respPtr,
-		query:    s.addQueryParams(query),
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
-
+	err = getResource(context.Background(), url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*ListSourceResponse)
-	if !ok {
-		return nil, ErrNotListSourceResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Source) Create(opts *CreateSourceRequest) (*SourceResponse, error) {
+func (s *Source) Create(body *CreateSourceRequest) (*SourceResponse, error) {
+	url, err := addOptions(s.generateUrl(), nil)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &SourceResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPost,
-		path:        "sources",
-		requestBody: opts,
-		respBody:    respPtr,
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
+	err = postJSON(context.Background(), url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*SourceResponse)
-	if !ok {
-		return nil, ErrNotSourceResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Source) Find(id string) (*SourceResponse, error) {
+func (s *Source) Find(sourceId string) (*SourceResponse, error) {
+	url, err := addOptions(s.generateUrl()+"/"+sourceId, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &SourceResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     fmt.Sprintf("sources/%s", id),
-		respBody: respPtr,
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
+	err = getResource(context.Background(), url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*SourceResponse)
-	if !ok {
-		return nil, ErrNotSourceResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Source) Update(id string, opts *CreateSourceRequest) (*SourceResponse, error) {
+func (s *Source) Update(sourceId string, body *CreateSourceRequest) (*SourceResponse, error) {
+	url, err := addOptions(s.generateUrl()+"/"+sourceId, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &SourceResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPut,
-		path:        fmt.Sprintf("sources/%s", id),
-		requestBody: opts,
-		respBody:    respPtr,
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
+	err = postJSON(context.Background(), url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*SourceResponse)
-	if !ok {
-		return nil, ErrNotSourceResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Source) Delete(id string) error {
-	reqOpts := &requestOpts{
-		method: http.MethodDelete,
-		path:   fmt.Sprintf("sources/%s", id),
+func (s *Source) Delete(sourceId string) error {
+	url, err := addOptions(s.generateUrl()+"/"+sourceId, nil)
+	if err != nil {
+		return err
 	}
 
-	_, err := s.client.SendRequest(reqOpts)
+	err = deleteResource(context.Background(), url, s.client.client, nil)
 	if err != nil {
 		return err
 	}
@@ -196,24 +163,6 @@ func (s *Source) Delete(id string) error {
 	return nil
 }
 
-func (s *Source) addQueryParams(query *SourceQueryParam) *QueryParameter {
-	qp := newQueryParameter()
-
-	if query != nil {
-
-		if !isStringEmpty(query.GroupID) {
-			qp.addParameter("groupId", query.GroupID)
-		}
-
-		if query.Page != 0 {
-			qp.addParameter("page", strconv.Itoa(query.Page))
-		}
-
-		if query.PerPage != 0 {
-			qp.addParameter("perPage", strconv.Itoa(query.PerPage))
-		}
-
-	}
-
-	return qp
+func (s *Source) generateUrl() string {
+	return fmt.Sprintf("%s/projects/%s/sources", s.client.baseURL, s.client.projectID)
 }

@@ -1,9 +1,9 @@
 package convoy_go
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 )
 
@@ -13,7 +13,7 @@ var (
 )
 
 type Endpoint struct {
-	client *HttpClient
+	client *Client
 }
 
 type CreateEndpointRequest struct {
@@ -86,123 +86,83 @@ type ListEndpointResponse struct {
 }
 
 type EndpointQueryParam struct {
-	GroupID string
-	OwnerID string
+	GroupID string `url:"groupId"`
+	OwnerID string `url:"ownerId"`
 }
 
-func newEndpoint(client *HttpClient) *Endpoint {
+func newEndpoint(client *Client) *Endpoint {
 	return &Endpoint{
 		client: client,
 	}
 }
 
 func (e *Endpoint) All(query *EndpointQueryParam) (*ListEndpointResponse, error) {
-	respPtr := &ListEndpointResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     "endpoints",
-		query:    e.addQueryParams(query),
-		respBody: respPtr,
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
-
+	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
-	respPtr, ok := i.(*ListEndpointResponse)
-	if !ok {
-		return nil, ErrNotListEndpointResponse
+	respPtr := &ListEndpointResponse{}
+	err = getResource(context.Background(), url, e.client.client, respPtr)
+	if err != nil {
+		return nil, err
 	}
 
 	return respPtr, nil
 }
 
-func (e *Endpoint) Create(opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
-	respPtr := &EndpointResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPost,
-		path:        "endpoints",
-		requestBody: opts,
-		respBody:    respPtr,
-		query:       e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
-
+func (e *Endpoint) Create(body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
-	respPtr, ok := i.(*EndpointResponse)
-	if !ok {
-		return nil, ErrNotEndpointResponse
+	respPtr := &EndpointResponse{}
+	err = postJSON(context.Background(), url, body, e.client.client, respPtr)
+	if err != nil {
+		return nil, err
 	}
 
 	return respPtr, nil
 }
 
 func (e *Endpoint) Find(endpointId string, query *EndpointQueryParam) (*EndpointResponse, error) {
-	respPtr := &EndpointResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     fmt.Sprintf("endpoints/%s", endpointId),
-		respBody: respPtr,
-		query:    e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
-
+	url, err := addOptions(e.generateUrl()+"/"+endpointId, query)
 	if err != nil {
 		return nil, err
 	}
 
-	respPtr, ok := i.(*EndpointResponse)
-	if !ok {
-		return nil, ErrNotEndpointResponse
+	respPtr := &EndpointResponse{}
+	err = getResource(context.Background(), url, e.client.client, respPtr)
+	if err != nil {
+		return nil, err
 	}
 
 	return respPtr, nil
-
 }
 
-func (e *Endpoint) Update(endpointId string, opts *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
-	respPtr := &EndpointResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPut,
-		path:        fmt.Sprintf("endpoints/%s", endpointId),
-		requestBody: opts,
-		respBody:    respPtr,
-		query:       e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
-
+func (e *Endpoint) Update(endpointId string, body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+endpointId, query)
 	if err != nil {
 		return nil, err
 	}
 
-	respPtr, ok := i.(*EndpointResponse)
-	if !ok {
-		return nil, ErrNotEndpointResponse
+	respPtr := &EndpointResponse{}
+	err = postJSON(context.Background(), url, body, e.client.client, respPtr)
+	if err != nil {
+		return nil, err
 	}
 
 	return respPtr, nil
 }
 
 func (e *Endpoint) Delete(endpointId string, query *EndpointQueryParam) error {
-	reqOpts := &requestOpts{
-		method: http.MethodDelete,
-		path:   fmt.Sprintf("endpoints/%s", endpointId),
-		query:  e.addQueryParams(query),
+	url, err := addOptions(e.generateUrl()+"/"+endpointId, query)
+	if err != nil {
+		return err
 	}
 
-	_, err := e.client.SendRequest(reqOpts)
+	err = deleteResource(context.Background(), url, e.client.client, nil)
 	if err != nil {
 		return err
 	}
@@ -210,20 +170,6 @@ func (e *Endpoint) Delete(endpointId string, query *EndpointQueryParam) error {
 	return nil
 }
 
-func (e *Endpoint) addQueryParams(query *EndpointQueryParam) *QueryParameter {
-	qp := newQueryParameter()
-
-	if query != nil {
-
-		if !isStringEmpty(query.GroupID) {
-			qp.addParameter("groupId", query.GroupID)
-		}
-
-		if !isStringEmpty(query.OwnerID) {
-			qp.addParameter("ownerId", query.OwnerID)
-		}
-	}
-
-	return qp
-
+func (e *Endpoint) generateUrl() string {
+	return fmt.Sprintf("%s/projects/%s/endpoints", e.client.baseURL, e.client.projectID)
 }

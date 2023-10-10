@@ -1,8 +1,9 @@
 package convoy_go
 
 import (
+	"context"
 	"errors"
-	"net/http"
+	"fmt"
 	"time"
 )
 
@@ -12,7 +13,7 @@ var (
 )
 
 type Project struct {
-	client *HttpClient
+	client *Client
 }
 
 type CreateProjectRequest struct {
@@ -79,64 +80,56 @@ type ProjectMetadata struct {
 
 type ListProjectResponse []ProjectResponse
 
-func newProject(client *HttpClient) *Project {
+func newProject(client *Client) *Project {
 	return &Project{
 		client: client,
 	}
 }
 
-func (g *Project) Find(id string) (*ProjectResponse, error) {
-	respPtr := &ProjectResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		respBody: respPtr,
-	}
-
-	i, err := g.client.SendRequest(reqOpts)
+func (p *Project) Find(projectID string) (*ProjectResponse, error) {
+	url, err := addOptions(p.generateUrl()+"/"+projectID, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	respPtr, ok := i.(*ProjectResponse)
-	if !ok {
-		return nil, ErrNotProjectResponse
+	respPtr := &ProjectResponse{}
+	err = getResource(context.Background(), url, p.client.client, respPtr)
+	if err != nil {
+		return nil, err
 	}
 
 	return respPtr, nil
 }
 
-func (g *Project) Update(id string, opts *CreateProjectRequest) (*ProjectResponse, error) {
-	respPtr := &ProjectResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPut,
-		requestBody: opts,
-		respBody:    respPtr,
-	}
-
-	i, err := g.client.SendRequest(reqOpts)
+func (p *Project) Update(projectID string, body *CreateProjectRequest) (*ProjectResponse, error) {
+	url, err := addOptions(p.generateUrl()+"/"+projectID, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	respPtr, ok := i.(*ProjectResponse)
-	if !ok {
-		return nil, ErrNotProjectResponse
+	respPtr := &ProjectResponse{}
+	err = postJSON(context.Background(), url, body, p.client.client, respPtr)
+	if err != nil {
+		return nil, err
 	}
 
 	return respPtr, nil
 }
 
-func (g *Project) Delete(id string) error {
-	reqOpts := &requestOpts{
-		method: http.MethodDelete,
+func (p *Project) Delete(projectID string) error {
+	url, err := addOptions(p.generateUrl()+"/"+projectID, nil)
+	if err != nil {
+		return err
 	}
 
-	_, err := g.client.SendRequest(reqOpts)
+	err = deleteResource(context.Background(), url, p.client.client, nil)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (p *Project) generateUrl() string {
+	return fmt.Sprintf("%s/projects", p.client.baseURL)
 }

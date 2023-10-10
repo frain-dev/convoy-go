@@ -2,23 +2,17 @@ package convoy_go
 
 import (
 	"encoding/json"
-	"log"
+	"net/http"
+	"net/url"
+	"reflect"
+
+	"github.com/google/go-querystring/query"
 )
 
 type APIResponse struct {
 	Status  bool             `json:"status"`
 	Message string           `json:"message"`
 	Data    *json.RawMessage `json:"data,omitempty"`
-}
-type Convoy struct {
-	options          Options
-	Projects         *Project
-	Endpoints        *Endpoint
-	Events           *Event
-	EventDeliveries  *EventDelivery
-	DeliveryAttempts *DeliveryAttempt
-	Sources          *Source
-	Subscriptions    *Subscription
 }
 
 type Pagination struct {
@@ -30,45 +24,68 @@ type Pagination struct {
 	TotalPage int `json:"totalPage"`
 }
 
+type Client struct {
+	client    *http.Client
+	baseURL   string
+	apiKey    string
+	projectID string
+
+	Projects         *Project
+	Endpoints        *Endpoint
+	Events           *Event
+	EventDeliveries  *EventDelivery
+	DeliveryAttempts *DeliveryAttempt
+	Sources          *Source
+	Subscriptions    *Subscription
+	Kafka            *Kafka
+}
+
 type Options struct {
 	APIKey      string
 	APIEndpoint string
 	ProjectID   string
 }
 
-func New(opts Options) *Convoy {
-	if isStringEmpty(opts.APIKey) {
-		log.Fatal("API Key is required")
+type Option func(*Client)
+
+func New(baseURL string, options ...Option) *Client {
+	c := &Client{
+		baseURL: baseURL,
 	}
 
-	if isStringEmpty(opts.ProjectID) {
-		log.Fatal("Project ID is required")
+	for _, opt := range options {
+		opt(c)
 	}
 
-	c := NewClient(opts)
+	c.Projects = newProject(c)
+	c.Endpoints = newEndpoint(c)
+	c.Events = newEvent(c)
+	c.EventDeliveries = newEventDelivery(c)
+	c.DeliveryAttempts = newDeliveryAttempt(c)
+	c.Sources = newSource(c)
+	c.Subscriptions = newSubscription(c)
 
-	return &Convoy{
-		options:          opts,
-		Projects:         newProject(c),
-		Endpoints:        newEndpoint(c),
-		Events:           newEvent(c),
-		EventDeliveries:  newEventDelivery(c),
-		DeliveryAttempts: newDeliveryAttempt(c),
-		Sources:          newSource(c),
-		Subscriptions:    newSubscription(c),
-	}
+	return c
 }
 
-type QueryParameter struct {
-	Parameters map[string]string
-}
-
-func newQueryParameter() *QueryParameter {
-	return &QueryParameter{
-		Parameters: make(map[string]string, 0),
+// addOptions adds the parameters in opts as URL query parameters to s. opts
+// must be a struct whose fields may contain "url" tags.
+func addOptions(s string, opts interface{}) (string, error) {
+	v := reflect.ValueOf(opts)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return s, nil
 	}
-}
 
-func (q *QueryParameter) addParameter(name, value string) {
-	q.Parameters[name] = value
+	u, err := url.Parse(s)
+	if err != nil {
+		return s, err
+	}
+
+	qs, err := query.Values(opts)
+	if err != nil {
+		return s, err
+	}
+
+	u.RawQuery = qs.Encode()
+	return u.String(), nil
 }
