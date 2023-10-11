@@ -1,9 +1,9 @@
 package convoy_go
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 )
 
@@ -13,7 +13,7 @@ var (
 )
 
 type DeliveryAttempt struct {
-	client *HttpClient
+	client *Client
 }
 
 type DeliveryAttemptResponse struct {
@@ -40,73 +40,47 @@ type DeliveryAttemptResponse struct {
 type ListDeliveryAttemptResponse []DeliveryAttemptResponse
 
 type DeliveryAttemptQueryParam struct {
-	GroupID string
+	GroupID string `url:"groupId"`
 }
 
-func newDeliveryAttempt(client *HttpClient) *DeliveryAttempt {
+func newDeliveryAttempt(client *Client) *DeliveryAttempt {
 	return &DeliveryAttempt{
 		client: client,
 	}
 }
 
-func (d *DeliveryAttempt) All(eventDeliveryId string, query *DeliveryAttemptQueryParam) (*ListDeliveryAttemptResponse, error) {
+func (d *DeliveryAttempt) All(eventDeliveryID string, query *DeliveryAttemptQueryParam) (*ListDeliveryAttemptResponse, error) {
+	dURL := fmt.Sprintf("/%s/deliveryattempts", eventDeliveryID)
+	url, err := addOptions(d.generateUrl()+dURL, query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &ListDeliveryAttemptResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     fmt.Sprintf("eventdeliveries/%s/deliveryattempts", eventDeliveryId),
-		respBody: respPtr,
-		query:    d.addQueryParams(query),
-	}
-
-	i, err := d.client.SendRequest(reqOpts)
-
+	err = getResource(context.Background(), d.client.apiKey, url, d.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*ListDeliveryAttemptResponse)
-	if !ok {
-		return nil, ErrNotListDeliveryAttemptResponse
 	}
 
 	return respPtr, nil
 }
 
-func (d *DeliveryAttempt) Find(eventDeliveryId, deliveryAttemptId string, query *DeliveryAttemptQueryParam) (*DeliveryAttemptResponse, error) {
+func (d *DeliveryAttempt) Find(eventDeliveryID, deliveryAttemptID string, query *DeliveryAttemptQueryParam) (*DeliveryAttemptResponse, error) {
+	dURL := fmt.Sprintf("/%s/deliveryattempts/%s", eventDeliveryID, deliveryAttemptID)
+	url, err := addOptions(d.generateUrl()+dURL, query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &DeliveryAttemptResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     fmt.Sprintf("eventdeliveries/%s/deliveryattempts/%s", eventDeliveryId, deliveryAttemptId),
-		respBody: respPtr,
-		query:    d.addQueryParams(query),
-	}
-
-	i, err := d.client.SendRequest(reqOpts)
-
+	err = getResource(context.Background(), d.client.apiKey, url, d.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*DeliveryAttemptResponse)
-	if !ok {
-		return nil, ErrNotDeliveryAttemptResponse
 	}
 
 	return respPtr, nil
 }
 
-func (d *DeliveryAttempt) addQueryParams(query *DeliveryAttemptQueryParam) *QueryParameter {
-	qp := newQueryParameter()
-
-	if query != nil {
-
-		if !isStringEmpty(query.GroupID) {
-			qp.addParameter("groupId", query.GroupID)
-		}
-
-	}
-
-	return qp
+func (d *DeliveryAttempt) generateUrl() string {
+	return fmt.Sprintf("%s/projects/%s/eventdeliveries", d.client.baseURL, d.client.projectID)
 }

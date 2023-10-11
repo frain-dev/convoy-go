@@ -1,10 +1,9 @@
 package convoy_go
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -14,7 +13,7 @@ var (
 )
 
 type Subscription struct {
-	client *HttpClient
+	client *Client
 }
 
 type CreateSubscriptionRequest struct {
@@ -61,10 +60,10 @@ type SubscriptionResponse struct {
 }
 
 type SubscriptionQueryParam struct {
-	GroupID    string
-	EndpointID string
-	PerPage    int
-	Page       int
+	GroupID    string `url:"groupId"`
+	EndpointID string `url:"endpointId"`
+	PerPage    int    `url:"per_page"`
+	Page       int    `url:"page"`
 }
 
 type ListSubscriptionResponse struct {
@@ -72,111 +71,79 @@ type ListSubscriptionResponse struct {
 	Pagination Pagination             `json:"pagination"`
 }
 
-func newSubscription(client *HttpClient) *Subscription {
+func newSubscription(client *Client) *Subscription {
 	return &Subscription{
 		client: client,
 	}
 }
 
 func (s *Subscription) All(query *SubscriptionQueryParam) (*ListSubscriptionResponse, error) {
+	url, err := addOptions(s.generateUrl(), query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &ListSubscriptionResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     "subscriptions",
-		respBody: respPtr,
-		query:    s.addQueryParams(query),
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
-
+	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*ListSubscriptionResponse)
-	if !ok {
-		return nil, ErrNotListSubscriptionResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Subscription) Create(opts *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
+func (s *Subscription) Create(body *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
+	url, err := addOptions(s.generateUrl(), nil)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &SubscriptionResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPost,
-		path:        "subscriptions",
-		requestBody: opts,
-		respBody:    respPtr,
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
+	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*SubscriptionResponse)
-	if !ok {
-		return nil, ErrNotSubscriptionResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Subscription) Find(id string) (*SubscriptionResponse, error) {
+func (s *Subscription) Find(subscriptionId string) (*SubscriptionResponse, error) {
+	url, err := addOptions(s.generateUrl()+"/"+subscriptionId, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &SubscriptionResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     fmt.Sprintf("subscriptions/%s", id),
-		respBody: respPtr,
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
+	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*SubscriptionResponse)
-	if !ok {
-		return nil, ErrNotSubscriptionResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Subscription) Update(id string, opts *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
+func (s *Subscription) Update(subscriptionId string, body *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
+	url, err := addOptions(s.generateUrl()+"/"+subscriptionId, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &SubscriptionResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPut,
-		path:        fmt.Sprintf("subscriptions/%s", id),
-		requestBody: opts,
-		respBody:    respPtr,
-	}
-
-	i, err := s.client.SendRequest(reqOpts)
+	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*SubscriptionResponse)
-	if !ok {
-		return nil, ErrNotSubscriptionResponse
 	}
 
 	return respPtr, nil
 }
 
-func (s *Subscription) Delete(id string) error {
-	reqOpts := &requestOpts{
-		method: http.MethodDelete,
-		path:   fmt.Sprintf("subscriptions/%s", id),
+func (s *Subscription) Delete(subscriptionId string) error {
+	url, err := addOptions(s.generateUrl()+"/"+subscriptionId, nil)
+	if err != nil {
+		return err
 	}
 
-	_, err := s.client.SendRequest(reqOpts)
+	err = deleteResource(context.Background(), s.client.apiKey, url, s.client.client, nil)
 	if err != nil {
 		return err
 	}
@@ -184,28 +151,6 @@ func (s *Subscription) Delete(id string) error {
 	return nil
 }
 
-func (s *Subscription) addQueryParams(query *SubscriptionQueryParam) *QueryParameter {
-	qp := newQueryParameter()
-
-	if query != nil {
-
-		if !isStringEmpty(query.GroupID) {
-			qp.addParameter("groupId", query.GroupID)
-		}
-
-		if !isStringEmpty(query.EndpointID) {
-			qp.addParameter("endpointId", query.EndpointID)
-		}
-
-		if query.Page != 0 {
-			qp.addParameter("page", strconv.Itoa(query.Page))
-		}
-
-		if query.PerPage != 0 {
-			qp.addParameter("perPage", strconv.Itoa(query.PerPage))
-		}
-
-	}
-
-	return qp
+func (s *Subscription) generateUrl() string {
+	return fmt.Sprintf("%s/projects/%s/subscriptions", s.client.baseURL, s.client.projectID)
 }

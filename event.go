@@ -1,11 +1,10 @@
 package convoy_go
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -15,7 +14,7 @@ var (
 )
 
 type Event struct {
-	client *HttpClient
+	client *Client
 }
 
 type CreateEventRequest struct {
@@ -50,133 +49,78 @@ type ListEventResponse struct {
 }
 
 type EventQueryParam struct {
-	GroupID    string
-	EndpointID string
-	PerPage    int
-	Page       int
+	GroupID    string `url:"groupId"`
+	EndpointID string `url:"endpointId"`
+	PerPage    int    `url:"per_page"`
+	Page       int    `url:"page"`
 }
 
-func newEvent(client *HttpClient) *Event {
+func newEvent(client *Client) *Event {
 	return &Event{
 		client: client,
 	}
 }
 
 func (e *Event) All(query *EventQueryParam) (*ListEventResponse, error) {
+	url, err := addOptions(e.generateUrl(), query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &ListEventResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     "events",
-		respBody: respPtr,
-		query:    e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*ListEventResponse)
-	if !ok {
-		return nil, ErrNotListEventResponse
 	}
 
 	return respPtr, nil
 }
 
-func (e *Event) Create(opts *CreateEventRequest, query *EventQueryParam) (*EventResponse, error) {
+func (e *Event) Create(body *CreateEventRequest, query *EventQueryParam) (*EventResponse, error) {
+	url, err := addOptions(e.generateUrl(), query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &EventResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPost,
-		path:        "events",
-		requestBody: opts,
-		respBody:    respPtr,
-		query:       e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
+	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*EventResponse)
-	if !ok {
-		return nil, ErrNotEventResponse
 	}
 
 	return respPtr, nil
 }
 
-func (e *Event) CreateFanoutEvent(opts *CreateFanoutEventRequest) (*EventResponse, error) {
+func (e *Event) CreateFanoutEvent(body *CreateFanoutEventRequest) (*EventResponse, error) {
+	url, err := addOptions(e.generateUrl(), nil)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &EventResponse{}
-
-	reqOpts := &requestOpts{
-		method:      http.MethodPost,
-		path:        "events/fanout",
-		requestBody: opts,
-		respBody:    respPtr,
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
+	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*EventResponse)
-	if !ok {
-		return nil, ErrNotEventResponse
 	}
 
 	return respPtr, nil
 }
 
-func (e *Event) Find(id string, query *EventQueryParam) (*EventResponse, error) {
+func (e *Event) Find(eventID string, query *EventQueryParam) (*EventResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+eventID, query)
+	if err != nil {
+		return nil, err
+	}
+
 	respPtr := &EventResponse{}
-
-	reqOpts := &requestOpts{
-		method:   http.MethodGet,
-		path:     fmt.Sprintf("events/%s", id),
-		respBody: respPtr,
-		query:    e.addQueryParams(query),
-	}
-
-	i, err := e.client.SendRequest(reqOpts)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
-	}
-
-	respPtr, ok := i.(*EventResponse)
-	if !ok {
-		return nil, ErrNotEventResponse
 	}
 
 	return respPtr, nil
 }
 
-func (e *Event) addQueryParams(query *EventQueryParam) *QueryParameter {
-	qp := newQueryParameter()
-
-	if query != nil {
-
-		if !isStringEmpty(query.GroupID) {
-			qp.addParameter("groupId", query.GroupID)
-		}
-
-		if !isStringEmpty(query.EndpointID) {
-			qp.addParameter("endpointId", query.EndpointID)
-		}
-
-		if query.Page != 0 {
-			qp.addParameter("page", strconv.Itoa(query.Page))
-		}
-
-		if query.PerPage != 0 {
-			qp.addParameter("perPage", strconv.Itoa(query.PerPage))
-		}
-
-	}
-
-	return qp
+func (e *Event) generateUrl() string {
+	return fmt.Sprintf("%s/projects/%s/events", e.client.baseURL, e.client.projectID)
 }
