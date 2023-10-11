@@ -81,7 +81,7 @@ func (e *EventDelivery) All(query *EventDeliveryQueryParam) (*ListEventDeliveryR
 	}
 
 	respPtr := &ListEventDeliveryResponse{}
-	err = getResource(context.Background(), url, e.client.client, respPtr)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (e *EventDelivery) Find(eventDeliveryID string, query *EventDeliveryQueryPa
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = getResource(context.Background(), url, e.client.client, respPtr)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (e *EventDelivery) Resend(eventDeliveryID string, query *EventDeliveryQuery
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = putResource(context.Background(), url, nil, e.client.client, respPtr)
+	err = putResource(context.Background(), e.client.apiKey, url, nil, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (e *EventDelivery) BatchResend(body *BatchResendRequest, query *EventDelive
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = putResource(context.Background(), url, nil, e.client.client, respPtr)
+	err = putResource(context.Background(), e.client.apiKey, url, nil, e.client.client, respPtr)
 	if err != nil {
 		return err
 	}

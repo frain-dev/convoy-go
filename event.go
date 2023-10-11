@@ -68,7 +68,7 @@ func (e *Event) All(query *EventQueryParam) (*ListEventResponse, error) {
 	}
 
 	respPtr := &ListEventResponse{}
-	err = getResource(context.Background(), url, e.client.client, respPtr)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (e *Event) Create(body *CreateEventRequest, query *EventQueryParam) (*Event
 	}
 
 	respPtr := &EventResponse{}
-	err = postJSON(context.Background(), url, body, e.client.client, respPtr)
+	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (e *Event) CreateFanoutEvent(body *CreateFanoutEventRequest) (*EventRespons
 	}
 
 	respPtr := &EventResponse{}
-	err = postJSON(context.Background(), url, body, e.client.client, respPtr)
+	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (e *Event) Find(eventID string, query *EventQueryParam) (*EventResponse, er
 	}
 
 	respPtr := &EventResponse{}
-	err = getResource(context.Background(), url, e.client.client, respPtr)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}

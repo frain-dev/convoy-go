@@ -37,20 +37,16 @@ type Client struct {
 	DeliveryAttempts *DeliveryAttempt
 	Sources          *Source
 	Subscriptions    *Subscription
-	Kafka            *Kafka
-}
-
-type Options struct {
-	APIKey      string
-	APIEndpoint string
-	ProjectID   string
 }
 
 type Option func(*Client)
 
-func New(baseURL string, options ...Option) *Client {
+func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c := &Client{
-		baseURL: baseURL,
+		client:    &http.Client{},
+		apiKey:    apiKey,
+		projectID: projectID,
+		baseURL:   baseURL,
 	}
 
 	for _, opt := range options {

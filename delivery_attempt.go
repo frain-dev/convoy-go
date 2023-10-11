@@ -57,7 +57,7 @@ func (d *DeliveryAttempt) All(eventDeliveryID string, query *DeliveryAttemptQuer
 	}
 
 	respPtr := &ListDeliveryAttemptResponse{}
-	err = getResource(context.Background(), url, d.client.client, respPtr)
+	err = getResource(context.Background(), d.client.apiKey, url, d.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (d *DeliveryAttempt) Find(eventDeliveryID, deliveryAttemptID string, query 
 	}
 
 	respPtr := &DeliveryAttemptResponse{}
-	err = getResource(context.Background(), url, d.client.client, respPtr)
+	err = getResource(context.Background(), d.client.apiKey, url, d.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}

@@ -14,7 +14,7 @@ const (
 	DEFAULT_BASE_URL = "https://dashboard.getconvoy.io/api/v1"
 )
 
-func postJSON(ctx context.Context, url string, body interface{}, c *http.Client, res interface{}) error {
+func postJSON(ctx context.Context, apikey, url string, body interface{}, c *http.Client, res interface{}) error {
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -27,6 +27,7 @@ func postJSON(ctx context.Context, url string, body interface{}, c *http.Client,
 	}
 
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
 	resp, err := c.Do(req)
 
 	if err != nil {
@@ -41,7 +42,7 @@ func postJSON(ctx context.Context, url string, body interface{}, c *http.Client,
 	return nil
 }
 
-func putResource(ctx context.Context, url string, body interface{}, c *http.Client, res interface{}) error {
+func putResource(ctx context.Context, apikey, url string, body interface{}, c *http.Client, res interface{}) error {
 	if body == nil {
 		body = `{}`
 	}
@@ -58,6 +59,7 @@ func putResource(ctx context.Context, url string, body interface{}, c *http.Clie
 	}
 
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
 	resp, err := c.Do(req)
 
 	if err != nil {
@@ -72,13 +74,14 @@ func putResource(ctx context.Context, url string, body interface{}, c *http.Clie
 	return nil
 }
 
-func getResource(ctx context.Context, url string, c *http.Client, res interface{}) error {
+func getResource(ctx context.Context, apikey, url string, c *http.Client, res interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}
 
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
 	resp, err := c.Do(req)
 
 	if err != nil {
@@ -93,13 +96,14 @@ func getResource(ctx context.Context, url string, c *http.Client, res interface{
 	return nil
 }
 
-func deleteResource(ctx context.Context, url string, c *http.Client, res interface{}) error {
+func deleteResource(ctx context.Context, apikey, url string, c *http.Client, res interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, url, nil)
 	if err != nil {
 		return err
 	}
 
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
 	resp, err := c.Do(req)
 
 	if err != nil {

@@ -103,7 +103,7 @@ func (e *Endpoint) All(query *EndpointQueryParam) (*ListEndpointResponse, error)
 	}
 
 	respPtr := &ListEndpointResponse{}
-	err = getResource(context.Background(), url, e.client.client, respPtr)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (e *Endpoint) Create(body *CreateEndpointRequest, query *EndpointQueryParam
 	}
 
 	respPtr := &EndpointResponse{}
-	err = postJSON(context.Background(), url, body, e.client.client, respPtr)
+	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (e *Endpoint) Find(endpointId string, query *EndpointQueryParam) (*Endpoint
 	}
 
 	respPtr := &EndpointResponse{}
-	err = getResource(context.Background(), url, e.client.client, respPtr)
+	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (e *Endpoint) Update(endpointId string, body *CreateEndpointRequest, query 
 	}
 
 	respPtr := &EndpointResponse{}
-	err = postJSON(context.Background(), url, body, e.client.client, respPtr)
+	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (e *Endpoint) Delete(endpointId string, query *EndpointQueryParam) error {
 		return err
 	}
 
-	err = deleteResource(context.Background(), url, e.client.client, nil)
+	err = deleteResource(context.Background(), e.client.apiKey, url, e.client.client, nil)
 	if err != nil {
 		return err
 	}

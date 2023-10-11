@@ -84,7 +84,7 @@ func (s *Subscription) All(query *SubscriptionQueryParam) (*ListSubscriptionResp
 	}
 
 	respPtr := &ListSubscriptionResponse{}
-	err = getResource(context.Background(), url, s.client.client, respPtr)
+	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (s *Subscription) Create(body *CreateSubscriptionRequest) (*SubscriptionRes
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = postJSON(context.Background(), url, body, s.client.client, respPtr)
+	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (s *Subscription) Find(subscriptionId string) (*SubscriptionResponse, error
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = getResource(context.Background(), url, s.client.client, respPtr)
+	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (s *Subscription) Update(subscriptionId string, body *CreateSubscriptionReq
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = postJSON(context.Background(), url, body, s.client.client, respPtr)
+	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func (s *Subscription) Delete(subscriptionId string) error {
 		return err
 	}
 
-	err = deleteResource(context.Background(), url, s.client.client, nil)
+	err = deleteResource(context.Background(), s.client.apiKey, url, s.client.client, nil)
 	if err != nil {
 		return err
 	}
