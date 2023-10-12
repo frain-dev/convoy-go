@@ -16,12 +16,11 @@ type APIResponse struct {
 }
 
 type Pagination struct {
-	Total     int `json:"total"`
-	Page      int `json:"page"`
-	PerPage   int `json:"perPage"`
-	Prev      int `json:"prev"`
-	Next      int `json:"next"`
-	TotalPage int `json:"totalPage"`
+	PerPage        int    `json:"per_page"`
+	HasNextPage    bool   `json:"has_next_page"`
+	HasPrevPage    bool   `json:"has_prev_page"`
+	PrevPageCursor string `json:"prev_page_cursor"`
+	NextPageCursor string `json:"next_page_cursor"`
 }
 
 type Client struct {
@@ -40,6 +39,12 @@ type Client struct {
 }
 
 type Option func(*Client)
+
+func OptionHTTPClient(client *http.Client) func(c *Client) {
+	return func(c *Client) {
+		c.client = client
+	}
+}
 
 func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c := &Client{

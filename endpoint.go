@@ -74,10 +74,7 @@ type Secret struct {
 	UID   string `json:"uid" bson:"uid"`
 	Value string `json:"value" bson:"value"`
 
-	ExpiresAt time.Time  `json:"expires_at,omitempty"`
-	CreatedAt time.Time  `json:"created_at,omitempty"`
-	UpdatedAt time.Time  `json:"updated_at,omitempty"`
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	ExpiresAt time.Time `json:"expires_at,omitempty"`
 }
 
 type ListEndpointResponse struct {
@@ -90,20 +87,25 @@ type EndpointQueryParam struct {
 	OwnerID string `url:"ownerId"`
 }
 
+type RollSecretRequest struct {
+	Expiration int    `json:"expiration"`
+	Secret     string `json:"secret"`
+}
+
 func newEndpoint(client *Client) *Endpoint {
 	return &Endpoint{
 		client: client,
 	}
 }
 
-func (e *Endpoint) All(query *EndpointQueryParam) (*ListEndpointResponse, error) {
+func (e *Endpoint) All(ctx context.Context, query *EndpointQueryParam) (*ListEndpointResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &ListEndpointResponse{}
-	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -111,14 +113,14 @@ func (e *Endpoint) All(query *EndpointQueryParam) (*ListEndpointResponse, error)
 	return respPtr, nil
 }
 
-func (e *Endpoint) Create(body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+func (e *Endpoint) Create(ctx context.Context, body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EndpointResponse{}
-	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -126,14 +128,14 @@ func (e *Endpoint) Create(body *CreateEndpointRequest, query *EndpointQueryParam
 	return respPtr, nil
 }
 
-func (e *Endpoint) Find(endpointId string, query *EndpointQueryParam) (*EndpointResponse, error) {
-	url, err := addOptions(e.generateUrl()+"/"+endpointId, query)
+func (e *Endpoint) Find(ctx context.Context, endpointID string, query *EndpointQueryParam) (*EndpointResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+endpointID, query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EndpointResponse{}
-	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -141,14 +143,14 @@ func (e *Endpoint) Find(endpointId string, query *EndpointQueryParam) (*Endpoint
 	return respPtr, nil
 }
 
-func (e *Endpoint) Update(endpointId string, body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
-	url, err := addOptions(e.generateUrl()+"/"+endpointId, query)
+func (e *Endpoint) Update(ctx context.Context, endpointID string, body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+endpointID, query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EndpointResponse{}
-	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -156,17 +158,46 @@ func (e *Endpoint) Update(endpointId string, body *CreateEndpointRequest, query 
 	return respPtr, nil
 }
 
-func (e *Endpoint) Delete(endpointId string, query *EndpointQueryParam) error {
-	url, err := addOptions(e.generateUrl()+"/"+endpointId, query)
+func (e *Endpoint) Delete(ctx context.Context, endpointID string, query *EndpointQueryParam) error {
+	url, err := addOptions(e.generateUrl()+"/"+endpointID, query)
 	if err != nil {
 		return err
 	}
 
-	err = deleteResource(context.Background(), e.client.apiKey, url, e.client.client, nil)
+	err = deleteResource(ctx, e.client.apiKey, url, e.client.client, nil)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (e *Endpoint) Pause(ctx context.Context, Id string) (*EndpointResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+Id+"/pause", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	respPtr := &EndpointResponse{}
+	err = putResource(ctx, e.client.apiKey, url, nil, e.client.client, respPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	return respPtr, nil
+}
+
+func (e Endpoint) RollSecret(ctx context.Context, Id string, body *RollSecretRequest) error {
+	url, err := addOptions(e.generateUrl()+"/"+Id+"/expire_secret", nil)
+	if err != nil {
+		return err
+	}
+
+	respPtr := &EndpointResponse{}
+	err = putResource(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

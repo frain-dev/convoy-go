@@ -86,14 +86,14 @@ func newProject(client *Client) *Project {
 	}
 }
 
-func (p *Project) Find(projectID string) (*ProjectResponse, error) {
+func (p *Project) Find(ctx context.Context, projectID string) (*ProjectResponse, error) {
 	url, err := addOptions(p.generateUrl()+"/"+projectID, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &ProjectResponse{}
-	err = getResource(context.Background(), p.client.apiKey, url, p.client.client, respPtr)
+	err = getResource(ctx, p.client.apiKey, url, p.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -101,14 +101,14 @@ func (p *Project) Find(projectID string) (*ProjectResponse, error) {
 	return respPtr, nil
 }
 
-func (p *Project) Update(projectID string, body *CreateProjectRequest) (*ProjectResponse, error) {
+func (p *Project) Update(ctx context.Context, projectID string, body *CreateProjectRequest) (*ProjectResponse, error) {
 	url, err := addOptions(p.generateUrl()+"/"+projectID, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &ProjectResponse{}
-	err = postJSON(context.Background(), p.client.apiKey, url, body, p.client.client, respPtr)
+	err = postJSON(ctx, p.client.apiKey, url, body, p.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -116,13 +116,13 @@ func (p *Project) Update(projectID string, body *CreateProjectRequest) (*Project
 	return respPtr, nil
 }
 
-func (p *Project) Delete(projectID string) error {
+func (p *Project) Delete(ctx context.Context, projectID string) error {
 	url, err := addOptions(p.generateUrl()+"/"+projectID, nil)
 	if err != nil {
 		return err
 	}
 
-	err = deleteResource(context.Background(), p.client.apiKey, url, p.client.client, nil)
+	err = deleteResource(ctx, p.client.apiKey, url, p.client.client, nil)
 	if err != nil {
 		return err
 	}

@@ -77,14 +77,14 @@ func newSubscription(client *Client) *Subscription {
 	}
 }
 
-func (s *Subscription) All(query *SubscriptionQueryParam) (*ListSubscriptionResponse, error) {
+func (s *Subscription) All(ctx context.Context, query *SubscriptionQueryParam) (*ListSubscriptionResponse, error) {
 	url, err := addOptions(s.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &ListSubscriptionResponse{}
-	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client.apiKey, url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -92,14 +92,14 @@ func (s *Subscription) All(query *SubscriptionQueryParam) (*ListSubscriptionResp
 	return respPtr, nil
 }
 
-func (s *Subscription) Create(body *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
+func (s *Subscription) Create(ctx context.Context, body *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
 	url, err := addOptions(s.generateUrl(), nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client.apiKey, url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -107,14 +107,14 @@ func (s *Subscription) Create(body *CreateSubscriptionRequest) (*SubscriptionRes
 	return respPtr, nil
 }
 
-func (s *Subscription) Find(subscriptionId string) (*SubscriptionResponse, error) {
+func (s *Subscription) Find(ctx context.Context, subscriptionId string) (*SubscriptionResponse, error) {
 	url, err := addOptions(s.generateUrl()+"/"+subscriptionId, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client.apiKey, url, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -122,14 +122,14 @@ func (s *Subscription) Find(subscriptionId string) (*SubscriptionResponse, error
 	return respPtr, nil
 }
 
-func (s *Subscription) Update(subscriptionId string, body *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
+func (s *Subscription) Update(ctx context.Context, subscriptionId string, body *CreateSubscriptionRequest) (*SubscriptionResponse, error) {
 	url, err := addOptions(s.generateUrl()+"/"+subscriptionId, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client.apiKey, url, body, s.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -137,13 +137,13 @@ func (s *Subscription) Update(subscriptionId string, body *CreateSubscriptionReq
 	return respPtr, nil
 }
 
-func (s *Subscription) Delete(subscriptionId string) error {
+func (s *Subscription) Delete(ctx context.Context, subscriptionId string) error {
 	url, err := addOptions(s.generateUrl()+"/"+subscriptionId, nil)
 	if err != nil {
 		return err
 	}
 
-	err = deleteResource(context.Background(), s.client.apiKey, url, s.client.client, nil)
+	err = deleteResource(ctx, s.client.apiKey, url, s.client.client, nil)
 	if err != nil {
 		return err
 	}

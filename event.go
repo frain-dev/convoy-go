@@ -61,14 +61,14 @@ func newEvent(client *Client) *Event {
 	}
 }
 
-func (e *Event) All(query *EventQueryParam) (*ListEventResponse, error) {
+func (e *Event) All(ctx context.Context, query *EventQueryParam) (*ListEventResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &ListEventResponse{}
-	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -76,14 +76,14 @@ func (e *Event) All(query *EventQueryParam) (*ListEventResponse, error) {
 	return respPtr, nil
 }
 
-func (e *Event) Create(body *CreateEventRequest, query *EventQueryParam) (*EventResponse, error) {
+func (e *Event) Create(ctx context.Context, body *CreateEventRequest, query *EventQueryParam) (*EventResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EventResponse{}
-	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -91,14 +91,14 @@ func (e *Event) Create(body *CreateEventRequest, query *EventQueryParam) (*Event
 	return respPtr, nil
 }
 
-func (e *Event) CreateFanoutEvent(body *CreateFanoutEventRequest) (*EventResponse, error) {
+func (e *Event) CreateFanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) (*EventResponse, error) {
 	url, err := addOptions(e.generateUrl(), nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EventResponse{}
-	err = postJSON(context.Background(), e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -106,14 +106,14 @@ func (e *Event) CreateFanoutEvent(body *CreateFanoutEventRequest) (*EventRespons
 	return respPtr, nil
 }
 
-func (e *Event) Find(eventID string, query *EventQueryParam) (*EventResponse, error) {
+func (e *Event) Find(ctx context.Context, eventID string, query *EventQueryParam) (*EventResponse, error) {
 	url, err := addOptions(e.generateUrl()+"/"+eventID, query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EventResponse{}
-	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
 	if err != nil {
 		return nil, err
 	}
