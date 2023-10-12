@@ -45,10 +45,9 @@ type ListSourceResponse struct {
 	Pagination Pagination       `json:"pagination"`
 }
 
-type SourceQueryParam struct {
-	GroupID string
-	PerPage int
-	Page    int
+type SourceParams struct {
+	ListParams
+	Type string `url:"type"`
 }
 
 type ProviderConfig struct {
@@ -89,7 +88,7 @@ func newSource(client *Client) *Source {
 	}
 }
 
-func (s *Source) All(ctx context.Context, query *SourceQueryParam) (*ListSourceResponse, error) {
+func (s *Source) All(ctx context.Context, query *SourceParams) (*ListSourceResponse, error) {
 	url, err := addOptions(s.generateUrl(), query)
 	if err != nil {
 		return nil, err

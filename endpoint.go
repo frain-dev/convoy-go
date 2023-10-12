@@ -82,8 +82,9 @@ type ListEndpointResponse struct {
 	Pagination Pagination         `json:"pagination"`
 }
 
-type EndpointQueryParam struct {
-	GroupID string `url:"groupId"`
+type EndpointParams struct {
+	ListParams
+	Query   string `url:"query"`
 	OwnerID string `url:"ownerId"`
 }
 
@@ -98,7 +99,7 @@ func newEndpoint(client *Client) *Endpoint {
 	}
 }
 
-func (e *Endpoint) All(ctx context.Context, query *EndpointQueryParam) (*ListEndpointResponse, error) {
+func (e *Endpoint) All(ctx context.Context, query *EndpointParams) (*ListEndpointResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
@@ -113,7 +114,7 @@ func (e *Endpoint) All(ctx context.Context, query *EndpointQueryParam) (*ListEnd
 	return respPtr, nil
 }
 
-func (e *Endpoint) Create(ctx context.Context, body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+func (e *Endpoint) Create(ctx context.Context, body *CreateEndpointRequest, query *EndpointParams) (*EndpointResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
@@ -128,7 +129,7 @@ func (e *Endpoint) Create(ctx context.Context, body *CreateEndpointRequest, quer
 	return respPtr, nil
 }
 
-func (e *Endpoint) Find(ctx context.Context, endpointID string, query *EndpointQueryParam) (*EndpointResponse, error) {
+func (e *Endpoint) Find(ctx context.Context, endpointID string, query *EndpointParams) (*EndpointResponse, error) {
 	url, err := addOptions(e.generateUrl()+"/"+endpointID, query)
 	if err != nil {
 		return nil, err
@@ -143,7 +144,7 @@ func (e *Endpoint) Find(ctx context.Context, endpointID string, query *EndpointQ
 	return respPtr, nil
 }
 
-func (e *Endpoint) Update(ctx context.Context, endpointID string, body *CreateEndpointRequest, query *EndpointQueryParam) (*EndpointResponse, error) {
+func (e *Endpoint) Update(ctx context.Context, endpointID string, body *CreateEndpointRequest, query *EndpointParams) (*EndpointResponse, error) {
 	url, err := addOptions(e.generateUrl()+"/"+endpointID, query)
 	if err != nil {
 		return nil, err
@@ -158,7 +159,7 @@ func (e *Endpoint) Update(ctx context.Context, endpointID string, body *CreateEn
 	return respPtr, nil
 }
 
-func (e *Endpoint) Delete(ctx context.Context, endpointID string, query *EndpointQueryParam) error {
+func (e *Endpoint) Delete(ctx context.Context, endpointID string, query *EndpointParams) error {
 	url, err := addOptions(e.generateUrl()+"/"+endpointID, query)
 	if err != nil {
 		return err

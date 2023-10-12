@@ -42,8 +42,8 @@ type PortalLinkResponse struct {
 }
 
 type ListPortalLinkResponse struct {
-	Content    []PortalLinkResponse
-	Pagination Pagination
+	Content    []PortalLinkResponse `json:"content"`
+	Pagination Pagination           `json:"pagination"`
 }
 
 func (p *PortalLink) All(ctx context.Context) (*ListPortalLinkResponse, error) {

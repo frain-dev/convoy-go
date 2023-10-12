@@ -15,12 +15,20 @@ type APIResponse struct {
 	Data    *json.RawMessage `json:"data,omitempty"`
 }
 
+// Pagination type used in responses.
 type Pagination struct {
 	PerPage        int    `json:"per_page"`
 	HasNextPage    bool   `json:"has_next_page"`
 	HasPrevPage    bool   `json:"has_prev_page"`
 	PrevPageCursor string `json:"prev_page_cursor"`
 	NextPageCursor string `json:"next_page_cursor"`
+}
+
+// ListParams is used in requests for filtering lists
+type ListParams struct {
+	PerPage        int    `url:"per_page"`
+	PrevPageCursor string `url:"prev_page_cursor"`
+	NextPageCursor string `url:"next_page_cursor"`
 }
 
 type Client struct {

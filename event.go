@@ -25,10 +25,11 @@ type CreateEventRequest struct {
 }
 
 type CreateFanoutEventRequest struct {
-	OwnerID       string            `json:"owner_id"`
-	EventType     string            `json:"event_type"`
-	CustomHeaders map[string]string `json:"custom_headers"`
-	Data          json.RawMessage   `json:"data"`
+	OwnerID        string            `json:"owner_id"`
+	EventType      string            `json:"event_type"`
+	CustomHeaders  map[string]string `json:"custom_headers"`
+	Data           json.RawMessage   `json:"data"`
+	IdempotencyKey string
 }
 
 type EventResponse struct {
@@ -48,11 +49,19 @@ type ListEventResponse struct {
 	Pagination Pagination      `json:"pagination"`
 }
 
-type EventQueryParam struct {
-	GroupID    string `url:"groupId"`
-	EndpointID string `url:"endpointId"`
-	PerPage    int    `url:"per_page"`
-	Page       int    `url:"page"`
+type EventParams struct {
+	ListParams
+	Query      string    `url:"query"`
+	SourceID   string    `url:"sourceId"`
+	EndpointID []string  `url:"endpointId"`
+	StartDate  time.Time `url:"startDate" layout:"2006-01-02T15:04:05"`
+	EndDate    time.Time `url:"endDate" layout:"2006-01-02T15:04:05"`
+}
+
+type BatchReplayOptions struct {
+	SourceID  string    `url:"sourceId"`
+	StartDate time.Time `url:"startDate" layout:"2006-01-02T15:04:05"`
+	EndDate   time.Time `url:"endDate" layout:"2006-01-02T15:04:05"`
 }
 
 func newEvent(client *Client) *Event {
@@ -61,7 +70,7 @@ func newEvent(client *Client) *Event {
 	}
 }
 
-func (e *Event) All(ctx context.Context, query *EventQueryParam) (*ListEventResponse, error) {
+func (e *Event) All(ctx context.Context, query *EventParams) (*ListEventResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
@@ -76,22 +85,7 @@ func (e *Event) All(ctx context.Context, query *EventQueryParam) (*ListEventResp
 	return respPtr, nil
 }
 
-func (e *Event) Create(ctx context.Context, body *CreateEventRequest, query *EventQueryParam) (*EventResponse, error) {
-	url, err := addOptions(e.generateUrl(), query)
-	if err != nil {
-		return nil, err
-	}
-
-	respPtr := &EventResponse{}
-	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
-	if err != nil {
-		return nil, err
-	}
-
-	return respPtr, nil
-}
-
-func (e *Event) CreateFanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) (*EventResponse, error) {
+func (e *Event) Create(ctx context.Context, body *CreateEventRequest) (*EventResponse, error) {
 	url, err := addOptions(e.generateUrl(), nil)
 	if err != nil {
 		return nil, err
@@ -106,8 +100,23 @@ func (e *Event) CreateFanoutEvent(ctx context.Context, body *CreateFanoutEventRe
 	return respPtr, nil
 }
 
-func (e *Event) Find(ctx context.Context, eventID string, query *EventQueryParam) (*EventResponse, error) {
-	url, err := addOptions(e.generateUrl()+"/"+eventID, query)
+func (e *Event) FanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) (*EventResponse, error) {
+	url, err := addOptions(e.generateUrl(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	respPtr := &EventResponse{}
+	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	return respPtr, nil
+}
+
+func (e *Event) Find(ctx context.Context, eventID string) (*EventResponse, error) {
+	url, err := addOptions(e.generateUrl()+"/"+eventID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +128,34 @@ func (e *Event) Find(ctx context.Context, eventID string, query *EventQueryParam
 	}
 
 	return respPtr, nil
+}
+
+func (e *Event) Replay(ctx context.Context, eventID string) error {
+	url, err := addOptions(e.generateUrl()+"/"+eventID+"/replay", nil)
+	if err != nil {
+		return err
+	}
+
+	err = putResource(ctx, e.client.apiKey, url, nil, e.client.client, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (e *Event) BatchReplay(ctx context.Context, query *BatchReplayOptions) error {
+	url, err := addOptions(e.generateUrl()+"/batchreplay", query)
+	if err != nil {
+		return err
+	}
+
+	err = postJSON(ctx, e.client.apiKey, url, nil, e.client.client, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (e *Event) generateUrl() string {

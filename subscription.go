@@ -59,11 +59,9 @@ type SubscriptionResponse struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
-type SubscriptionQueryParam struct {
-	GroupID    string `url:"groupId"`
-	EndpointID string `url:"endpointId"`
-	PerPage    int    `url:"per_page"`
-	Page       int    `url:"page"`
+type SubscriptionParams struct {
+	ListParams
+	EndpointID []string `url:"endpointId"`
 }
 
 type ListSubscriptionResponse struct {
@@ -77,7 +75,7 @@ func newSubscription(client *Client) *Subscription {
 	}
 }
 
-func (s *Subscription) All(ctx context.Context, query *SubscriptionQueryParam) (*ListSubscriptionResponse, error) {
+func (s *Subscription) All(ctx context.Context, query *SubscriptionParams) (*ListSubscriptionResponse, error) {
 	url, err := addOptions(s.generateUrl(), query)
 	if err != nil {
 		return nil, err
