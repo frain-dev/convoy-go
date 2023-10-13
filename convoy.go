@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
+	"github.com/segmentio/kafka-go"
 )
 
 type APIResponse struct {
@@ -34,11 +35,14 @@ type ListParams struct {
 }
 
 type Client struct {
-	client    *http.Client
-	baseURL   string
-	apiKey    string
-	projectID string
-	log       iLogger
+	client      *http.Client
+	baseURL     string
+	apiKey      string
+	projectID   string
+	log         iLogger
+	kafkaOpts   *KafkaOptions
+	kafkaClient *kafka.Client
+	kafkaTopic  string
 
 	Projects         *Project
 	Endpoints        *Endpoint
@@ -47,9 +51,16 @@ type Client struct {
 	DeliveryAttempts *DeliveryAttempt
 	Sources          *Source
 	Subscriptions    *Subscription
+	Kafka            *Kafka
 }
 
 type Option func(*Client)
+
+func OptionKafkaOptions(ko *KafkaOptions) func(c *Client) {
+	return func(c *Client) {
+		c.kafkaOpts = ko
+	}
+}
 
 func OptionLogger(logger iLogger) func(c *Client) {
 	return func(c *Client) {
@@ -85,6 +96,7 @@ func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c.DeliveryAttempts = newDeliveryAttempt(c)
 	c.Sources = newSource(c)
 	c.Subscriptions = newSubscription(c)
+	c.Kafka = newKafka(c)
 
 	return c
 }
