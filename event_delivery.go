@@ -29,10 +29,6 @@ type EventDeliveryResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type BatchResendRequest struct {
-	IDs []string `json:"ids"`
-}
-
 type EventMetadata struct {
 	UID  string `json:"uid"`
 	Name string `json:"name"`
@@ -60,12 +56,14 @@ type ListEventDeliveryResponse struct {
 	Pagination Pagination              `json:"pagination"`
 }
 
-type EventDeliveryQueryParam struct {
-	GroupID    string
-	EndpointID string
-	EventID    string
-	PerPage    int
-	Page       int
+type EventDeliveryParams struct {
+	ListParams
+	EventID        string    `url:"eventId"`
+	Status         []string  `url:"status"`
+	EndpointID     []string  `url:"endpointId"`
+	SubscriptionID string    `url:"subscriptionId"`
+	StartDate      time.Time `url:"startDate" layout:"2006-01-02T15:04:05"`
+	EndDate        time.Time `url:"endDate" layout:"2006-01-02T15:04:05"`
 }
 
 func newEventDelivery(client *Client) *EventDelivery {
@@ -74,14 +72,14 @@ func newEventDelivery(client *Client) *EventDelivery {
 	}
 }
 
-func (e *EventDelivery) All(query *EventDeliveryQueryParam) (*ListEventDeliveryResponse, error) {
+func (e *EventDelivery) All(ctx context.Context, query *EventDeliveryParams) (*ListEventDeliveryResponse, error) {
 	url, err := addOptions(e.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &ListEventDeliveryResponse{}
-	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -89,14 +87,14 @@ func (e *EventDelivery) All(query *EventDeliveryQueryParam) (*ListEventDeliveryR
 	return respPtr, nil
 }
 
-func (e *EventDelivery) Find(eventDeliveryID string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
+func (e *EventDelivery) Find(ctx context.Context, eventDeliveryID string, query *EventDeliveryParams) (*EventDeliveryResponse, error) {
 	url, err := addOptions(e.generateUrl()+"/"+eventDeliveryID, query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = getResource(context.Background(), e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -104,14 +102,14 @@ func (e *EventDelivery) Find(eventDeliveryID string, query *EventDeliveryQueryPa
 	return respPtr, nil
 }
 
-func (e *EventDelivery) Resend(eventDeliveryID string, query *EventDeliveryQueryParam) (*EventDeliveryResponse, error) {
+func (e *EventDelivery) Resend(ctx context.Context, eventDeliveryID string, query *EventDeliveryParams) (*EventDeliveryResponse, error) {
 	url, err := addOptions(e.generateUrl()+"/"+eventDeliveryID+"/resend", query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = putResource(context.Background(), e.client.apiKey, url, nil, e.client.client, respPtr)
+	err = putResource(ctx, e.client, url, nil, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -119,14 +117,14 @@ func (e *EventDelivery) Resend(eventDeliveryID string, query *EventDeliveryQuery
 	return respPtr, nil
 }
 
-func (e *EventDelivery) BatchResend(body *BatchResendRequest, query *EventDeliveryQueryParam) error {
+func (e *EventDelivery) BatchResend(ctx context.Context, query *EventDeliveryParams) error {
 	url, err := addOptions(e.generateUrl()+"/batchretry", query)
 	if err != nil {
 		return err
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = putResource(context.Background(), e.client.apiKey, url, nil, e.client.client, respPtr)
+	err = putResource(ctx, e.client, url, nil, respPtr)
 	if err != nil {
 		return err
 	}

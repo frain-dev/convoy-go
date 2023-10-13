@@ -8,13 +8,14 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
 )
 
 const (
 	DEFAULT_BASE_URL = "https://dashboard.getconvoy.io/api/v1"
 )
 
-func postJSON(ctx context.Context, apikey, url string, body interface{}, c *http.Client, res interface{}) error {
+func postJSON(ctx context.Context, c *Client, url string, body interface{}, res interface{}) error {
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -26,23 +27,10 @@ func postJSON(ctx context.Context, apikey, url string, body interface{}, c *http
 		return err
 	}
 
-	req.Header.Add("Content-Type", "application/json;charset=utf-8")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
-	resp, err := c.Do(req)
-
-	if err != nil {
-		return fmt.Errorf("error processing request - %+v", err)
-	}
-
-	err = parseAPIResponse(resp, res)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return doReq(c, req, res)
 }
 
-func putResource(ctx context.Context, apikey, url string, body interface{}, c *http.Client, res interface{}) error {
+func putResource(ctx context.Context, c *Client, url string, body interface{}, res interface{}) error {
 	if body == nil {
 		body = `{}`
 	}
@@ -57,60 +45,45 @@ func putResource(ctx context.Context, apikey, url string, body interface{}, c *h
 	if err != nil {
 		return err
 	}
-
-	req.Header.Add("Content-Type", "application/json;charset=utf-8")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
-	resp, err := c.Do(req)
-
-	if err != nil {
-		return fmt.Errorf("error processing request - %+v", err)
-	}
-
-	err = parseAPIResponse(resp, res)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return doReq(c, req, res)
 }
 
-func getResource(ctx context.Context, apikey, url string, c *http.Client, res interface{}) error {
+func getResource(ctx context.Context, c *Client, url string, res interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}
 
-	req.Header.Add("Content-Type", "application/json;charset=utf-8")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
-	resp, err := c.Do(req)
-
-	if err != nil {
-		return fmt.Errorf("error processing request - %+v", err)
-	}
-
-	err = parseAPIResponse(resp, res)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return doReq(c, req, res)
 }
 
-func deleteResource(ctx context.Context, apikey, url string, c *http.Client, res interface{}) error {
+func deleteResource(ctx context.Context, c *Client, url string, res interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, url, nil)
 	if err != nil {
 		return err
 	}
 
-	req.Header.Add("Content-Type", "application/json;charset=utf-8")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apikey))
-	resp, err := c.Do(req)
+	return doReq(c, req, res)
+}
 
+func doReq(c *Client, req *http.Request, res interface{}) error {
+	req.Header.Add("Content-Type", "application/json;charset=utf-8")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
+
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("error processing request - %+v", err)
 	}
 
-	err = parseAPIResponse(resp, res)
+	// Send debug logs.
+	dump, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.log.Debugf("request: %q", dump)
+
+	err = parseAPIResponse(c, resp, res)
 	if err != nil {
 		return err
 	}
@@ -118,7 +91,15 @@ func deleteResource(ctx context.Context, apikey, url string, c *http.Client, res
 	return nil
 }
 
-func parseAPIResponse(resp *http.Response, resultPtr interface{}) error {
+func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) error {
+	// Send debug logs.
+	dump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.log.Debugf("response: %q", dump)
+
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("error while reading the response bytes - %+v", err)

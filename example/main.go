@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	convoy "github.com/frain-dev/convoy-go"
 )
@@ -15,18 +18,28 @@ const (
 )
 
 func main() {
-	c := convoy.New(URL, apiKey, projectID)
+	c := convoy.New(URL, apiKey, projectID, convoy.OptionLogger(convoy.NewLogger(os.Stdout, convoy.DebugLevel)))
+	ctx := context.Background()
 
-	fmt.Println("Create Endpoint...")
-	createEndpoint(c)
+	//fmt.Println("Create Endpoint...")
+	//createEndpoint(ctx, c)
+
+	//fmt.Println("Pausing Endpoint...")
+	//pauseEndpoint(ctx, c)
+
+	fmt.Println("Retrieving all endpoints")
+	retrieveAllEndpoints(ctx, c)
+
+	//fmt.Println("Retrieveing all events")
+	//retrieveAllEvents(ctx, c)
 }
 
-func createEvent(c *convoy.Client) {
-	event, err := c.Events.Create(&convoy.CreateEventRequest{
+func createEvent(ctx context.Context, c *convoy.Client) {
+	event, err := c.Events.Create(ctx, &convoy.CreateEventRequest{
 		EndpointID: endpointID,
 		EventType:  "test.customer.event",
 		Data:       []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
-	}, nil)
+	})
 
 	if err != nil {
 		log.Fatal("failed to create endpoint event \n", err)
@@ -37,8 +50,8 @@ func createEvent(c *convoy.Client) {
 	log.Printf("\nEndpoint event data - %+v\n", string(event.Data))
 }
 
-func createEndpoint(c *convoy.Client) {
-	endpoint, err := c.Endpoints.Create(&convoy.CreateEndpointRequest{
+func createEndpoint(ctx context.Context, c *convoy.Client) {
+	endpoint, err := c.Endpoints.Create(ctx, &convoy.CreateEndpointRequest{
 		Name:        "Endpoint GO SDK",
 		URL:         "https://webhook.site/4a5f8928-73fc-40e2-921c-e037afa9ea09",
 		Description: "Some description",
@@ -48,4 +61,35 @@ func createEndpoint(c *convoy.Client) {
 		log.Fatal("failed to create endpoint \n", err)
 	}
 	log.Printf("\nEndpoint created - %+v\n", endpoint)
+}
+
+func pauseEndpoint(ctx context.Context, c *convoy.Client) {
+	endpoint, err := c.Endpoints.Pause(ctx, endpointID)
+	if err != nil {
+		log.Fatal("failed to pause endpoint \n", err)
+	}
+
+	log.Printf("\nEndpoint paused - %+v\n", endpoint)
+}
+
+func retrieveAllEndpoints(ctx context.Context, c *convoy.Client) {
+	endpoints, err := c.Endpoints.All(ctx, nil)
+	if err != nil {
+		log.Fatal("failed to retrieve endpoints \n", err)
+	}
+
+	log.Printf("\nEndpoints retrieved - %+v\n", endpoints)
+}
+
+func retrieveAllEvents(ctx context.Context, c *convoy.Client) {
+	query := &convoy.EventParams{
+		StartDate: time.Now().Add(time.Duration(-24) * time.Hour),
+		EndDate:   time.Now(),
+	}
+	events, err := c.Events.All(ctx, query)
+	if err != nil {
+		log.Fatal("failed to retrieve events \n", err)
+	}
+
+	log.Printf("\nEvents retrieved - %+v\n", events)
 }

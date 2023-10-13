@@ -45,10 +45,9 @@ type ListSourceResponse struct {
 	Pagination Pagination       `json:"pagination"`
 }
 
-type SourceQueryParam struct {
-	GroupID string
-	PerPage int
-	Page    int
+type SourceParams struct {
+	ListParams
+	Type string `url:"type"`
 }
 
 type ProviderConfig struct {
@@ -89,14 +88,14 @@ func newSource(client *Client) *Source {
 	}
 }
 
-func (s *Source) All(query *SourceQueryParam) (*ListSourceResponse, error) {
+func (s *Source) All(ctx context.Context, query *SourceParams) (*ListSourceResponse, error) {
 	url, err := addOptions(s.generateUrl(), query)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &ListSourceResponse{}
-	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -104,14 +103,14 @@ func (s *Source) All(query *SourceQueryParam) (*ListSourceResponse, error) {
 	return respPtr, nil
 }
 
-func (s *Source) Create(body *CreateSourceRequest) (*SourceResponse, error) {
+func (s *Source) Create(ctx context.Context, body *CreateSourceRequest) (*SourceResponse, error) {
 	url, err := addOptions(s.generateUrl(), nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &SourceResponse{}
-	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -119,14 +118,14 @@ func (s *Source) Create(body *CreateSourceRequest) (*SourceResponse, error) {
 	return respPtr, nil
 }
 
-func (s *Source) Find(sourceId string) (*SourceResponse, error) {
+func (s *Source) Find(ctx context.Context, sourceId string) (*SourceResponse, error) {
 	url, err := addOptions(s.generateUrl()+"/"+sourceId, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &SourceResponse{}
-	err = getResource(context.Background(), s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -134,14 +133,14 @@ func (s *Source) Find(sourceId string) (*SourceResponse, error) {
 	return respPtr, nil
 }
 
-func (s *Source) Update(sourceId string, body *CreateSourceRequest) (*SourceResponse, error) {
+func (s *Source) Update(ctx context.Context, sourceId string, body *CreateSourceRequest) (*SourceResponse, error) {
 	url, err := addOptions(s.generateUrl()+"/"+sourceId, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	respPtr := &SourceResponse{}
-	err = postJSON(context.Background(), s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -149,13 +148,13 @@ func (s *Source) Update(sourceId string, body *CreateSourceRequest) (*SourceResp
 	return respPtr, nil
 }
 
-func (s *Source) Delete(sourceId string) error {
+func (s *Source) Delete(ctx context.Context, sourceId string) error {
 	url, err := addOptions(s.generateUrl()+"/"+sourceId, nil)
 	if err != nil {
 		return err
 	}
 
-	err = deleteResource(context.Background(), s.client.apiKey, url, s.client.client, nil)
+	err = deleteResource(ctx, s.client, url, nil)
 	if err != nil {
 		return err
 	}

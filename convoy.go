@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"os"
 	"reflect"
+	"time"
 
 	"github.com/google/go-querystring/query"
 )
@@ -15,13 +17,20 @@ type APIResponse struct {
 	Data    *json.RawMessage `json:"data,omitempty"`
 }
 
+// Pagination type used in responses.
 type Pagination struct {
-	Total     int `json:"total"`
-	Page      int `json:"page"`
-	PerPage   int `json:"perPage"`
-	Prev      int `json:"prev"`
-	Next      int `json:"next"`
-	TotalPage int `json:"totalPage"`
+	PerPage        int    `json:"per_page"`
+	HasNextPage    bool   `json:"has_next_page"`
+	HasPrevPage    bool   `json:"has_prev_page"`
+	PrevPageCursor string `json:"prev_page_cursor"`
+	NextPageCursor string `json:"next_page_cursor"`
+}
+
+// ListParams is used in requests for filtering lists
+type ListParams struct {
+	PerPage        int    `url:"per_page"`
+	PrevPageCursor string `url:"prev_page_cursor"`
+	NextPageCursor string `url:"next_page_cursor"`
 }
 
 type Client struct {
@@ -29,6 +38,7 @@ type Client struct {
 	baseURL   string
 	apiKey    string
 	projectID string
+	log       iLogger
 
 	Projects         *Project
 	Endpoints        *Endpoint
@@ -41,9 +51,24 @@ type Client struct {
 
 type Option func(*Client)
 
+func OptionLogger(logger iLogger) func(c *Client) {
+	return func(c *Client) {
+		c.log = logger
+	}
+}
+
+func OptionHTTPClient(client *http.Client) func(c *Client) {
+	return func(c *Client) {
+		c.client = client
+	}
+}
+
 func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c := &Client{
-		client:    &http.Client{},
+		client: &http.Client{
+			Timeout: 5 * time.Second,
+		},
+		log:       NewLogger(os.Stdout, ErrorLevel),
 		apiKey:    apiKey,
 		projectID: projectID,
 		baseURL:   baseURL,

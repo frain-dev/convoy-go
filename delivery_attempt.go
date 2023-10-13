@@ -49,7 +49,7 @@ func newDeliveryAttempt(client *Client) *DeliveryAttempt {
 	}
 }
 
-func (d *DeliveryAttempt) All(eventDeliveryID string, query *DeliveryAttemptQueryParam) (*ListDeliveryAttemptResponse, error) {
+func (d *DeliveryAttempt) All(ctx context.Context, eventDeliveryID string, query *DeliveryAttemptQueryParam) (*ListDeliveryAttemptResponse, error) {
 	dURL := fmt.Sprintf("/%s/deliveryattempts", eventDeliveryID)
 	url, err := addOptions(d.generateUrl()+dURL, query)
 	if err != nil {
@@ -57,7 +57,7 @@ func (d *DeliveryAttempt) All(eventDeliveryID string, query *DeliveryAttemptQuer
 	}
 
 	respPtr := &ListDeliveryAttemptResponse{}
-	err = getResource(context.Background(), d.client.apiKey, url, d.client.client, respPtr)
+	err = getResource(ctx, d.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (d *DeliveryAttempt) All(eventDeliveryID string, query *DeliveryAttemptQuer
 	return respPtr, nil
 }
 
-func (d *DeliveryAttempt) Find(eventDeliveryID, deliveryAttemptID string, query *DeliveryAttemptQueryParam) (*DeliveryAttemptResponse, error) {
+func (d *DeliveryAttempt) Find(ctx context.Context, eventDeliveryID, deliveryAttemptID string, query *DeliveryAttemptQueryParam) (*DeliveryAttemptResponse, error) {
 	dURL := fmt.Sprintf("/%s/deliveryattempts/%s", eventDeliveryID, deliveryAttemptID)
 	url, err := addOptions(d.generateUrl()+dURL, query)
 	if err != nil {
@@ -73,7 +73,7 @@ func (d *DeliveryAttempt) Find(eventDeliveryID, deliveryAttemptID string, query 
 	}
 
 	respPtr := &DeliveryAttemptResponse{}
-	err = getResource(context.Background(), d.client.apiKey, url, d.client.client, respPtr)
+	err = getResource(ctx, d.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
