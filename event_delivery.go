@@ -79,7 +79,7 @@ func (e *EventDelivery) All(ctx context.Context, query *EventDeliveryParams) (*L
 	}
 
 	respPtr := &ListEventDeliveryResponse{}
-	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (e *EventDelivery) Find(ctx context.Context, eventDeliveryID string, query 
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (e *EventDelivery) Resend(ctx context.Context, eventDeliveryID string, quer
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = putResource(ctx, e.client.apiKey, url, nil, e.client.client, respPtr)
+	err = putResource(ctx, e.client, url, nil, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (e *EventDelivery) BatchResend(ctx context.Context, query *EventDeliveryPar
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = putResource(ctx, e.client.apiKey, url, nil, e.client.client, respPtr)
+	err = putResource(ctx, e.client, url, nil, respPtr)
 	if err != nil {
 		return err
 	}

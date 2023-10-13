@@ -77,7 +77,7 @@ func (e *Event) All(ctx context.Context, query *EventParams) (*ListEventResponse
 	}
 
 	respPtr := &ListEventResponse{}
-	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (e *Event) Create(ctx context.Context, body *CreateEventRequest) (*EventRes
 	}
 
 	respPtr := &EventResponse{}
-	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (e *Event) FanoutEvent(ctx context.Context, body *CreateFanoutEventRequest)
 	}
 
 	respPtr := &EventResponse{}
-	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (e *Event) Find(ctx context.Context, eventID string) (*EventResponse, error
 	}
 
 	respPtr := &EventResponse{}
-	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (e *Event) Replay(ctx context.Context, eventID string) error {
 		return err
 	}
 
-	err = putResource(ctx, e.client.apiKey, url, nil, e.client.client, nil)
+	err = putResource(ctx, e.client, url, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func (e *Event) BatchReplay(ctx context.Context, query *BatchReplayOptions) erro
 		return err
 	}
 
-	err = postJSON(ctx, e.client.apiKey, url, nil, e.client.client, nil)
+	err = postJSON(ctx, e.client, url, nil, nil)
 	if err != nil {
 		return err
 	}

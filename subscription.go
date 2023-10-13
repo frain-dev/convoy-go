@@ -82,7 +82,7 @@ func (s *Subscription) All(ctx context.Context, query *SubscriptionParams) (*Lis
 	}
 
 	respPtr := &ListSubscriptionResponse{}
-	err = getResource(ctx, s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (s *Subscription) Create(ctx context.Context, body *CreateSubscriptionReque
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = postJSON(ctx, s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (s *Subscription) Find(ctx context.Context, subscriptionId string) (*Subscr
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = getResource(ctx, s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (s *Subscription) Update(ctx context.Context, subscriptionId string, body *
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = postJSON(ctx, s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (s *Subscription) Delete(ctx context.Context, subscriptionId string) error 
 		return err
 	}
 
-	err = deleteResource(ctx, s.client.apiKey, url, s.client.client, nil)
+	err = deleteResource(ctx, s.client, url, nil)
 	if err != nil {
 		return err
 	}

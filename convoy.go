@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"os"
 	"reflect"
+	"time"
 
 	"github.com/google/go-querystring/query"
 )
@@ -36,6 +38,7 @@ type Client struct {
 	baseURL   string
 	apiKey    string
 	projectID string
+	log       iLogger
 
 	Projects         *Project
 	Endpoints        *Endpoint
@@ -48,6 +51,12 @@ type Client struct {
 
 type Option func(*Client)
 
+func OptionLogger(logger iLogger) func(c *Client) {
+	return func(c *Client) {
+		c.log = logger
+	}
+}
+
 func OptionHTTPClient(client *http.Client) func(c *Client) {
 	return func(c *Client) {
 		c.client = client
@@ -56,7 +65,10 @@ func OptionHTTPClient(client *http.Client) func(c *Client) {
 
 func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c := &Client{
-		client:    &http.Client{},
+		client: &http.Client{
+			Timeout: 5 * time.Second,
+		},
+		log:       NewLogger(os.Stdout, ErrorLevel),
 		apiKey:    apiKey,
 		projectID: projectID,
 		baseURL:   baseURL,

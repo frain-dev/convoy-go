@@ -95,7 +95,7 @@ func (s *Source) All(ctx context.Context, query *SourceParams) (*ListSourceRespo
 	}
 
 	respPtr := &ListSourceResponse{}
-	err = getResource(ctx, s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (s *Source) Create(ctx context.Context, body *CreateSourceRequest) (*Source
 	}
 
 	respPtr := &SourceResponse{}
-	err = postJSON(ctx, s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (s *Source) Find(ctx context.Context, sourceId string) (*SourceResponse, er
 	}
 
 	respPtr := &SourceResponse{}
-	err = getResource(ctx, s.client.apiKey, url, s.client.client, respPtr)
+	err = getResource(ctx, s.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (s *Source) Update(ctx context.Context, sourceId string, body *CreateSource
 	}
 
 	respPtr := &SourceResponse{}
-	err = postJSON(ctx, s.client.apiKey, url, body, s.client.client, respPtr)
+	err = postJSON(ctx, s.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (s *Source) Delete(ctx context.Context, sourceId string) error {
 		return err
 	}
 
-	err = deleteResource(ctx, s.client.apiKey, url, s.client.client, nil)
+	err = deleteResource(ctx, s.client, url, nil)
 	if err != nil {
 		return err
 	}

@@ -106,7 +106,7 @@ func (e *Endpoint) All(ctx context.Context, query *EndpointParams) (*ListEndpoin
 	}
 
 	respPtr := &ListEndpointResponse{}
-	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (e *Endpoint) Create(ctx context.Context, body *CreateEndpointRequest, quer
 	}
 
 	respPtr := &EndpointResponse{}
-	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (e *Endpoint) Find(ctx context.Context, endpointID string, query *EndpointP
 	}
 
 	respPtr := &EndpointResponse{}
-	err = getResource(ctx, e.client.apiKey, url, e.client.client, respPtr)
+	err = getResource(ctx, e.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (e *Endpoint) Update(ctx context.Context, endpointID string, body *CreateEn
 	}
 
 	respPtr := &EndpointResponse{}
-	err = postJSON(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
+	err = postJSON(ctx, e.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (e *Endpoint) Delete(ctx context.Context, endpointID string, query *Endpoin
 		return err
 	}
 
-	err = deleteResource(ctx, e.client.apiKey, url, e.client.client, nil)
+	err = deleteResource(ctx, e.client, url, nil)
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func (e *Endpoint) Pause(ctx context.Context, Id string) (*EndpointResponse, err
 	}
 
 	respPtr := &EndpointResponse{}
-	err = putResource(ctx, e.client.apiKey, url, nil, e.client.client, respPtr)
+	err = putResource(ctx, e.client, url, nil, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +195,7 @@ func (e Endpoint) RollSecret(ctx context.Context, Id string, body *RollSecretReq
 	}
 
 	respPtr := &EndpointResponse{}
-	err = putResource(ctx, e.client.apiKey, url, body, e.client.client, respPtr)
+	err = putResource(ctx, e.client, url, body, respPtr)
 	if err != nil {
 		return err
 	}

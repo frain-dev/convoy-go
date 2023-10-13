@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	convoy "github.com/frain-dev/convoy-go"
@@ -17,7 +18,7 @@ const (
 )
 
 func main() {
-	c := convoy.New(URL, apiKey, projectID)
+	c := convoy.New(URL, apiKey, projectID, convoy.OptionLogger(convoy.NewLogger(os.Stdout, convoy.DebugLevel)))
 	ctx := context.Background()
 
 	//fmt.Println("Create Endpoint...")
@@ -26,11 +27,11 @@ func main() {
 	//fmt.Println("Pausing Endpoint...")
 	//pauseEndpoint(ctx, c)
 
-	//fmt.Println("Retrieving all endpoints")
-	//retrieveAllEndpoints(ctx, c)
+	fmt.Println("Retrieving all endpoints")
+	retrieveAllEndpoints(ctx, c)
 
-	fmt.Println("Retrieveing all events")
-	retrieveAllEvents(ctx, c)
+	//fmt.Println("Retrieveing all events")
+	//retrieveAllEvents(ctx, c)
 }
 
 func createEvent(ctx context.Context, c *convoy.Client) {
@@ -81,7 +82,7 @@ func retrieveAllEndpoints(ctx context.Context, c *convoy.Client) {
 }
 
 func retrieveAllEvents(ctx context.Context, c *convoy.Client) {
-	query := &convoy.EventQueryOptions{
+	query := &convoy.EventParams{
 		StartDate: time.Now().Add(time.Duration(-24) * time.Hour),
 		EndDate:   time.Now(),
 	}

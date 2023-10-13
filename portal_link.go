@@ -53,7 +53,7 @@ func (p *PortalLink) All(ctx context.Context) (*ListPortalLinkResponse, error) {
 	}
 
 	respPtr := &ListPortalLinkResponse{}
-	err = getResource(ctx, p.client.apiKey, url, p.client.client, respPtr)
+	err = getResource(ctx, p.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (p *PortalLink) Create(ctx context.Context, body *CreatePortalLinkRequest) 
 	}
 
 	respPtr := &PortalLinkResponse{}
-	err = postJSON(ctx, p.client.apiKey, url, body, p.client.client, respPtr)
+	err = postJSON(ctx, p.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (p *PortalLink) Find(ctx context.Context, portalLinkID string) (*PortalLink
 	}
 
 	respPtr := &PortalLinkResponse{}
-	err = getResource(ctx, p.client.apiKey, url, p.client.client, respPtr)
+	err = getResource(ctx, p.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (p *PortalLink) Update(ctx context.Context, portalLinkID string, body *Upda
 	}
 
 	respPtr := &PortalLinkResponse{}
-	err = putResource(ctx, p.client.apiKey, url, body, p.client.client, respPtr)
+	err = putResource(ctx, p.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (p *PortalLink) Revoke(ctx context.Context, portalLinkID string) error {
 		return err
 	}
 
-	err = putResource(ctx, p.client.apiKey, url, nil, p.client.client, nil)
+	err = putResource(ctx, p.client, url, nil, nil)
 	if err != nil {
 		return err
 	}

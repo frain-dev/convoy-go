@@ -93,7 +93,7 @@ func (p *Project) Find(ctx context.Context, projectID string) (*ProjectResponse,
 	}
 
 	respPtr := &ProjectResponse{}
-	err = getResource(ctx, p.client.apiKey, url, p.client.client, respPtr)
+	err = getResource(ctx, p.client, url, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (p *Project) Update(ctx context.Context, projectID string, body *CreateProj
 	}
 
 	respPtr := &ProjectResponse{}
-	err = postJSON(ctx, p.client.apiKey, url, body, p.client.client, respPtr)
+	err = postJSON(ctx, p.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (p *Project) Delete(ctx context.Context, projectID string) error {
 		return err
 	}
 
-	err = deleteResource(ctx, p.client.apiKey, url, p.client.client, nil)
+	err = deleteResource(ctx, p.client, url, nil)
 	if err != nil {
 		return err
 	}
