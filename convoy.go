@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/segmentio/kafka-go"
 )
 
 type APIResponse struct {
@@ -35,14 +34,13 @@ type ListParams struct {
 }
 
 type Client struct {
-	client      *http.Client
-	baseURL     string
-	apiKey      string
-	projectID   string
-	log         iLogger
-	kafkaOpts   *KafkaOptions
-	kafkaClient *kafka.Client
-	kafkaTopic  string
+	client    *http.Client
+	baseURL   string
+	apiKey    string
+	projectID string
+	log       iLogger
+	kafkaOpts *KafkaOptions
+	sqsOpts   *SQSOptions
 
 	Projects         *Project
 	Endpoints        *Endpoint
@@ -52,6 +50,7 @@ type Client struct {
 	Sources          *Source
 	Subscriptions    *Subscription
 	Kafka            *Kafka
+	SQS              *SQS
 }
 
 type Option func(*Client)
@@ -59,6 +58,12 @@ type Option func(*Client)
 func OptionKafkaOptions(ko *KafkaOptions) func(c *Client) {
 	return func(c *Client) {
 		c.kafkaOpts = ko
+	}
+}
+
+func OptionSQSOptions(so *SQSOptions) func(c *Client) {
+	return func(c *Client) {
+		c.sqsOpts = so
 	}
 }
 
@@ -96,7 +101,14 @@ func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c.DeliveryAttempts = newDeliveryAttempt(c)
 	c.Sources = newSource(c)
 	c.Subscriptions = newSubscription(c)
-	c.Kafka = newKafka(c)
+
+	if c.kafkaOpts != nil {
+		c.Kafka = newKafka(c)
+	}
+
+	if c.sqsOpts != nil {
+		c.SQS = newSQS(c)
+	}
 
 	return c
 }
