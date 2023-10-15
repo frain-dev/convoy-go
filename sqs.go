@@ -3,7 +3,6 @@ package convoy_go
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 )
@@ -36,12 +35,10 @@ func (s *SQS) WriteEvent(ctx context.Context, body *CreateEventRequest) error {
 	}
 
 	sqc := s.client.sqsOpts.Client
-	smo, err := sqc.SendMessage(ctx, params)
+	_, err = sqc.SendMessage(ctx, params)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(smo)
 
 	return nil
 }
