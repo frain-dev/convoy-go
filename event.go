@@ -18,10 +18,11 @@ type Event struct {
 }
 
 type CreateEventRequest struct {
-	EndpointID    string            `json:"endpoint_id"`
-	EventType     string            `json:"event_type"`
-	CustomHeaders map[string]string `json:"custom_headers"`
-	Data          json.RawMessage   `json:"data"`
+	IdempotencyKey string            `json:"idempotency_key"`
+	EndpointID     string            `json:"endpoint_id"`
+	EventType      string            `json:"event_type"`
+	CustomHeaders  map[string]string `json:"custom_headers"`
+	Data           json.RawMessage   `json:"data"`
 }
 
 type CreateFanoutEventRequest struct {

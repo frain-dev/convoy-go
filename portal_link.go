@@ -46,6 +46,12 @@ type ListPortalLinkResponse struct {
 	Pagination Pagination           `json:"pagination"`
 }
 
+func newPortalLink(client *Client) *PortalLink {
+	return &PortalLink{
+		client: client,
+	}
+}
+
 func (p *PortalLink) All(ctx context.Context) (*ListPortalLinkResponse, error) {
 	url, err := addOptions(p.generateUrl(), nil)
 	if err != nil {

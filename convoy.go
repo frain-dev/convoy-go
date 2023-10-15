@@ -39,6 +39,8 @@ type Client struct {
 	apiKey    string
 	projectID string
 	log       iLogger
+	kafkaOpts *KafkaOptions
+	sqsOpts   *SQSOptions
 
 	Projects         *Project
 	Endpoints        *Endpoint
@@ -47,9 +49,23 @@ type Client struct {
 	DeliveryAttempts *DeliveryAttempt
 	Sources          *Source
 	Subscriptions    *Subscription
+	Kafka            *Kafka
+	SQS              *SQS
 }
 
 type Option func(*Client)
+
+func OptionKafkaOptions(ko *KafkaOptions) func(c *Client) {
+	return func(c *Client) {
+		c.kafkaOpts = ko
+	}
+}
+
+func OptionSQSOptions(so *SQSOptions) func(c *Client) {
+	return func(c *Client) {
+		c.sqsOpts = so
+	}
+}
 
 func OptionLogger(logger iLogger) func(c *Client) {
 	return func(c *Client) {
@@ -85,6 +101,14 @@ func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c.DeliveryAttempts = newDeliveryAttempt(c)
 	c.Sources = newSource(c)
 	c.Subscriptions = newSubscription(c)
+
+	if c.kafkaOpts != nil {
+		c.Kafka = newKafka(c)
+	}
+
+	if c.sqsOpts != nil {
+		c.SQS = newSQS(c)
+	}
 
 	return c
 }
