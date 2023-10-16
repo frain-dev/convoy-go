@@ -84,7 +84,8 @@ func main() {
 	)
 
 	fmt.Println("writing sqs event...")
-	writeSQSEvent(ctx, sc)
+	//writeSQSEvent(ctx, sc)
+	fanOutSQSEvent(ctx, sc)
 }
 
 func createEvent(ctx context.Context, c *convoy.Client) {
@@ -167,4 +168,15 @@ func writeSQSEvent(ctx context.Context, c *convoy.Client) {
 	}
 
 	fmt.Println(c.SQS.WriteEvent(ctx, body))
+}
+
+func fanOutSQSEvent(ctx context.Context, c *convoy.Client) {
+	body := &convoy.CreateFanoutEventRequest{
+		OwnerID:        "business-unique-id-123",
+		EventType:      "test.customer.event",
+		IdempotencyKey: "logan.dillon.fight",
+		Data:           []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
+	}
+
+	fmt.Println(c.SQS.WriteFanoutEvent(ctx, body))
 }

@@ -18,9 +18,9 @@ type Event struct {
 }
 
 type CreateEventRequest struct {
-	IdempotencyKey string            `json:"idempotency_key"`
 	EndpointID     string            `json:"endpoint_id"`
 	EventType      string            `json:"event_type"`
+	IdempotencyKey string            `json:"idempotency_key"`
 	CustomHeaders  map[string]string `json:"custom_headers"`
 	Data           json.RawMessage   `json:"data"`
 }
@@ -28,9 +28,15 @@ type CreateEventRequest struct {
 type CreateFanoutEventRequest struct {
 	OwnerID        string            `json:"owner_id"`
 	EventType      string            `json:"event_type"`
+	IdempotencyKey string            `json:"idempotency_key"`
 	CustomHeaders  map[string]string `json:"custom_headers"`
 	Data           json.RawMessage   `json:"data"`
-	IdempotencyKey string
+}
+
+type CreateDynamicEventRequest struct {
+	Endpoint     string `json:"endpoint"`
+	Subscription string `json:"subscription"`
+	Event        string `json:"event"`
 }
 
 type EventResponse struct {
