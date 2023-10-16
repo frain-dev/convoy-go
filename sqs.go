@@ -23,12 +23,12 @@ func newSQS(c *Client) *SQS {
 }
 
 func (s *SQS) WriteEvent(ctx context.Context, body *CreateEventRequest) error {
-	bodyByte, err := json.Marshal(body)
+	bodyBytes, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
-	payload := string(bodyByte)
+	payload := string(bodyBytes)
 	params := &sqs.SendMessageInput{
 		MessageBody: &payload,
 		QueueUrl:    &s.client.sqsOpts.QueueUrl,
@@ -40,5 +40,25 @@ func (s *SQS) WriteEvent(ctx context.Context, body *CreateEventRequest) error {
 		return err
 	}
 
+	return nil
+}
+
+func (s *SQS) WriteFanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) error {
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	payload := string(bodyBytes)
+	params := &sqs.SendMessageInput{
+		MessageBody: &payload,
+		QueueUrl:    &s.client.sqsOpts.QueueUrl,
+	}
+
+	sqc := s.client.sqsOpts.Client
+	_, err = sqc.SendMessage(ctx, params)
+	if err != nil {
+		return err
+	}
 	return nil
 }

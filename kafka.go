@@ -38,3 +38,14 @@ func (k *Kafka) WriteEvent(ctx context.Context, body *CreateEventRequest) error 
 		Value: payload,
 	})
 }
+
+func (k *Kafka) WriteFanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) error {
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	return k.writer.WriteMessages(ctx, kafka.Message{
+		Value: payload,
+	})
+}

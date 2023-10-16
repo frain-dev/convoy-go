@@ -19,8 +19,8 @@ const (
 	apiKey     = "CO.vMkWVbqa7mFsmeGA.MkU35AfkWF3AcUVvNOqBj94QGZ05jxzjUmH4sgMYcipAji26dnnyNJo5bQkSzUTu"
 	kUsername  = "k-username"
 	kPassword  = "k-password"
-	awsKey     = "aws-key"
-	awsSecret  = "aws-secret"
+	awsKey     = "AKIA4ID4O7B6C7JSUBX7"
+	awsSecret  = "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"
 )
 
 func main() {
@@ -72,10 +72,10 @@ func main() {
 
 	so := &convoy.SQSOptions{
 		Client: sqs.New(sqs.Options{
-			Region:      "region",
+			Region:      "us-west-1",
 			Credentials: creds,
 		}),
-		QueueUrl: "queue-url",
+		QueueUrl: "https://sqs.us-west-1.amazonaws.com/842074617980/local-queue",
 	}
 
 	sc := convoy.New(URL, apiKey, projectID,
@@ -84,7 +84,8 @@ func main() {
 	)
 
 	fmt.Println("writing sqs event...")
-	writeSQSEvent(ctx, sc)
+	//writeSQSEvent(ctx, sc)
+	fanOutSQSEvent(ctx, sc)
 }
 
 func createEvent(ctx context.Context, c *convoy.Client) {
@@ -167,4 +168,15 @@ func writeSQSEvent(ctx context.Context, c *convoy.Client) {
 	}
 
 	fmt.Println(c.SQS.WriteEvent(ctx, body))
+}
+
+func fanOutSQSEvent(ctx context.Context, c *convoy.Client) {
+	body := &convoy.CreateFanoutEventRequest{
+		OwnerID:        "business-unique-id-123",
+		EventType:      "test.customer.event",
+		IdempotencyKey: "logan.dillon.fight",
+		Data:           []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
+	}
+
+	fmt.Println(c.SQS.WriteFanoutEvent(ctx, body))
 }
