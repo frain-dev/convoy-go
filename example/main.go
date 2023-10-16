@@ -19,8 +19,8 @@ const (
 	apiKey     = "CO.vMkWVbqa7mFsmeGA.MkU35AfkWF3AcUVvNOqBj94QGZ05jxzjUmH4sgMYcipAji26dnnyNJo5bQkSzUTu"
 	kUsername  = "k-username"
 	kPassword  = "k-password"
-	awsKey     = "AKIA4ID4O7B6C7JSUBX7"
-	awsSecret  = "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"
+	awsKey     = "aws-key"
+	awsSecret  = "aws-secret"
 )
 
 func main() {
@@ -72,10 +72,10 @@ func main() {
 
 	so := &convoy.SQSOptions{
 		Client: sqs.New(sqs.Options{
-			Region:      "us-west-1",
+			Region:      "region",
 			Credentials: creds,
 		}),
-		QueueUrl: "https://sqs.us-west-1.amazonaws.com/842074617980/local-queue",
+		QueueUrl: "queue-url",
 	}
 
 	sc := convoy.New(URL, apiKey, projectID,
