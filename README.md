@@ -137,6 +137,24 @@ if err != nil {
 }
 ```
 
+### Verifying Webhooks
+This client supports verifying [simple](https://www.getconvoy.io/docs/manual/signatures#Simple%20signatures) and [advanced](https://www.getconvoy.io/docs/manual/signatures#Advanced%20signatures) webhook signatures. 
+```go 
+webhook := NewWebhook(&convoy.ConfigOpts{
+				SigHeader: "ZmBgy+E0i7x+yY9Ok92P3CZQkc+FEJgR5gYZ0bwSEhwLESnc/gGct57IQ==",
+				Payload:   []byte(`{"firstname":"test","lastname":"test"}`),
+				Secret:    "8IX9njirDG",
+				Hash:      "SHA512",
+				Encoding:  "base64",
+			}
+        })
+
+err := webhook.Verify()
+if err != nil {
+    return err 
+}
+```
+
 ## Credits
 - [Frain](https://github.com/frain-dev)
 
