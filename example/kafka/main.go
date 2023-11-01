@@ -17,9 +17,10 @@ var (
 	URL        = "http://localhost:5005/api/v1"
 	projectID  = "01HB8J53CSBC4ZWCJ95TCQ6S43"
 	endpointID = "01HCZ0RBYH4MQTTCJKJ9KTS5KB"
-	apiKey     = "CO.vMkWVbqa7mFsmeGA.MkU35AfkWF3AcUVvNOqBj94QGZ05jxzjUmH4sgMYcipAji26dnnyNJo5bQkSzUTu"
-	kUsername  = "aHVtYW5lLXNsb3RoLTEyMjc5JC1Fof9Z-WROYxBkMGlQZPIpKC1LufOesVCVwGY"
-	kPassword  = "ZDkyMzliYzUtMWJkYS00MTkzLWI2NjQtNGM5ZTM0ODQ1YTI0"
+	apiKey     = os.Getenv("CONVOY_API_KEY")
+	kUsername  = os.Getenv("KAFKA_USERNAME")
+	kPassword  = os.Getenv("KAFKA_PASSWORD")
+	kUrl       = os.Getenv("KAFKA_HOST")
 )
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	kClient := &kafka.Client{
-		Addr:      kafka.TCP("humane-sloth-12279-us1-kafka.upstash.io:9092"),
+		Addr:      kafka.TCP(kUrl),
 		Timeout:   10 * time.Second,
 		Transport: sharedTransport,
 	}
