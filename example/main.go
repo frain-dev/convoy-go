@@ -7,8 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	convoy "github.com/frain-dev/convoy-go"
 )
 
@@ -27,31 +25,9 @@ func main() {
 	logger := convoy.NewLogger(os.Stdout, convoy.DebugLevel)
 	ctx := context.Background()
 
-	//mechanism, err := scram.Mechanism(scram.SHA256, kUsername, kPassword)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-
-	//sharedTransport := &kafka.Transport{
-	//	SASL: mechanism,
-	//	TLS:  &tls.Config{},
-	//}
-
-	//kClient := &kafka.Client{
-	//	Addr:      kafka.TCP("humane-sloth-12279-us1-kafka.upstash.io:9092"),
-	//	Timeout:   10 * time.Second,
-	//	Transport: sharedTransport,
-	//}
-
-	//ko := &convoy.KafkaOptions{
-	//	Client: kClient,
-	//	Topic:  "demo-topic",
-	//}
-
-	//kc := convoy.New(URL, apiKey, projectID,
-	//	convoy.OptionLogger(logger),
-	//	convoy.OptionKafkaOptions(ko),
-	//)
+	c := convoy.New(URL, apiKey, projectID,
+		convoy.OptionLogger(logger),
+	)
 
 	//fmt.Println("Create Endpoint...")
 	//createEndpoint(ctx, c)
@@ -62,30 +38,8 @@ func main() {
 	//fmt.Println("Retrieving all endpoints")
 	//retrieveAllEndpoints(ctx, c)
 
-	//fmt.Println("Retrieveing all events")
-	//retrieveAllEvents(ctx, c)
-
-	//fmt.Println("writing kafka event...")
-	//writeKafkaEvent(ctx, kc)
-
-	creds := credentials.NewStaticCredentialsProvider(awsKey, awsSecret, "")
-
-	so := &convoy.SQSOptions{
-		Client: sqs.New(sqs.Options{
-			Region:      "region",
-			Credentials: creds,
-		}),
-		QueueUrl: "queue-url",
-	}
-
-	sc := convoy.New(URL, apiKey, projectID,
-		convoy.OptionLogger(logger),
-		convoy.OptionSQSOptions(so),
-	)
-
-	fmt.Println("writing sqs event...")
-	//writeSQSEvent(ctx, sc)
-	fanOutSQSEvent(ctx, sc)
+	fmt.Println("Retrieveing all events")
+	retrieveAllEvents(ctx, c)
 }
 
 func createEvent(ctx context.Context, c *convoy.Client) {
@@ -146,37 +100,4 @@ func retrieveAllEvents(ctx context.Context, c *convoy.Client) {
 	}
 
 	log.Printf("\nEvents retrieved - %+v\n", events)
-}
-
-func writeKafkaEvent(ctx context.Context, c *convoy.Client) {
-	body := &convoy.CreateEventRequest{
-		EndpointID:     endpointID,
-		EventType:      "test.customer.event",
-		IdempotencyKey: "subomi",
-		Data:           []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
-	}
-
-	fmt.Println(c.Kafka.WriteEvent(ctx, body))
-}
-
-func writeSQSEvent(ctx context.Context, c *convoy.Client) {
-	body := &convoy.CreateEventRequest{
-		EndpointID:     endpointID,
-		EventType:      "test.customer.event",
-		IdempotencyKey: "ksi.fury",
-		Data:           []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
-	}
-
-	fmt.Println(c.SQS.WriteEvent(ctx, body))
-}
-
-func fanOutSQSEvent(ctx context.Context, c *convoy.Client) {
-	body := &convoy.CreateFanoutEventRequest{
-		OwnerID:        "business-unique-id-123",
-		EventType:      "test.customer.event",
-		IdempotencyKey: "logan.dillon.fight",
-		Data:           []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
-	}
-
-	fmt.Println(c.SQS.WriteFanoutEvent(ctx, body))
 }
