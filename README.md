@@ -3,7 +3,7 @@ This is the Golang SDK for Convoy. It makes it easy to interact with the Convoy 
 
 ## Installation
 ```bash
-$ go get github.com/frain-dev/convoy-go
+$ go get github.com/frain-dev/convoy-go/v2
 ```
 
 ## Usage
