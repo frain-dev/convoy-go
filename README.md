@@ -1,4 +1,4 @@
-# convoy-go <br /> [![Go Reference](https://pkg.go.dev/badge/github.com/frain-dev/convoy-go.svg)](https://pkg.go.dev/github.com/frain-dev/convoy-go)
+# convoy-go <br /> [![Go Reference](https://pkg.go.dev/badge/github.com/frain-dev/convoy-go.svg)](https://pkg.go.dev/github.com/frain-dev/convoy-go/v2)
 This is the Golang SDK for Convoy. It makes it easy to interact with the Convoy API. You can view the full API Reference [here](https://convoy.readme.io/reference)
 
 ## Installation
