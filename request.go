@@ -95,7 +95,7 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 	// Send debug logs.
 	dump, err := httputil.DumpResponse(resp, true)
 	if err != nil {
-		log.Fatal(err)
+		c.log.Errorf("error dumping response payload - ", err)
 	}
 
 	c.log.Debugf("response: %q", dump)
@@ -108,7 +108,7 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			log.Println("error closing response body - ", err)
+			c.log.Errorf("error closing response body - ", err)
 		}
 	}()
 
