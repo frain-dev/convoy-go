@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httputil"
 )
@@ -78,7 +77,7 @@ func doReq(c *Client, req *http.Request, res interface{}) error {
 	// Send debug logs.
 	dump, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
-		log.Fatal(err)
+		c.log.Errorf("error dumping request payload - ", err)
 	}
 
 	c.log.Debugf("request: %q", dump)
