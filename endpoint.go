@@ -151,7 +151,7 @@ func (e *Endpoint) Update(ctx context.Context, endpointID string, body *CreateEn
 	}
 
 	respPtr := &EndpointResponse{}
-	err = postJSON(ctx, e.client, url, body, respPtr)
+	err = putResource(ctx, e.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
