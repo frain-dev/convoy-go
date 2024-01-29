@@ -86,7 +86,6 @@ func (w *Webhook) VerifyRequest(r *http.Request) error {
 
 	header := r.Header.Get(w.opts.SigHeader)
 	if isStringEmpty(header) {
-		fmt.Println("MAL")
 		return ErrInvalidHeader
 	}
 
