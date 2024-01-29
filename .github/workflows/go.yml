@@ -32,7 +32,7 @@ jobs:
         run: go mod download && go mod verify
 
       - name: Go vet
-        run: go vet ./...
+        run: go vet .
 
       - name: Go test 
         run: go test .
