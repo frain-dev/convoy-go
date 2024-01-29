@@ -9,6 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"hash"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -27,6 +29,7 @@ var (
 	DefaultTolerance              = 300 * time.Second
 	DefaultEncoding  EncodingType = HexEncoding
 	DefaultHash                   = "SHA256"
+	DefaultSigHeader              = "X-Convoy-Signature"
 )
 
 type signedHeader struct {
@@ -36,23 +39,15 @@ type signedHeader struct {
 }
 
 type Webhook struct {
-	Payload    []byte
-	SigHeader  string
-	Secret     string
-	IsAdvanced bool
-	Encoding   EncodingType
-	Hash       string
-	Tolerance  time.Duration
+	opts *WebhookOpts
 }
 
-type ConfigOpts struct {
-	Payload    []byte
-	SigHeader  string
-	Secret     string
-	IsAdvanced bool
-	Encoding   EncodingType
-	Hash       string
-	Tolerance  time.Duration
+type WebhookOpts struct {
+	SigHeader string
+	Secret    string
+	Encoding  EncodingType
+	Hash      string
+	Tolerance time.Duration
 }
 
 type EncodingType string
@@ -62,43 +57,58 @@ const (
 	HexEncoding    EncodingType = "hex"
 )
 
-func NewWebhook(data *ConfigOpts) *Webhook {
-	w := &Webhook{
-		Payload:   data.Payload,
-		SigHeader: data.SigHeader,
-		Secret:    data.Secret,
-		Hash:      data.Hash,
-		Encoding:  data.Encoding,
-		Tolerance: data.Tolerance,
+func NewWebhook(opts *WebhookOpts) *Webhook {
+
+	if isStringEmpty(opts.Hash) {
+		opts.Hash = DefaultHash
 	}
 
-	if w.Hash == "" {
-		w.Hash = DefaultHash
+	if isStringEmpty(string(opts.Encoding)) {
+		opts.Encoding = DefaultEncoding
 	}
 
-	if w.Encoding == "" {
-		w.Encoding = DefaultEncoding
+	if opts.Tolerance == 0 {
+		opts.Tolerance = DefaultTolerance
 	}
 
-	if w.Tolerance == 0 {
-		w.Tolerance = DefaultTolerance
+	if isStringEmpty(opts.SigHeader) {
+		opts.SigHeader = DefaultSigHeader
 	}
 
-	return w
+	return &Webhook{opts}
 }
 
-func (w *Webhook) Verify() error {
-	header, err := w.parseSignatureHeader()
+func (w *Webhook) VerifyRequest(r *http.Request) error {
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
 
-	expectedSignature, err := w.generateSignature(header)
+	header := r.Header.Get(w.opts.SigHeader)
+	if isStringEmpty(header) {
+		fmt.Println("MAL")
+		return ErrInvalidHeader
+	}
+
+	return w.verify(body, header)
+}
+
+func (w *Webhook) VerifyPayload(b []byte, header string) error {
+	return w.verify(b, header)
+}
+
+func (w *Webhook) verify(body []byte, header string) error {
+	sh, err := w.parseSignatureHeader(header)
 	if err != nil {
 		return err
 	}
 
-	for _, sig := range header.signatures {
+	expectedSignature, err := w.generateSignature(sh, body)
+	if err != nil {
+		return err
+	}
+
+	for _, sig := range sh.signatures {
 		// Check all signatures for a match
 		if hmac.Equal(expectedSignature, sig) {
 			return nil
@@ -108,22 +118,22 @@ func (w *Webhook) Verify() error {
 	return ErrInvalidSignature
 }
 
-func (w *Webhook) parseSignatureHeader() (*signedHeader, error) {
+func (w *Webhook) parseSignatureHeader(header string) (*signedHeader, error) {
 	var err error
 	sh := &signedHeader{}
 
-	if w.SigHeader == "" {
+	if isStringEmpty(header) {
 		return sh, ErrInvalidSignatureHeader
 	}
 
-	pairs := strings.Split(w.SigHeader, ",")
+	pairs := strings.Split(header, ",")
 	if len(pairs) > 1 {
 		sh, err = w.decodeAdvanced(sh, pairs)
 		if err != nil {
 			return sh, err
 		}
 	} else {
-		sh, err = w.decodeSimple(sh, w.SigHeader)
+		sh, err = w.decodeSimple(sh, header)
 		if err != nil {
 			return sh, err
 		}
@@ -136,20 +146,20 @@ func (w *Webhook) parseSignatureHeader() (*signedHeader, error) {
 	return sh, nil
 }
 
-func (w *Webhook) generateSignature(sh *signedHeader) ([]byte, error) {
-	fn, err := w.getHashFunction(w.Hash)
+func (w *Webhook) generateSignature(sh *signedHeader, body []byte) ([]byte, error) {
+	fn, err := w.getHashFunction(w.opts.Hash)
 	if err != nil {
 		return nil, err
 	}
 
-	h := hmac.New(fn, []byte(w.Secret))
+	h := hmac.New(fn, []byte(w.opts.Secret))
 
 	if sh.isAdvanced {
 		h.Write([]byte(fmt.Sprintf("%d", sh.timestamp.Unix())))
 		h.Write([]byte(","))
 	}
 
-	h.Write(w.Payload)
+	h.Write(body)
 	return h.Sum(nil), nil
 }
 
@@ -192,7 +202,7 @@ func (w *Webhook) decodeAdvanced(sh *signedHeader, pairs []string) (*signedHeade
 		}
 	}
 
-	expiredTimestamp := time.Since(sh.timestamp) > w.Tolerance
+	expiredTimestamp := time.Since(sh.timestamp) > w.opts.Tolerance
 	if expiredTimestamp {
 		return nil, ErrTimestampExpired
 	}
@@ -212,7 +222,7 @@ func (w *Webhook) decodeSimple(sh *signedHeader, value string) (*signedHeader, e
 }
 
 func (w *Webhook) decodeString(value string) ([]byte, error) {
-	switch w.Encoding {
+	switch w.opts.Encoding {
 	case HexEncoding:
 		sig, err := hex.DecodeString(value)
 		return sig, err
