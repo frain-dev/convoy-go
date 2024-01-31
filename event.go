@@ -108,7 +108,7 @@ func (e *Event) Create(ctx context.Context, body *CreateEventRequest) (*EventRes
 }
 
 func (e *Event) FanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) (*EventResponse, error) {
-	url, err := addOptions(e.generateUrl(), nil)
+	url, err := addOptions(e.generateUrl()+"/fanout", nil)
 	if err != nil {
 		return nil, err
 	}
