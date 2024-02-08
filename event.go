@@ -40,12 +40,11 @@ type CreateDynamicEventRequest struct {
 }
 
 type EventResponse struct {
-	UID              string              `json:"uid"`
-	EventType        string              `json:"event_type"`
-	MatchedEndpoints int                 `json:"matched_endpoints"`
-	ProviderID       string              `json:"provider_id"`
-	Data             json.RawMessage     `json:"data"`
-	EndpointMetadata []*EndpointResponse `json:"endpoint_metadata"`
+	UID              string          `json:"uid"`
+	EventType        string          `json:"event_type"`
+	MatchedEndpoints int             `json:"matched_endpoints"`
+	ProviderID       string          `json:"provider_id"`
+	Data             json.RawMessage `json:"data"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

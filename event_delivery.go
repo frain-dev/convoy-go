@@ -18,12 +18,11 @@ type EventDelivery struct {
 }
 
 type EventDeliveryResponse struct {
-	UID              string           `json:"uid"`
-	EventMetadata    EventMetadata    `json:"event_metadata"`
-	EndpointMetadata EndpointResponse `json:"endpoint_metadata"`
-	Metadata         Metadata         `json:"metadata"`
-	Description      string           `json:"description,omitempty"`
-	Status           string           `json:"status"`
+	UID           string        `json:"uid"`
+	EventMetadata EventMetadata `json:"event_metadata"`
+	Metadata      Metadata      `json:"metadata"`
+	Description   string        `json:"description,omitempty"`
+	Status        string        `json:"status"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
