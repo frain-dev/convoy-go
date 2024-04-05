@@ -126,7 +126,7 @@ func (s *Subscription) Update(ctx context.Context, subscriptionId string, body *
 	}
 
 	respPtr := &SubscriptionResponse{}
-	err = postJSON(ctx, s.client, url, body, respPtr)
+	err = putResource(ctx, s.client, url, body, respPtr)
 	if err != nil {
 		return nil, err
 	}
