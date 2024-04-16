@@ -154,6 +154,13 @@ if err != nil {
 }
 ```
 
+### Version Compatibility Table
+The following table identifies which version of the Convoy API is supported by this (and past) versions of this repo (convoy-go)
+
+| convoy-go Version  | Convoy API Version |
+|--------------------|--------------------|
+| v2.1.5             | 0001-01-01         |
+
 ## Credits
 - [Frain](https://github.com/frain-dev)
 
