@@ -49,6 +49,7 @@ type Client struct {
 	DeliveryAttempts *DeliveryAttempt
 	Sources          *Source
 	Subscriptions    *Subscription
+	PortalLinks      *PortalLink
 	Kafka            *Kafka
 	SQS              *SQS
 }
@@ -101,6 +102,7 @@ func New(baseURL, apiKey, projectID string, options ...Option) *Client {
 	c.DeliveryAttempts = newDeliveryAttempt(c)
 	c.Sources = newSource(c)
 	c.Subscriptions = newSubscription(c)
+	c.PortalLinks = newPortalLink(c)
 
 	if c.kafkaOpts != nil {
 		c.Kafka = newKafka(c)
