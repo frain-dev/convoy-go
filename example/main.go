@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	convoy "github.com/frain-dev/convoy-go"
+	convoy "github.com/frain-dev/convoy-go/v2"
 )
 
 const (
@@ -38,8 +38,11 @@ func main() {
 	//fmt.Println("Retrieving all endpoints")
 	//retrieveAllEndpoints(ctx, c)
 
-	fmt.Println("Retrieveing all events")
-	retrieveAllEvents(ctx, c)
+	//fmt.Println("Retrieveing all events")
+	//retrieveAllEvents(ctx, c)
+
+	fmt.Println("creating portal link")
+	createPortalLink(ctx, c)
 }
 
 func createEvent(ctx context.Context, c *convoy.Client) {
@@ -100,4 +103,20 @@ func retrieveAllEvents(ctx context.Context, c *convoy.Client) {
 	}
 
 	log.Printf("\nEvents retrieved - %+v\n", events)
+}
+
+func createPortalLink(ctx context.Context, c *convoy.Client) {
+	query := &convoy.CreatePortalLinkRequest{
+		Name:              "Endpoint GO SDK",
+		Endpoints:         nil,
+		OwnerID:           "frain-dev",
+		CanManageEndpoint: true,
+	}
+
+	portalLink, err := c.PortalLinks.Create(ctx, query)
+	if err != nil {
+		log.Fatal("failed to create portal links \n", err)
+	}
+
+	log.Printf("\nPortal Link created - %+v\n", portalLink)
 }

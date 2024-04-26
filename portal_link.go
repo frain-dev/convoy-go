@@ -127,5 +127,5 @@ func (p *PortalLink) Revoke(ctx context.Context, portalLinkID string) error {
 }
 
 func (p *PortalLink) generateUrl() string {
-	return fmt.Sprintf("%s/projects/%s/endpoints", p.client.baseURL, p.client.projectID)
+	return fmt.Sprintf("%s/projects/%s/portal-links", p.client.baseURL, p.client.projectID)
 }
