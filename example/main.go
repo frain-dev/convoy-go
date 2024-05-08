@@ -12,9 +12,9 @@ import (
 
 const (
 	URL        = "http://localhost:5005/api/v1"
-	projectID  = "01HB8J53CSBC4ZWCJ95TCQ6S43"
+	projectID  = "01HS1672A88250D57J8SZV4P3A"
 	endpointID = "01HCB4CWTVAVWWJDJEASHGXPA6"
-	apiKey     = "CO.vMkWVbqa7mFsmeGA.MkU35AfkWF3AcUVvNOqBj94QGZ05jxzjUmH4sgMYcipAji26dnnyNJo5bQkSzUTu"
+	apiKey     = "CO.tsmEVYn1muY1pU9t.wOB1pNEP92gnjlV7BUYz944TK9dRyYRvEzp9AR6jLy0r9Dk8WIqZ0JUhJuNq0IRm"
 	kUsername  = "k-username"
 	kPassword  = "k-password"
 	awsKey     = "aws-key"
@@ -62,10 +62,14 @@ func createEvent(ctx context.Context, c *convoy.Client) {
 }
 
 func createEndpoint(ctx context.Context, c *convoy.Client) {
+	tr := true
 	endpoint, err := c.Endpoints.Create(ctx, &convoy.CreateEndpointRequest{
-		Name:        "Endpoint GO SDK",
-		URL:         "https://webhook.site/4a5f8928-73fc-40e2-921c-e037afa9ea09",
-		Description: "Some description",
+		Name:               "Endpoint Go SDK",
+		URL:                "https://webhook.site/4a5f8928-73fc-40e2-921c-e037afa9ea09",
+		Description:        "Some description",
+		OwnerID:            "my_owner_id",
+		AdvancedSignatures: &tr,
+		HttpTimeout:        "10s",
 	}, nil)
 
 	if err != nil {

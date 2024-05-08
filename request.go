@@ -10,10 +10,6 @@ import (
 	"net/http/httputil"
 )
 
-const (
-	DEFAULT_BASE_URL = "https://dashboard.getconvoy.io/api/v1"
-)
-
 func postJSON(ctx context.Context, c *Client, url string, body interface{}, res interface{}) error {
 	buf, err := json.Marshal(body)
 	if err != nil {
@@ -68,6 +64,7 @@ func deleteResource(ctx context.Context, c *Client, url string, res interface{})
 func doReq(c *Client, req *http.Request, res interface{}) error {
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
+	req.Header.Set("X-Convoy-Version", "0001-01-01")
 
 	resp, err := c.client.Do(req)
 	if err != nil {
