@@ -37,8 +37,14 @@ type RetryConfiguration struct {
 	RetryCount int    `json:"retry_count"`
 }
 
+type Filter struct {
+	Body    map[string]interface{} `json:"body"`
+	Headers map[string]interface{} `json:"headers"`
+}
+
 type FilterConfiguration struct {
 	EventTypes []string `json:"event_types" bson:"event_types,omitempty"`
+	Filter     Filter   `json:"filter" bson:"filter,omitempty"`
 }
 
 type SubscriptionResponse struct {
