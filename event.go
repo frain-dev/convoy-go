@@ -91,34 +91,32 @@ func (e *Event) All(ctx context.Context, query *EventParams) (*ListEventResponse
 	return respPtr, nil
 }
 
-func (e *Event) Create(ctx context.Context, body *CreateEventRequest) (*EventResponse, error) {
+func (e *Event) Create(ctx context.Context, body *CreateEventRequest) error {
 	url, err := addOptions(e.generateUrl(), nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	respPtr := &EventResponse{}
-	err = postJSON(ctx, e.client, url, body, respPtr)
+	err = postJSON(ctx, e.client, url, body, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return respPtr, nil
+	return nil
 }
 
-func (e *Event) FanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) (*EventResponse, error) {
+func (e *Event) FanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) error {
 	url, err := addOptions(e.generateUrl()+"/fanout", nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	respPtr := &EventResponse{}
-	err = postJSON(ctx, e.client, url, body, respPtr)
+	err = postJSON(ctx, e.client, url, body, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return respPtr, nil
+	return nil
 }
 
 func (e *Event) Find(ctx context.Context, eventID string) (*EventResponse, error) {
