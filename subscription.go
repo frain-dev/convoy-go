@@ -53,7 +53,8 @@ type SubscriptionResponse struct {
 	Type   string `json:"type"`
 	Status string `json:"status"`
 
-	Source *SourceResponse `json:"source_metadata,omitempty"`
+	Source           *SourceResponse   `json:"source_metadata,omitempty"`
+	EndpointMetaData *EndpointResponse `json:"endpoint_metadata"`
 
 	// subscription config
 	AlertConfig  *AlertConfiguration  `json:"alert_config,omitempty"`
