@@ -2,6 +2,7 @@ package convoy_go
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -34,11 +35,37 @@ type CreateEndpointRequest struct {
 	RateLimitDuration string `json:"rate_limit_duration,omitempty"`
 }
 
+// customString is a reusable type to handle JSON values that can be either strings or integers.
+// It unmarshals JSON data into a string representation, regardless of whether the input is a string or an integer.
+type customString string
+
+func (c *customString) UnmarshalJSON(b []byte) error {
+	var strValue string
+	var intValue int
+
+	if err := json.Unmarshal(b, &strValue); err == nil {
+		*c = customString(strValue)
+		return nil
+	}
+
+	if err := json.Unmarshal(b, &intValue); err == nil {
+		*c = customString(fmt.Sprintf("%d", intValue))
+		return nil
+	}
+
+	return fmt.Errorf("customstring: cannot unmarshal %v into Go value", string(b))
+}
+
+func (c *customString) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(*c))
+}
+
 type EndpointResponse struct {
 	UID         string `json:"uid"`
 	GroupID     string `json:"group_id"`
 	OwnerID     string `json:"owner_id"`
 	TargetUrl   string `json:"target_url"`
+	URL         string `json:"url"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 
@@ -49,9 +76,9 @@ type EndpointResponse struct {
 	SupportEmail       string   `json:"support_email"`
 	IsDisabled         bool     `json:"is_disabled"`
 
-	HttpTimeout       string `json:"http_timeout"`
-	RateLimit         int    `json:"rate_limit"`
-	RateLimitDuration string `json:"rate_limit_duration"`
+	HttpTimeout       customString `json:"http_timeout"`
+	RateLimit         customString `json:"rate_limit"`
+	RateLimitDuration customString `json:"rate_limit_duration"`
 
 	Authentication *EndpointAuth `json:"authentication"`
 	Events         int64         `json:"events"`
