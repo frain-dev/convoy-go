@@ -12,9 +12,9 @@ import (
 
 const (
 	URL        = "http://localhost:5005/api/v1"
-	projectID  = "01HS1672A88250D57J8SZV4P3A"
+	projectID  = "01J6WQ1D48XW1JDV5Y7GZ6HAH6"
 	endpointID = "01HCB4CWTVAVWWJDJEASHGXPA6"
-	apiKey     = "CO.tsmEVYn1muY1pU9t.wOB1pNEP92gnjlV7BUYz944TK9dRyYRvEzp9AR6jLy0r9Dk8WIqZ0JUhJuNq0IRm"
+	apiKey     = "CO.94y8aWryXhkkT2fP.o5OhQAana2hq2R9onWvAN805kbHDVHLXu9nYcPec3IDAoJ9sj462ot8CbtIHxSZI"
 	kUsername  = "k-username"
 	kPassword  = "k-password"
 	awsKey     = "aws-key"
@@ -38,15 +38,15 @@ func main() {
 	//fmt.Println("Retrieving all endpoints")
 	//retrieveAllEndpoints(ctx, c)
 
-	//fmt.Println("Retrieveing all events")
-	//retrieveAllEvents(ctx, c)
+	fmt.Println("Retrieveing all events")
+	retrieveAllEvents(ctx, c)
 
-	fmt.Println("creating portal link")
-	createPortalLink(ctx, c)
+	//fmt.Println("creating portal link")
+	//createPortalLink(ctx, c)
 }
 
 func createEvent(ctx context.Context, c *convoy.Client) {
-	event, err := c.Events.Create(ctx, &convoy.CreateEventRequest{
+	err := c.Events.Create(ctx, &convoy.CreateEventRequest{
 		EndpointID: endpointID,
 		EventType:  "test.customer.event",
 		Data:       []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
@@ -57,8 +57,8 @@ func createEvent(ctx context.Context, c *convoy.Client) {
 		return
 	}
 
-	log.Printf("\nEndpoint event created - %+v\n", event)
-	log.Printf("\nEndpoint event data - %+v\n", string(event.Data))
+	//log.Printf("\nEndpoint event created - %+v\n", event)
+	//log.Printf("\nEndpoint event data - %+v\n", string(event.Data))
 }
 
 func createEndpoint(ctx context.Context, c *convoy.Client) {
@@ -98,8 +98,9 @@ func retrieveAllEndpoints(ctx context.Context, c *convoy.Client) {
 
 func retrieveAllEvents(ctx context.Context, c *convoy.Client) {
 	query := &convoy.EventParams{
-		StartDate: time.Now().Add(time.Duration(-24) * time.Hour),
-		EndDate:   time.Now(),
+		IdempotencyKey: "subomi-new",
+		StartDate:      time.Now().Add(time.Duration(-24) * time.Hour).UTC(),
+		EndDate:        time.Now().UTC(),
 	}
 	events, err := c.Events.All(ctx, query)
 	if err != nil {
