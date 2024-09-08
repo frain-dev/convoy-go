@@ -57,11 +57,12 @@ type ListEventResponse struct {
 
 type EventParams struct {
 	ListParams
-	Query      string    `url:"query"`
-	SourceID   string    `url:"sourceId"`
-	EndpointID []string  `url:"endpointId"`
-	StartDate  time.Time `url:"startDate" layout:"2006-01-02T15:04:05"`
-	EndDate    time.Time `url:"endDate" layout:"2006-01-02T15:04:05"`
+	Query          string    `url:"query"`
+	IdempotencyKey string    `url:"idempotencyKey"`
+	SourceID       string    `url:"sourceId"`
+	EndpointID     []string  `url:"endpointId"`
+	StartDate      time.Time `url:"startDate" layout:"2006-01-02T15:04:05"`
+	EndDate        time.Time `url:"endDate" layout:"2006-01-02T15:04:05"`
 }
 
 type BatchReplayOptions struct {
