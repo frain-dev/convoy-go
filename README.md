@@ -13,6 +13,8 @@ To begin you need to define a Client.
 Below are the several ways you can configure a client depending on your needs. 
 
 ```go
+baseURL := "{host}/api/v1"
+
 // Regular Client
 c := convoy.New(baseURL, apiKey, projectID)
 
@@ -48,7 +50,7 @@ body := &convoy.CreateEndpointRequest{
     SupportEmail: "notifications@getconvoy.io"
 }
 
-endpoint, err := c.Endpoints.Create(ctx, body)
+endpoint, err := c.Endpoints.Create(ctx, body, nil)
 if err != nil {
     return err
 }
@@ -61,7 +63,7 @@ body := &convoy.CreateSubscriptionRequest{
     Name: "endpoint-subscription",
     EndpointID: "endpoint-id",
     FilterConfig: &convoy.FilterConfiguration{
-        EventTypes: []string{"payment.created", "payment.updated"},
+        EventTypes: []string{"*"},
     },
 }
 

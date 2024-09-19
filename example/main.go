@@ -12,9 +12,9 @@ import (
 
 const (
 	URL        = "http://localhost:5005/api/v1"
-	projectID  = "01J6WQ1D48XW1JDV5Y7GZ6HAH6"
+	projectID  = "01J85SKH36RAFZ4N51BP5GBJYC"
 	endpointID = "01HCB4CWTVAVWWJDJEASHGXPA6"
-	apiKey     = "CO.94y8aWryXhkkT2fP.o5OhQAana2hq2R9onWvAN805kbHDVHLXu9nYcPec3IDAoJ9sj462ot8CbtIHxSZI"
+	apiKey     = "CO.4s4wuGBAfWH41bRQ.MUMuCtqEQyAUi3A0UufANoJzV7XVrcU4AskYuGNpCAG16pxf0jKMq7HNV35rEqNb"
 	kUsername  = "k-username"
 	kPassword  = "k-password"
 	awsKey     = "aws-key"
@@ -29,8 +29,14 @@ func main() {
 		convoy.OptionLogger(logger),
 	)
 
-	//fmt.Println("Create Endpoint...")
-	//createEndpoint(ctx, c)
+	fmt.Println("Create Endpoint...")
+	endpointID := createEndpoint(ctx, c)
+
+	fmt.Println("Create Subscriptions...")
+	createSubscription(ctx, endpointID, c)
+
+	fmt.Println("Create Event...")
+	createEvent(ctx, endpointID, c)
 
 	//fmt.Println("Pausing Endpoint...")
 	//pauseEndpoint(ctx, c)
@@ -38,18 +44,18 @@ func main() {
 	//fmt.Println("Retrieving all endpoints")
 	//retrieveAllEndpoints(ctx, c)
 
-	fmt.Println("Retrieveing all events")
-	retrieveAllEvents(ctx, c)
+	//fmt.Println("Retrieveing all events")
+	//retrieveAllEvents(ctx, c)
 
 	//fmt.Println("creating portal link")
 	//createPortalLink(ctx, c)
 }
 
-func createEvent(ctx context.Context, c *convoy.Client) {
+func createEvent(ctx context.Context, endpointID string, c *convoy.Client) {
 	err := c.Events.Create(ctx, &convoy.CreateEventRequest{
 		EndpointID: endpointID,
-		EventType:  "test.customer.event",
-		Data:       []byte(`{"event_type": "test.event", "data": { "Hello": "World", "Test": "Data" }}`),
+		EventType:  "test.event",
+		Data:       []byte(`{"event_type": "test.event", "data": { "version": "Convoy Cloud" }}`),
 	})
 
 	if err != nil {
@@ -61,7 +67,7 @@ func createEvent(ctx context.Context, c *convoy.Client) {
 	//log.Printf("\nEndpoint event data - %+v\n", string(event.Data))
 }
 
-func createEndpoint(ctx context.Context, c *convoy.Client) {
+func createEndpoint(ctx context.Context, c *convoy.Client) string {
 	tr := true
 	endpoint, err := c.Endpoints.Create(ctx, &convoy.CreateEndpointRequest{
 		Name:               "Endpoint Go SDK",
@@ -74,8 +80,27 @@ func createEndpoint(ctx context.Context, c *convoy.Client) {
 
 	if err != nil {
 		log.Fatal("failed to create endpoint \n", err)
+		return ""
 	}
+
 	log.Printf("\nEndpoint created - %+v\n", endpoint)
+	return endpoint.UID
+}
+
+func createSubscription(ctx context.Context, endpointID string, c *convoy.Client) {
+	subscription, err := c.Subscriptions.Create(ctx, &convoy.CreateSubscriptionRequest{
+		Name:       "Go SDK Subscription",
+		EndpointID: endpointID,
+		FilterConfig: &convoy.FilterConfiguration{
+			EventTypes: []string{"*"},
+		},
+	})
+
+	if err != nil {
+		log.Fatal("failed to create subscription", err)
+	}
+
+	log.Printf("\n Subscription created - %+v\n", subscription)
 }
 
 func pauseEndpoint(ctx context.Context, c *convoy.Client) {
