@@ -33,6 +33,13 @@ type CreateFanoutEventRequest struct {
 	Data           json.RawMessage   `json:"data"`
 }
 
+type CreateBroadcastEventRequest struct {
+	EventType      string            `json:"event_type"`
+	CustomHeaders  map[string]string `json:"custom_headers"`
+	IdempotencyKey string            `json:"idempotency_key"`
+	Data           json.RawMessage   `json:"data"`
+}
+
 type CreateDynamicEventRequest struct {
 	Endpoint     string `json:"endpoint"`
 	Subscription string `json:"subscription"`
@@ -108,6 +115,20 @@ func (e *Event) Create(ctx context.Context, body *CreateEventRequest) error {
 
 func (e *Event) FanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) error {
 	url, err := addOptions(e.generateUrl()+"/fanout", nil)
+	if err != nil {
+		return err
+	}
+
+	err = postJSON(ctx, e.client, url, body, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (e *Event) BroadcastEvent(ctx context.Context, body *CreateBroadcastEventRequest) error {
+	url, err := addOptions(e.generateUrl()+"/broadcast", nil)
 	if err != nil {
 		return err
 	}
