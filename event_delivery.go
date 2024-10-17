@@ -57,6 +57,7 @@ type ListEventDeliveryResponse struct {
 
 type EventDeliveryParams struct {
 	ListParams
+	EventType      string    `url:"event_type"`
 	EventID        string    `url:"eventId"`
 	Status         []string  `url:"status"`
 	EndpointID     []string  `url:"endpointId"`
