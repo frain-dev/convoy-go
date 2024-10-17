@@ -28,7 +28,7 @@ type Pagination struct {
 
 // ListParams is used in requests for filtering lists
 type ListParams struct {
-	PerPage        int    `url:"perPage"`
+	PerPage        int    `url:"perPage,omitempty"`
 	PrevPageCursor string `url:"prev_page_cursor"`
 	NextPageCursor string `url:"next_page_cursor"`
 }
