@@ -29,23 +29,48 @@ func newKafka(c *Client) *Kafka {
 }
 
 func (k *Kafka) WriteEvent(ctx context.Context, body *CreateEventRequest) error {
+	if body.CustomHeaders == nil {
+		body.CustomHeaders = map[string]string{"x-convoy-message-type": "single"}
+	} else {
+		body.CustomHeaders["x-convoy-message-type"] = "single"
+	}
+
 	payload, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
-	return k.writer.WriteMessages(ctx, kafka.Message{
-		Value: payload,
-	})
+	return k.writer.WriteMessages(ctx, kafka.Message{Value: payload})
+
 }
 
 func (k *Kafka) WriteFanoutEvent(ctx context.Context, body *CreateFanoutEventRequest) error {
+	if body.CustomHeaders == nil {
+		body.CustomHeaders = map[string]string{"x-convoy-message-type": "fanout"}
+	} else {
+		body.CustomHeaders["x-convoy-message-type"] = "fanout"
+	}
+
 	payload, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
-	return k.writer.WriteMessages(ctx, kafka.Message{
-		Value: payload,
-	})
+	return k.writer.WriteMessages(ctx, kafka.Message{Value: payload})
+
+}
+
+func (k *Kafka) WriteBroadcastEvent(ctx context.Context, body *CreateBroadcastEventRequest) error {
+	if body.CustomHeaders == nil {
+		body.CustomHeaders = map[string]string{"x-convoy-message-type": "broadcast"}
+	} else {
+		body.CustomHeaders["x-convoy-message-type"] = "broadcast"
+	}
+
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	return k.writer.WriteMessages(ctx, kafka.Message{Value: payload})
 }
