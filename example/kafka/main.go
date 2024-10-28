@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	convoy "github.com/frain-dev/convoy-go"
+	convoy "github.com/frain-dev/convoy-go/v2"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/scram"
 )

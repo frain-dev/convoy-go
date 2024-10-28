@@ -8,7 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	convoy "github.com/frain-dev/convoy-go"
+	convoy "github.com/frain-dev/convoy-go/v2"
 )
 
 var (
