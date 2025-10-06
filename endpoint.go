@@ -26,6 +26,7 @@ type CreateEndpointRequest struct {
 	Description        string `json:"description,omitempty"`
 	AdvancedSignatures *bool  `json:"advanced_signatures"`
 	IsDisabled         bool   `json:"is_disabled"`
+	ContentType        string `json:"content_type,omitempty"`
 
 	Authentication *EndpointAuth `json:"authentication"`
 
@@ -48,6 +49,7 @@ type EndpointResponse struct {
 	SlackWebhookUrl    string   `json:"slack_webhook_url"`
 	SupportEmail       string   `json:"support_email"`
 	IsDisabled         bool     `json:"is_disabled"`
+	ContentType        string   `json:"content_type"`
 
 	HttpTimeout       string `json:"http_timeout"`
 	RateLimit         int    `json:"rate_limit"`
