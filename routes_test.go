@@ -2,9 +2,11 @@ package convoy_go
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -70,6 +72,43 @@ func TestRequestsPinConvoyVersionAndAuthHeaders(t *testing.T) {
 
 	require.Equal(t, "Bearer test-api-key", captured.header.Get("Authorization"))
 	require.Equal(t, "2025-11-24", captured.header.Get("X-Convoy-Version"))
+}
+
+type captureLogger struct {
+	debug strings.Builder
+}
+
+func (l *captureLogger) Debugf(format string, v ...interface{}) {
+	l.debug.WriteString(fmt.Sprintf(format, v...))
+}
+func (l *captureLogger) Errorf(string, ...interface{}) {}
+func (l *captureLogger) Infof(string, ...interface{})  {}
+func (l *captureLogger) Warnf(string, ...interface{})  {}
+
+func TestDebugDumpRedactsAPIKeyButSendsRealCredential(t *testing.T) {
+	captured := &capturedRequest{}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		captured.header = r.Header.Clone()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"status":true,"message":"ok","data":null}`))
+	}))
+	t.Cleanup(srv.Close)
+
+	logger := &captureLogger{}
+	c := New(srv.URL, "test-api-key", "test-project-id", OptionLogger(logger))
+
+	err := c.Events.Create(context.Background(), &CreateEventRequest{
+		EndpointID: "ep-1",
+		EventType:  "test.event",
+		Data:       []byte(`{"k":"v"}`),
+	})
+	require.NoError(t, err)
+
+	// The debug dump must never contain the credential, but the wire
+	// request must still carry it.
+	require.NotContains(t, logger.debug.String(), "test-api-key")
+	require.Contains(t, logger.debug.String(), "Bearer [REDACTED]")
+	require.Equal(t, "Bearer test-api-key", captured.header.Get("Authorization"))
 }
 
 func TestEndpointPauseUsesPut(t *testing.T) {

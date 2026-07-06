@@ -70,11 +70,16 @@ func doReq(c *Client, req *http.Request, res interface{}) error {
 	req.Header.Set("X-Convoy-Version", "2025-11-24")
 
 	// Dump before sending; afterwards the body is already consumed and the
-	// dump fails with a spurious error log on every request.
+	// dump fails with a spurious error log on every request. Redact the
+	// credential first so debug logs shipped to shared observability
+	// systems never contain the API key.
+	auth := req.Header.Get("Authorization")
+	req.Header.Set("Authorization", "Bearer [REDACTED]")
 	dump, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
 		c.log.Errorf("error dumping request payload - ", err)
 	}
+	req.Header.Set("Authorization", auth)
 
 	c.log.Debugf("request: %q", dump)
 
