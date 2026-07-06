@@ -26,7 +26,7 @@ type CreateSourceRequest struct {
 
 type SourceResponse struct {
 	UID            string          `json:"uid"`
-	GroupID        string          `json:"group_id"`
+	ProjectID      string          `json:"project_id"`
 	MaskID         string          `json:"mask_id"`
 	Name           string          `json:"name"`
 	Type           string          `json:"type"`

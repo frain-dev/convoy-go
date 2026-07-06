@@ -13,7 +13,10 @@ To begin you need to define a Client.
 Below are the several ways you can configure a client depending on your needs. 
 
 ```go
-baseURL := "{host}/api/v1"
+// Convoy Cloud (US): https://us.getconvoy.cloud/api/v1
+// Convoy Cloud (EU): https://eu.getconvoy.cloud/api/v1
+// Self-hosted: https://your-instance/api/v1
+baseURL := "https://us.getconvoy.cloud/api/v1"
 
 // Regular Client
 c := convoy.New(baseURL, apiKey, projectID)
@@ -45,9 +48,9 @@ Please see [go reference](https://pkg.go.dev/github.com/frain-dev/convoy-go) for
 ```go
 body := &convoy.CreateEndpointRequest{
     Name: "endpoint-name",
-    URL: "http://play.getconvoy.io/ingest/DQzxCcNKTB7SGqzm",
+    URL: "https://example.com/webhooks/convoy",
     Secret: "endpoint-secret",
-    SupportEmail: "notifications@getconvoy.io"
+    SupportEmail: "notifications@getconvoy.io",
 }
 
 endpoint, err := c.Endpoints.Create(ctx, body, nil)
@@ -140,19 +143,29 @@ if err != nil {
 ```
 
 ### Verifying Webhooks
-This client supports verifying [simple](https://www.getconvoy.io/docs/manual/signatures#Simple%20signatures) and [advanced](https://www.getconvoy.io/docs/manual/signatures#Advanced%20signatures) webhook signatures. 
+This client supports verifying [simple](https://www.getconvoy.io/docs/manual/signatures#Simple%20signatures) and [advanced](https://www.getconvoy.io/docs/manual/signatures#Advanced%20signatures) webhook signatures. Verify with the raw request body, before parsing it.
+
 ```go 
-webhook := NewWebhook(&convoy.ConfigOpts{
-    SigHeader: "ZmBgy+E0i7x+yY9Ok92P3CZQkc+FEJgR5gYZ0bwSEhwLESnc/gGct57IQ==",
-    Payload:   []byte(`{"firstname":"test","lastname":"test"}`),
-    Secret:    "8IX9njirDG",
-    Hash:      "SHA512",
-    Encoding:  "base64",
+webhook := convoy.NewWebhook(&convoy.WebhookOpts{
+    Secret: "endpoint-secret",
 })
 
-err := webhook.Verify()
-if err != nil {
-    return err 
+// Verify an incoming *http.Request. This reads the request body; read it
+// yourself first and use VerifyPayload if you need the body afterwards.
+func handler(w http.ResponseWriter, r *http.Request) {
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, "failed to read body", http.StatusBadRequest)
+        return
+    }
+
+    if err := webhook.VerifyPayload(body, r.Header.Get("X-Convoy-Signature")); err != nil {
+        http.Error(w, "invalid signature", http.StatusBadRequest)
+        return
+    }
+
+    // signature is valid; process the event using body
+    w.WriteHeader(http.StatusOK)
 }
 ```
 
@@ -164,6 +177,7 @@ The following table identifies which version of the Convoy API is supported by t
 | v2.1.5            | 0001-01-01         |
 | v2.1.6            | 0001-01-01         |
 | v2.1.7            | 0001-01-01         |
+| v2.2.0            | 2025-11-24         |
 
 ## Credits
 - [Frain](https://github.com/frain-dev)

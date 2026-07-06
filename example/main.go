@@ -75,7 +75,7 @@ func createEndpoint(ctx context.Context, c *convoy.Client) string {
 		Description:        "Some description",
 		OwnerID:            "my_owner_id",
 		AdvancedSignatures: &tr,
-		HttpTimeout:        "10s",
+		HttpTimeout:        10,
 	}, nil)
 
 	if err != nil {
