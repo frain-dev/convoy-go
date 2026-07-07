@@ -18,9 +18,9 @@ type Endpoint struct {
 
 type CreateEndpointRequest struct {
 	Name               string `json:"name"`
-	SupportEmail       string `json:"support_email"`
-	OwnerID            string `json:"owner_id"`
-	SlackWebhookUrl    string `json:"slack_webhook_url"`
+	SupportEmail       string `json:"support_email,omitempty"`
+	OwnerID            string `json:"owner_id,omitempty"`
+	SlackWebhookUrl    string `json:"slack_webhook_url,omitempty"`
 	URL                string `json:"url"`
 	Secret             string `json:"secret,omitempty"`
 	Description        string `json:"description,omitempty"`
@@ -28,19 +28,21 @@ type CreateEndpointRequest struct {
 	IsDisabled         bool   `json:"is_disabled"`
 	ContentType        string `json:"content_type,omitempty"`
 
-	Authentication *EndpointAuth `json:"authentication"`
+	Authentication *EndpointAuth `json:"authentication,omitempty"`
 
-	HttpTimeout       string `json:"http_timeout,omitempty"`
-	RateLimit         int    `json:"rate_limit,omitempty"`
-	RateLimitDuration string `json:"rate_limit_duration,omitempty"`
+	// HttpTimeout is the endpoint request timeout in seconds.
+	HttpTimeout uint64 `json:"http_timeout,omitempty"`
+	RateLimit   int    `json:"rate_limit,omitempty"`
+	// RateLimitDuration is the rate limit window in seconds.
+	RateLimitDuration uint64 `json:"rate_limit_duration,omitempty"`
 }
 
 type EndpointResponse struct {
 	UID         string `json:"uid"`
-	GroupID     string `json:"group_id"`
+	ProjectID   string `json:"project_id"`
 	OwnerID     string `json:"owner_id"`
-	TargetUrl   string `json:"target_url"`
-	Title       string `json:"title"`
+	URL         string `json:"url"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 
 	Status             string   `json:"status"`
@@ -48,15 +50,23 @@ type EndpointResponse struct {
 	AdvancedSignatures bool     `json:"advanced_signatures"`
 	SlackWebhookUrl    string   `json:"slack_webhook_url"`
 	SupportEmail       string   `json:"support_email"`
-	IsDisabled         bool     `json:"is_disabled"`
 	ContentType        string   `json:"content_type"`
 
-	HttpTimeout       string `json:"http_timeout"`
-	RateLimit         int    `json:"rate_limit"`
-	RateLimitDuration string `json:"rate_limit_duration"`
+	// HttpTimeout is the endpoint request timeout in seconds.
+	HttpTimeout uint64 `json:"http_timeout"`
+	RateLimit   int    `json:"rate_limit"`
+	// RateLimitDuration is the rate limit window in seconds.
+	RateLimitDuration uint64 `json:"rate_limit_duration"`
 
 	Authentication *EndpointAuth `json:"authentication"`
 	Events         int64         `json:"events"`
+
+	// FailureRate is the circuit breaker's rolling failure rate; null when the
+	// feature is off or has no sample for this endpoint.
+	FailureRate *float64 `json:"failure_rate"`
+	// CBState is the circuit breaker state ("open", "half-open", "closed");
+	// null when off/unlicensed or unsampled.
+	CBState *string `json:"cb_state"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

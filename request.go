@@ -64,20 +64,29 @@ func deleteResource(ctx context.Context, c *Client, url string, res interface{})
 func doReq(c *Client, req *http.Request, res interface{}) error {
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
-	req.Header.Set("X-Convoy-Version", "0001-01-01")
+	// Pin the current API version so request/response migrations are a no-op.
+	// Older pins (e.g. 0001-01-01) make the server rewrite http_timeout and
+	// rate_limit_duration into legacy duration strings.
+	req.Header.Set("X-Convoy-Version", "2025-11-24")
+
+	// Dump before sending; afterwards the body is already consumed and the
+	// dump fails with a spurious error log on every request. Redact the
+	// credential first so debug logs shipped to shared observability
+	// systems never contain the API key.
+	auth := req.Header.Get("Authorization")
+	req.Header.Set("Authorization", "Bearer [REDACTED]")
+	dump, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		c.log.Errorf("error dumping request payload - ", err)
+	}
+	req.Header.Set("Authorization", auth)
+
+	c.log.Debugf("request: %q", dump)
 
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("error processing request - %+v", err)
 	}
-
-	// Send debug logs.
-	dump, err := httputil.DumpRequestOut(req, true)
-	if err != nil {
-		c.log.Errorf("error dumping request payload - ", err)
-	}
-
-	c.log.Debugf("request: %q", dump)
 
 	err = parseAPIResponse(c, resp, res)
 	if err != nil {
@@ -119,7 +128,9 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 		return fmt.Errorf("convoy error: %s", response.Message)
 	}
 
-	if resultPtr != nil {
+	// Data is null for accepted-async endpoints (e.g. batchretry), so only
+	// unmarshal when the server actually sent a payload.
+	if resultPtr != nil && response.Data != nil {
 		err = json.Unmarshal(*response.Data, resultPtr)
 		if err != nil {
 			return fmt.Errorf("error while unmarshalling the response data bytes %+v ", err)

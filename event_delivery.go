@@ -117,6 +117,8 @@ func (e *EventDelivery) Resend(ctx context.Context, eventDeliveryID string, quer
 	return respPtr, nil
 }
 
+// BatchResend retries deliveries matching the query filters; the server reads
+// filters from query params only.
 func (e *EventDelivery) BatchResend(ctx context.Context, query *EventDeliveryParams) error {
 	url, err := addOptions(e.generateUrl()+"/batchretry", query)
 	if err != nil {
@@ -124,7 +126,7 @@ func (e *EventDelivery) BatchResend(ctx context.Context, query *EventDeliveryPar
 	}
 
 	respPtr := &EventDeliveryResponse{}
-	err = putResource(ctx, e.client, url, nil, respPtr)
+	err = postJSON(ctx, e.client, url, struct{}{}, respPtr)
 	if err != nil {
 		return err
 	}
