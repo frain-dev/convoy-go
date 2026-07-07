@@ -48,7 +48,7 @@ Please see [go reference](https://pkg.go.dev/github.com/frain-dev/convoy-go) for
 ```go
 body := &convoy.CreateEndpointRequest{
     Name: "endpoint-name",
-    // Grab your own ingest URL from https://playground.getconvoy.io
+    // Get a test ingest URL from https://playground.getconvoy.io
     URL: "https://us.getconvoy.cloud/ingest/DQzxCcNKTB7SGqzm",
     Secret: "endpoint-secret",
     SupportEmail: "notifications@getconvoy.io",
