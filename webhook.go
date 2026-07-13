@@ -191,7 +191,7 @@ func (w *Webhook) decodeAdvanced(sh *signedHeader, pairs []string) (*signedHeade
 			continue
 		}
 
-		if strings.Contains(item, "v") {
+		if strings.HasPrefix(item, "v") {
 			sig, err := w.decodeString(parts[1])
 			if err != nil {
 				continue
