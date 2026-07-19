@@ -1,0 +1,122 @@
+name: SDK Generation
+
+# Generator: oapi-codegen (pinned in scripts/generate.sh) into client/.
+#
+# Keeps the same workflow filename and dispatch inputs as the other SDK repos
+# (convoy.js, convoy-python, convoy-java) so the frain-dev/convoy dispatcher
+# (speakeasy-sdk.yml) works unchanged.
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        # Accepted for dispatcher compatibility. Generation is deterministic
+        # from the spec, so there is nothing to force: no diff means no PR.
+        description: Accepted for compatibility; regeneration is always run
+        required: false
+        default: "false"
+        type: string
+      feature_branch:
+        description: Branch for SDK changes
+        required: false
+        type: string
+  schedule:
+    - cron: "0 6 * * 1"
+
+# Serialize generations: overlapping cron/dispatch runs race on the same
+# branch/PR. Queue instead of cancel so a triggered regen is never dropped.
+concurrency:
+  group: sdk-generation
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          # Regen branches are always derived from main: the spec is pulled
+          # from convoy main, so a dispatch from another ref must not silently
+          # commit generated output onto that ref's base.
+          ref: main
+          # Prefer a PAT: PRs opened with GITHUB_TOKEN do not trigger
+          # pull_request workflows, so verify CI would never run on them.
+          token: ${{ secrets.SDK_BOT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.24.x"
+
+      - name: Regenerate client
+        run: ./scripts/generate.sh
+
+      - name: Compile and test regenerated client
+        # Never open a PR for a client that does not compile or breaks the
+        # verify tests. PR CI (go.yml) re-proves this on the PR itself.
+        run: go build ./... && go test ./...
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No client changes; skipping PR." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare feature branch
+        if: steps.diff.outputs.changed == 'true'
+        id: branch
+        env:
+          # Never interpolate free-form dispatch inputs into run: directly.
+          FEATURE_BRANCH_INPUT: ${{ inputs.feature_branch }}
+        run: |
+          if [ -n "$FEATURE_BRANCH_INPUT" ]; then
+            # SDK PRs must come from a reviewable feature branch, never a
+            # protected ref or an option-looking / metacharacter name.
+            # refs/* is blocked too: "refs/heads/main" would bypass the
+            # literal main check and force-push the default branch.
+            case "$FEATURE_BRANCH_INPUT" in
+              main|master|release/*|refs/*|-*|*[!a-zA-Z0-9._/-]*)
+                echo "::error::Invalid feature_branch '$FEATURE_BRANCH_INPUT'"
+                exit 1
+                ;;
+            esac
+            echo "name=$FEATURE_BRANCH_INPUT" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=sdk-regen-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push branch and open PR
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.SDK_BOT_PAT || secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+          git add -A
+          git commit -m "feat: regenerate API client from OpenAPI spec"
+          # Force push is safe: the regen branch is fully derived from main
+          # plus this deterministic generation; any previous content is stale.
+          git push --force origin "$BRANCH"
+
+          existing=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$existing" ]; then
+            gh pr create \
+              --head "$BRANCH" \
+              --title "feat: regenerate API client from OpenAPI spec" \
+              --body "Automated regeneration via oapi-codegen from \`docs/v3/openapi3.yaml\` on frain-dev/convoy main. The hand-written root package and webhook verify are untouched by the sync script."
+            echo "Opened PR for $BRANCH" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Updated existing PR #$existing" >> "$GITHUB_STEP_SUMMARY"
+          fi
