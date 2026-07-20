@@ -230,11 +230,30 @@ jobs:
               "Left for human review (policy: fail open to human review, never to merge).")"
           fi
 
-          GH_TOKEN="$APP_TOKEN" gh api -X POST "repos/$GH_REPO/pulls/$pr/reviews" \
+          review_id=$(GH_TOKEN="$APP_TOKEN" gh api -X POST "repos/$GH_REPO/pulls/$pr/reviews" \
             -f event=APPROVE \
             -f commit_id="$head_sha" \
-            -f body="SDK reviewer app: approving a generated-paths-only diff on the regen branch. Auto-merge completes only after required status checks pass."
+            -f body="SDK reviewer app: approving a generated-paths-only diff on the regen branch. Auto-merge completes only after required status checks pass." \
+            --jq '.id')
 
+          # Close the validate-then-approve race: a push landing between the
+          # allowlist check and the approval is not covered by
+          # dismiss_stale_reviews (that only dismisses on pushes after the
+          # review), so re-read the head and dismiss our own approval if it
+          # moved off the validated commit.
+          now_sha=$(GH_TOKEN="$APP_TOKEN" gh pr view "$pr" --json headRefOid --jq '.headRefOid')
+          if [ "$now_sha" != "$head_sha" ]; then
+            echo "Head moved from $head_sha to $now_sha during approval; dismissing review."
+            GH_TOKEN="$APP_TOKEN" gh api -X PUT "repos/$GH_REPO/pulls/$pr/reviews/$review_id/dismissals" \
+              -f message="Head moved during approval; the approved commit is no longer the PR head." \
+              -f event=DISMISS
+            deny "SDK reviewer app: approval dismissed; the PR head changed while the review was being submitted. Left for human review (policy: fail open to human review, never to merge)."
+          fi
+
+          # Post-validation head drift is closed by branch protection, not
+          # here: the approval is pinned to the validated commit_id and
+          # dismiss_stale_reviews dismisses it on any later push, so
+          # auto-merge fail-closes back to human review.
           enabled=$(GH_TOKEN="$APP_TOKEN" gh pr view "$pr" --json autoMergeRequest --jq '.autoMergeRequest != null')
           if [ "$enabled" = "true" ]; then
             echo "Auto-merge already enabled on PR #$pr."
