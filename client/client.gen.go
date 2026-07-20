@@ -1515,7 +1515,8 @@ type ModelsCreateEvent struct {
 	// webhook to the endpoints
 	Data *map[string]interface{} `json:"data,omitempty"`
 
-	// EndpointId Specifies the endpoint to send this event to.
+	// EndpointId Specifies the endpoint to send this event to. Required unless the
+	// deprecated app_id is provided.
 	EndpointId *string `json:"endpoint_id,omitempty"`
 
 	// EventType Event Type is used for filtering and debugging e.g invoice.paid
