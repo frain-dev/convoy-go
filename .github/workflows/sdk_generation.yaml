@@ -151,9 +151,22 @@ jobs:
         run: |
           # Failure policy: fail open to human review, never to merge. Any
           # gate miss below (wrong base, stale head, non-generated paths)
-          # leaves the PR unapproved for a human; auto-merge completes only
-          # after the required status checks pass.
+          # leaves the PR unapproved for a human. Clearing a stale auto-merge
+          # is the one hard failure: if --disable-auto errors, this step goes
+          # red instead of leaving a rejected head silently mergeable.
           set -euo pipefail
+
+          deny() {
+            # Auto-merge is cleared before commenting: under set -e a comment
+            # failure must not skip the disable, and a disable failure must
+            # fail the step, not be swallowed.
+            enabled=$(GH_TOKEN="$APP_TOKEN" gh pr view "$pr" --json autoMergeRequest --jq '.autoMergeRequest != null')
+            if [ "$enabled" = "true" ]; then
+              GH_TOKEN="$MERGE_TOKEN" gh pr merge "$pr" --disable-auto
+            fi
+            printf '%s\n' "$1" | GH_TOKEN="$APP_TOKEN" gh pr comment "$pr" --body-file - || true
+            exit 0
+          }
 
           pr_json=$(GH_TOKEN="$APP_TOKEN" gh pr list --head "$BRANCH" --state open \
             --json number,baseRefName,headRefOid --jq '.[0] // empty')
@@ -167,7 +180,7 @@ jobs:
 
           if [ "$base" != "main" ]; then
             echo "Not approving PR #$pr: base is $base, not main."
-            exit 0
+            deny "SDK reviewer app: not auto-approving; the PR base is \`$base\`, not \`main\`. Left for human review (policy: fail open to human review, never to merge)."
           fi
 
           # Only regen PRs authored by the bot app qualify for auto-review.
@@ -176,8 +189,7 @@ jobs:
           author=$(GH_TOKEN="$APP_TOKEN" gh api "repos/$GH_REPO/pulls/$pr" --jq '.user.login')
           if [ "$author" != "convoy-sdk-bot[bot]" ]; then
             echo "Not approving PR #$pr: author is $author, not convoy-sdk-bot[bot]."
-            GH_TOKEN="$APP_TOKEN" gh pr comment "$pr" --body "SDK reviewer app: not auto-approving; PR author is not convoy-sdk-bot[bot]. Left for human review (policy: fail open to human review, never to merge)."
-            exit 0
+            deny "SDK reviewer app: not auto-approving; PR author is not convoy-sdk-bot[bot]. Left for human review (policy: fail open to human review, never to merge)."
           fi
 
           # Bind the approval to the commit this run pushed; a concurrent
@@ -186,14 +198,23 @@ jobs:
           pushed_sha=$(git rev-parse HEAD)
           if [ "$head_sha" != "$pushed_sha" ]; then
             echo "Not approving PR #$pr: head $head_sha is not the commit this run pushed."
-            exit 0
+            deny "SDK reviewer app: not auto-approving; the PR head is not the commit this generation run pushed. Left for human review (policy: fail open to human review, never to merge)."
+          fi
+
+          # This run committed a real diff, so an empty changed-files listing
+          # is an API anomaly, not a clean PR; it must not count as an
+          # allowlist pass.
+          files=$(GH_TOKEN="$APP_TOKEN" gh api "repos/$GH_REPO/pulls/$pr/files" --paginate \
+            --jq '.[] | .filename, (.previous_filename // empty)')
+          if [ -z "$files" ]; then
+            echo "Not approving PR #$pr: changed-files listing came back empty."
+            deny "SDK reviewer app: not auto-approving; the changed-files listing came back empty for a non-empty regen commit. Left for human review (policy: fail open to human review, never to merge)."
           fi
 
           # Allowlist mirrors scripts/generate.sh: only client/client.gen.go
           # is generated. Renames are checked on both sides so a file cannot
           # be moved into the generated tree from outside it.
-          bad=$(GH_TOKEN="$APP_TOKEN" gh api "repos/$GH_REPO/pulls/$pr/files" --paginate \
-            --jq '.[] | .filename, (.previous_filename // empty)' \
+          bad=$(printf '%s\n' "$files" \
             | while read -r f; do
                 case "$f" in
                   client/client.gen.go) ;;
@@ -203,19 +224,10 @@ jobs:
           if [ -n "$bad" ]; then
             echo "Not approving PR #$pr: diff touches non-generated paths:"
             echo "$bad"
-            {
-              echo "SDK reviewer app: not auto-approving; the diff touches paths outside the generated allowlist:"
-              echo
-              echo '```'
-              echo "$bad"
-              echo '```'
-              echo
-              echo "Left for human review (policy: fail open to human review, never to merge)."
-            } | GH_TOKEN="$APP_TOKEN" gh pr comment "$pr" --body-file -
-            # Best effort: drop any auto-merge left enabled by an earlier
-            # clean run of this branch.
-            GH_TOKEN="$MERGE_TOKEN" gh pr merge "$pr" --disable-auto || true
-            exit 0
+            deny "$(printf '%s\n' \
+              "SDK reviewer app: not auto-approving; the diff touches paths outside the generated allowlist:" \
+              "" '```' "$bad" '```' "" \
+              "Left for human review (policy: fail open to human review, never to merge).")"
           fi
 
           GH_TOKEN="$APP_TOKEN" gh api -X POST "repos/$GH_REPO/pulls/$pr/reviews" \
