@@ -6,6 +6,38 @@ This is the Golang SDK for Convoy. It makes it easy to interact with the Convoy 
 $ go get github.com/frain-dev/convoy-go/v2
 ```
 
+## Generated API client (`client` package)
+
+The `client` subpackage is generated from Convoy's OpenAPI spec via
+[oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) and covers the
+full `/api/v1` surface with typed requests and responses:
+
+```go
+import "github.com/frain-dev/convoy-go/v2/client"
+
+c, err := client.NewClientWithResponses("https://us.getconvoy.cloud/api",
+    client.WithRequestEditorFn(func(_ context.Context, req *http.Request) error {
+        req.Header.Set("Authorization", "Bearer "+apiKey)
+        // Pin the API version this client was generated from.
+        req.Header.Set("X-Convoy-Version", "2025-11-24")
+        return nil
+    }))
+
+data := map[string]interface{}{"amount": 100, "currency": "USD"}
+endpointID, eventType := "endpoint-id", "invoice.paid"
+resp, err := c.CreateEndpointEventWithResponse(ctx, projectID,
+    client.CreateEndpointEventJSONRequestBody{
+        EndpointId: &endpointID,
+        EventType:  &eventType,
+        Data:       &data,
+    })
+```
+
+Do not edit `client/client.gen.go` by hand; regenerate with
+`./scripts/generate.sh` (CI on `frain-dev/convoy` dispatches this when the
+spec changes). The hand-written client below and webhook verify are never
+touched by generation.
+
 ## Usage
 To begin you need to define a Client. 
 

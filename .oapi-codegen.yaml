@@ -1,0 +1,8 @@
+# oapi-codegen config (active generator for the generated API client).
+# The hand-written client in the repo root and webhook verify (webhook.go)
+# are not generated and never touched by scripts/generate.sh.
+package: client
+output: client/client.gen.go
+generate:
+  models: true
+  client: true
