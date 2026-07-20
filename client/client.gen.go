@@ -3430,7 +3430,7 @@ type ClientInterface interface {
 
 	// BulkOnboardWithBody Bulk onboard endpoints with subscriptions
 	//
-	// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+	// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -3439,7 +3439,7 @@ type ClientInterface interface {
 
 	// BulkOnboard Bulk onboard endpoints with subscriptions
 	//
-	// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+	// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -4739,7 +4739,7 @@ func (c *Client) ResendMetaEvent(ctx context.Context, projectID string, metaEven
 
 // BulkOnboardWithBody Bulk onboard endpoints with subscriptions
 //
-// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4758,7 +4758,7 @@ func (c *Client) BulkOnboardWithBody(ctx context.Context, projectID string, para
 
 // BulkOnboard Bulk onboard endpoints with subscriptions
 //
-// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -10331,7 +10331,7 @@ type ClientWithResponsesInterface interface {
 
 	// BulkOnboardWithBodyWithResponse Bulk onboard endpoints with subscriptions
 	//
-	// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+	// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10340,7 +10340,7 @@ type ClientWithResponsesInterface interface {
 
 	// BulkOnboardWithResponse Bulk onboard endpoints with subscriptions
 	//
-	// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+	// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -17923,7 +17923,7 @@ func (c *ClientWithResponses) ResendMetaEventWithResponse(ctx context.Context, p
 
 // BulkOnboardWithBodyWithResponse Bulk onboard endpoints with subscriptions
 //
-// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -17938,7 +17938,7 @@ func (c *ClientWithResponses) BulkOnboardWithBodyWithResponse(ctx context.Contex
 
 // BulkOnboardWithResponse Bulk onboard endpoints with subscriptions
 //
-// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+// This endpoint bulk-creates endpoints with subscriptions from a JSON body. A CSV file upload is also accepted over raw HTTP as multipart/form-data with a "file" field; generated SDK clients only expose the JSON body.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
