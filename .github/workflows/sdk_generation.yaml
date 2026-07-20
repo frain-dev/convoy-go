@@ -244,9 +244,13 @@ jobs:
           now_sha=$(GH_TOKEN="$APP_TOKEN" gh pr view "$pr" --json headRefOid --jq '.headRefOid')
           if [ "$now_sha" != "$head_sha" ]; then
             echo "Head moved from $head_sha to $now_sha during approval; dismissing review."
+            # Best-effort: dismiss_stale_reviews normally dismissed this
+            # approval already when the head moved. The hard gate is deny
+            # below, which clears auto-merge or fails the step; a dismiss
+            # error must not skip it.
             GH_TOKEN="$APP_TOKEN" gh api -X PUT "repos/$GH_REPO/pulls/$pr/reviews/$review_id/dismissals" \
               -f message="Head moved during approval; the approved commit is no longer the PR head." \
-              -f event=DISMISS
+              -f event=DISMISS || true
             deny "SDK reviewer app: approval dismissed; the PR head changed while the review was being submitted. Left for human review (policy: fail open to human review, never to merge)."
           fi
 
