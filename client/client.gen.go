@@ -18,28 +18,31 @@ import (
 
 // Defines values for AuthRoleType.
 const (
-	RoleAPI               AuthRoleType = "api"
-	RoleBillingAdmin      AuthRoleType = "billing_admin"
-	RoleInstanceAdmin     AuthRoleType = "instance_admin"
-	RoleOrganisationAdmin AuthRoleType = "organisation_admin"
-	RoleProjectAdmin      AuthRoleType = "project_admin"
-	RoleProjectViewer     AuthRoleType = "project_viewer"
+	AuthRoleTypeEmpty                 AuthRoleType = ""
+	AuthRoleTypeRoleAPI               AuthRoleType = "api"
+	AuthRoleTypeRoleBillingAdmin      AuthRoleType = "billing_admin"
+	AuthRoleTypeRoleInstanceAdmin     AuthRoleType = "instance_admin"
+	AuthRoleTypeRoleOrganisationAdmin AuthRoleType = "organisation_admin"
+	AuthRoleTypeRoleProjectAdmin      AuthRoleType = "project_admin"
+	AuthRoleTypeRoleProjectViewer     AuthRoleType = "project_viewer"
 )
 
 // Valid indicates whether the value is a known member of the AuthRoleType enum.
 func (e AuthRoleType) Valid() bool {
 	switch e {
-	case RoleAPI:
+	case AuthRoleTypeEmpty:
 		return true
-	case RoleBillingAdmin:
+	case AuthRoleTypeRoleAPI:
 		return true
-	case RoleInstanceAdmin:
+	case AuthRoleTypeRoleBillingAdmin:
 		return true
-	case RoleOrganisationAdmin:
+	case AuthRoleTypeRoleInstanceAdmin:
 		return true
-	case RoleProjectAdmin:
+	case AuthRoleTypeRoleOrganisationAdmin:
 		return true
-	case RoleProjectViewer:
+	case AuthRoleTypeRoleProjectAdmin:
+		return true
+	case AuthRoleTypeRoleProjectViewer:
 		return true
 	default:
 		return false
@@ -48,13 +51,16 @@ func (e AuthRoleType) Valid() bool {
 
 // Defines values for ConfigRequestIDHeaderProvider.
 const (
-	DefaultRequestIDHeader ConfigRequestIDHeaderProvider = "X-Convoy-Idempotency-Key"
+	ConfigRequestIDHeaderProviderDefaultRequestIDHeader ConfigRequestIDHeaderProvider = "X-Convoy-Idempotency-Key"
+	ConfigRequestIDHeaderProviderEmpty                  ConfigRequestIDHeaderProvider = ""
 )
 
 // Valid indicates whether the value is a known member of the ConfigRequestIDHeaderProvider enum.
 func (e ConfigRequestIDHeaderProvider) Valid() bool {
 	switch e {
-	case DefaultRequestIDHeader:
+	case ConfigRequestIDHeaderProviderDefaultRequestIDHeader:
+		return true
+	case ConfigRequestIDHeaderProviderEmpty:
 		return true
 	default:
 		return false
@@ -63,13 +69,16 @@ func (e ConfigRequestIDHeaderProvider) Valid() bool {
 
 // Defines values for ConfigSignatureHeaderProvider.
 const (
-	DefaultSignatureHeader ConfigSignatureHeaderProvider = "X-Convoy-Signature"
+	ConfigSignatureHeaderProviderDefaultSignatureHeader ConfigSignatureHeaderProvider = "X-Convoy-Signature"
+	ConfigSignatureHeaderProviderEmpty                  ConfigSignatureHeaderProvider = ""
 )
 
 // Valid indicates whether the value is a known member of the ConfigSignatureHeaderProvider enum.
 func (e ConfigSignatureHeaderProvider) Valid() bool {
 	switch e {
-	case DefaultSignatureHeader:
+	case ConfigSignatureHeaderProviderDefaultSignatureHeader:
+		return true
+	case ConfigSignatureHeaderProviderEmpty:
 		return true
 	default:
 		return false
@@ -78,16 +87,19 @@ func (e ConfigSignatureHeaderProvider) Valid() bool {
 
 // Defines values for DatastoreDeliveryMode.
 const (
-	AtLeastOnceDeliveryMode DatastoreDeliveryMode = "at_least_once"
-	AtMostOnceDeliveryMode  DatastoreDeliveryMode = "at_most_once"
+	DatastoreDeliveryModeAtLeastOnceDeliveryMode DatastoreDeliveryMode = "at_least_once"
+	DatastoreDeliveryModeAtMostOnceDeliveryMode  DatastoreDeliveryMode = "at_most_once"
+	DatastoreDeliveryModeEmpty                   DatastoreDeliveryMode = ""
 )
 
 // Valid indicates whether the value is a known member of the DatastoreDeliveryMode enum.
 func (e DatastoreDeliveryMode) Valid() bool {
 	switch e {
-	case AtLeastOnceDeliveryMode:
+	case DatastoreDeliveryModeAtLeastOnceDeliveryMode:
 		return true
-	case AtMostOnceDeliveryMode:
+	case DatastoreDeliveryModeAtMostOnceDeliveryMode:
+		return true
+	case DatastoreDeliveryModeEmpty:
 		return true
 	default:
 		return false
@@ -96,19 +108,22 @@ func (e DatastoreDeliveryMode) Valid() bool {
 
 // Defines values for DatastoreDeviceStatus.
 const (
-	DeviceStatusDisabled DatastoreDeviceStatus = "disabled"
-	DeviceStatusOffline  DatastoreDeviceStatus = "offline"
-	DeviceStatusOnline   DatastoreDeviceStatus = "online"
+	DatastoreDeviceStatusDeviceStatusDisabled DatastoreDeviceStatus = "disabled"
+	DatastoreDeviceStatusDeviceStatusOffline  DatastoreDeviceStatus = "offline"
+	DatastoreDeviceStatusDeviceStatusOnline   DatastoreDeviceStatus = "online"
+	DatastoreDeviceStatusEmpty                DatastoreDeviceStatus = ""
 )
 
 // Valid indicates whether the value is a known member of the DatastoreDeviceStatus enum.
 func (e DatastoreDeviceStatus) Valid() bool {
 	switch e {
-	case DeviceStatusDisabled:
+	case DatastoreDeviceStatusDeviceStatusDisabled:
 		return true
-	case DeviceStatusOffline:
+	case DatastoreDeviceStatusDeviceStatusOffline:
 		return true
-	case DeviceStatusOnline:
+	case DatastoreDeviceStatusDeviceStatusOnline:
+		return true
+	case DatastoreDeviceStatusEmpty:
 		return true
 	default:
 		return false
@@ -117,16 +132,19 @@ func (e DatastoreDeviceStatus) Valid() bool {
 
 // Defines values for DatastoreEncodingType.
 const (
-	Base64Encoding DatastoreEncodingType = "base64"
-	HexEncoding    DatastoreEncodingType = "hex"
+	DatastoreEncodingTypeBase64Encoding DatastoreEncodingType = "base64"
+	DatastoreEncodingTypeEmpty          DatastoreEncodingType = ""
+	DatastoreEncodingTypeHexEncoding    DatastoreEncodingType = "hex"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreEncodingType enum.
 func (e DatastoreEncodingType) Valid() bool {
 	switch e {
-	case Base64Encoding:
+	case DatastoreEncodingTypeBase64Encoding:
 		return true
-	case HexEncoding:
+	case DatastoreEncodingTypeEmpty:
+		return true
+	case DatastoreEncodingTypeHexEncoding:
 		return true
 	default:
 		return false
@@ -135,19 +153,22 @@ func (e DatastoreEncodingType) Valid() bool {
 
 // Defines values for DatastoreEndpointAuthenticationType.
 const (
-	APIKeyAuthentication DatastoreEndpointAuthenticationType = "api_key"
-	BasicAuthentication  DatastoreEndpointAuthenticationType = "basic_auth"
-	OAuth2Authentication DatastoreEndpointAuthenticationType = "oauth2"
+	DatastoreEndpointAuthenticationTypeAPIKeyAuthentication DatastoreEndpointAuthenticationType = "api_key"
+	DatastoreEndpointAuthenticationTypeBasicAuthentication  DatastoreEndpointAuthenticationType = "basic_auth"
+	DatastoreEndpointAuthenticationTypeEmpty                DatastoreEndpointAuthenticationType = ""
+	DatastoreEndpointAuthenticationTypeOAuth2Authentication DatastoreEndpointAuthenticationType = "oauth2"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreEndpointAuthenticationType enum.
 func (e DatastoreEndpointAuthenticationType) Valid() bool {
 	switch e {
-	case APIKeyAuthentication:
+	case DatastoreEndpointAuthenticationTypeAPIKeyAuthentication:
 		return true
-	case BasicAuthentication:
+	case DatastoreEndpointAuthenticationTypeBasicAuthentication:
 		return true
-	case OAuth2Authentication:
+	case DatastoreEndpointAuthenticationTypeEmpty:
+		return true
+	case DatastoreEndpointAuthenticationTypeOAuth2Authentication:
 		return true
 	default:
 		return false
@@ -156,19 +177,22 @@ func (e DatastoreEndpointAuthenticationType) Valid() bool {
 
 // Defines values for DatastoreEndpointStatus.
 const (
-	ActiveEndpointStatus   DatastoreEndpointStatus = "active"
-	InactiveEndpointStatus DatastoreEndpointStatus = "inactive"
-	PausedEndpointStatus   DatastoreEndpointStatus = "paused"
+	DatastoreEndpointStatusActiveEndpointStatus   DatastoreEndpointStatus = "active"
+	DatastoreEndpointStatusEmpty                  DatastoreEndpointStatus = ""
+	DatastoreEndpointStatusInactiveEndpointStatus DatastoreEndpointStatus = "inactive"
+	DatastoreEndpointStatusPausedEndpointStatus   DatastoreEndpointStatus = "paused"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreEndpointStatus enum.
 func (e DatastoreEndpointStatus) Valid() bool {
 	switch e {
-	case ActiveEndpointStatus:
+	case DatastoreEndpointStatusActiveEndpointStatus:
 		return true
-	case InactiveEndpointStatus:
+	case DatastoreEndpointStatusEmpty:
 		return true
-	case PausedEndpointStatus:
+	case DatastoreEndpointStatusInactiveEndpointStatus:
+		return true
+	case DatastoreEndpointStatusPausedEndpointStatus:
 		return true
 	default:
 		return false
@@ -177,28 +201,31 @@ func (e DatastoreEndpointStatus) Valid() bool {
 
 // Defines values for DatastoreEventDeliveryStatus.
 const (
-	DiscardedEventStatus  DatastoreEventDeliveryStatus = "Discarded"
-	FailureEventStatus    DatastoreEventDeliveryStatus = "Failure"
-	ProcessingEventStatus DatastoreEventDeliveryStatus = "Processing"
-	RetryEventStatus      DatastoreEventDeliveryStatus = "Retry"
-	ScheduledEventStatus  DatastoreEventDeliveryStatus = "Scheduled"
-	SuccessEventStatus    DatastoreEventDeliveryStatus = "Success"
+	DatastoreEventDeliveryStatusDiscardedEventStatus  DatastoreEventDeliveryStatus = "Discarded"
+	DatastoreEventDeliveryStatusEmpty                 DatastoreEventDeliveryStatus = ""
+	DatastoreEventDeliveryStatusFailureEventStatus    DatastoreEventDeliveryStatus = "Failure"
+	DatastoreEventDeliveryStatusProcessingEventStatus DatastoreEventDeliveryStatus = "Processing"
+	DatastoreEventDeliveryStatusRetryEventStatus      DatastoreEventDeliveryStatus = "Retry"
+	DatastoreEventDeliveryStatusScheduledEventStatus  DatastoreEventDeliveryStatus = "Scheduled"
+	DatastoreEventDeliveryStatusSuccessEventStatus    DatastoreEventDeliveryStatus = "Success"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreEventDeliveryStatus enum.
 func (e DatastoreEventDeliveryStatus) Valid() bool {
 	switch e {
-	case DiscardedEventStatus:
+	case DatastoreEventDeliveryStatusDiscardedEventStatus:
 		return true
-	case FailureEventStatus:
+	case DatastoreEventDeliveryStatusEmpty:
 		return true
-	case ProcessingEventStatus:
+	case DatastoreEventDeliveryStatusFailureEventStatus:
 		return true
-	case RetryEventStatus:
+	case DatastoreEventDeliveryStatusProcessingEventStatus:
 		return true
-	case ScheduledEventStatus:
+	case DatastoreEventDeliveryStatusRetryEventStatus:
 		return true
-	case SuccessEventStatus:
+	case DatastoreEventDeliveryStatusScheduledEventStatus:
+		return true
+	case DatastoreEventDeliveryStatusSuccessEventStatus:
 		return true
 	default:
 		return false
@@ -207,25 +234,28 @@ func (e DatastoreEventDeliveryStatus) Valid() bool {
 
 // Defines values for DatastoreEventStatus.
 const (
-	FailureStatus    DatastoreEventStatus = "Failure"
-	PendingStatus    DatastoreEventStatus = "Pending"
-	ProcessingStatus DatastoreEventStatus = "Processing"
-	RetryStatus      DatastoreEventStatus = "Retry"
-	SuccessStatus    DatastoreEventStatus = "Success"
+	DatastoreEventStatusEmpty            DatastoreEventStatus = ""
+	DatastoreEventStatusFailureStatus    DatastoreEventStatus = "Failure"
+	DatastoreEventStatusPendingStatus    DatastoreEventStatus = "Pending"
+	DatastoreEventStatusProcessingStatus DatastoreEventStatus = "Processing"
+	DatastoreEventStatusRetryStatus      DatastoreEventStatus = "Retry"
+	DatastoreEventStatusSuccessStatus    DatastoreEventStatus = "Success"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreEventStatus enum.
 func (e DatastoreEventStatus) Valid() bool {
 	switch e {
-	case FailureStatus:
+	case DatastoreEventStatusEmpty:
 		return true
-	case PendingStatus:
+	case DatastoreEventStatusFailureStatus:
 		return true
-	case ProcessingStatus:
+	case DatastoreEventStatusPendingStatus:
 		return true
-	case RetryStatus:
+	case DatastoreEventStatusProcessingStatus:
 		return true
-	case SuccessStatus:
+	case DatastoreEventStatusRetryStatus:
+		return true
+	case DatastoreEventStatusSuccessStatus:
 		return true
 	default:
 		return false
@@ -234,16 +264,19 @@ func (e DatastoreEventStatus) Valid() bool {
 
 // Defines values for DatastoreMetaEventType.
 const (
-	HTTPMetaEvent   DatastoreMetaEventType = "http"
-	PubSubMetaEvent DatastoreMetaEventType = "pub_sub"
+	DatastoreMetaEventTypeEmpty           DatastoreMetaEventType = ""
+	DatastoreMetaEventTypeHTTPMetaEvent   DatastoreMetaEventType = "http"
+	DatastoreMetaEventTypePubSubMetaEvent DatastoreMetaEventType = "pub_sub"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreMetaEventType enum.
 func (e DatastoreMetaEventType) Valid() bool {
 	switch e {
-	case HTTPMetaEvent:
+	case DatastoreMetaEventTypeEmpty:
 		return true
-	case PubSubMetaEvent:
+	case DatastoreMetaEventTypeHTTPMetaEvent:
+		return true
+	case DatastoreMetaEventTypePubSubMetaEvent:
 		return true
 	default:
 		return false
@@ -252,16 +285,19 @@ func (e DatastoreMetaEventType) Valid() bool {
 
 // Defines values for DatastoreOAuth2AuthenticationType.
 const (
-	ClientAssertionAuth DatastoreOAuth2AuthenticationType = "client_assertion"
-	SharedSecretAuth    DatastoreOAuth2AuthenticationType = "shared_secret"
+	DatastoreOAuth2AuthenticationTypeClientAssertionAuth DatastoreOAuth2AuthenticationType = "client_assertion"
+	DatastoreOAuth2AuthenticationTypeEmpty               DatastoreOAuth2AuthenticationType = ""
+	DatastoreOAuth2AuthenticationTypeSharedSecretAuth    DatastoreOAuth2AuthenticationType = "shared_secret"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreOAuth2AuthenticationType enum.
 func (e DatastoreOAuth2AuthenticationType) Valid() bool {
 	switch e {
-	case ClientAssertionAuth:
+	case DatastoreOAuth2AuthenticationTypeClientAssertionAuth:
 		return true
-	case SharedSecretAuth:
+	case DatastoreOAuth2AuthenticationTypeEmpty:
+		return true
+	case DatastoreOAuth2AuthenticationTypeSharedSecretAuth:
 		return true
 	default:
 		return false
@@ -270,22 +306,25 @@ func (e DatastoreOAuth2AuthenticationType) Valid() bool {
 
 // Defines values for DatastoreOAuth2ExpiryTimeUnit.
 const (
-	ExpiryTimeUnitHours        DatastoreOAuth2ExpiryTimeUnit = "hours"
-	ExpiryTimeUnitMilliseconds DatastoreOAuth2ExpiryTimeUnit = "milliseconds"
-	ExpiryTimeUnitMinutes      DatastoreOAuth2ExpiryTimeUnit = "minutes"
-	ExpiryTimeUnitSeconds      DatastoreOAuth2ExpiryTimeUnit = "seconds"
+	DatastoreOAuth2ExpiryTimeUnitEmpty                      DatastoreOAuth2ExpiryTimeUnit = ""
+	DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitHours        DatastoreOAuth2ExpiryTimeUnit = "hours"
+	DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitMilliseconds DatastoreOAuth2ExpiryTimeUnit = "milliseconds"
+	DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitMinutes      DatastoreOAuth2ExpiryTimeUnit = "minutes"
+	DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitSeconds      DatastoreOAuth2ExpiryTimeUnit = "seconds"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreOAuth2ExpiryTimeUnit enum.
 func (e DatastoreOAuth2ExpiryTimeUnit) Valid() bool {
 	switch e {
-	case ExpiryTimeUnitHours:
+	case DatastoreOAuth2ExpiryTimeUnitEmpty:
 		return true
-	case ExpiryTimeUnitMilliseconds:
+	case DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitHours:
 		return true
-	case ExpiryTimeUnitMinutes:
+	case DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitMilliseconds:
 		return true
-	case ExpiryTimeUnitSeconds:
+	case DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitMinutes:
+		return true
+	case DatastoreOAuth2ExpiryTimeUnitExpiryTimeUnitSeconds:
 		return true
 	default:
 		return false
@@ -294,16 +333,19 @@ func (e DatastoreOAuth2ExpiryTimeUnit) Valid() bool {
 
 // Defines values for DatastorePortalAuthType.
 const (
-	PortalAuthTypeRefreshToken DatastorePortalAuthType = "refresh_token"
-	PortalAuthTypeStaticToken  DatastorePortalAuthType = "static_token"
+	DatastorePortalAuthTypeEmpty                      DatastorePortalAuthType = ""
+	DatastorePortalAuthTypePortalAuthTypeRefreshToken DatastorePortalAuthType = "refresh_token"
+	DatastorePortalAuthTypePortalAuthTypeStaticToken  DatastorePortalAuthType = "static_token"
 )
 
 // Valid indicates whether the value is a known member of the DatastorePortalAuthType enum.
 func (e DatastorePortalAuthType) Valid() bool {
 	switch e {
-	case PortalAuthTypeRefreshToken:
+	case DatastorePortalAuthTypeEmpty:
 		return true
-	case PortalAuthTypeStaticToken:
+	case DatastorePortalAuthTypePortalAuthTypeRefreshToken:
+		return true
+	case DatastorePortalAuthTypePortalAuthTypeStaticToken:
 		return true
 	default:
 		return false
@@ -312,16 +354,19 @@ func (e DatastorePortalAuthType) Valid() bool {
 
 // Defines values for DatastoreProjectType.
 const (
-	IncomingProject DatastoreProjectType = "incoming"
-	OutgoingProject DatastoreProjectType = "outgoing"
+	DatastoreProjectTypeEmpty           DatastoreProjectType = ""
+	DatastoreProjectTypeIncomingProject DatastoreProjectType = "incoming"
+	DatastoreProjectTypeOutgoingProject DatastoreProjectType = "outgoing"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreProjectType enum.
 func (e DatastoreProjectType) Valid() bool {
 	switch e {
-	case IncomingProject:
+	case DatastoreProjectTypeEmpty:
 		return true
-	case OutgoingProject:
+	case DatastoreProjectTypeIncomingProject:
+		return true
+	case DatastoreProjectTypeOutgoingProject:
 		return true
 	default:
 		return false
@@ -330,22 +375,25 @@ func (e DatastoreProjectType) Valid() bool {
 
 // Defines values for DatastorePubSubType.
 const (
-	AmqpPubSub   DatastorePubSubType = "amqp"
-	GooglePubSub DatastorePubSubType = "google"
-	KafkaPubSub  DatastorePubSubType = "kafka"
-	SqsPubSub    DatastorePubSubType = "sqs"
+	DatastorePubSubTypeAmqpPubSub   DatastorePubSubType = "amqp"
+	DatastorePubSubTypeEmpty        DatastorePubSubType = ""
+	DatastorePubSubTypeGooglePubSub DatastorePubSubType = "google"
+	DatastorePubSubTypeKafkaPubSub  DatastorePubSubType = "kafka"
+	DatastorePubSubTypeSqsPubSub    DatastorePubSubType = "sqs"
 )
 
 // Valid indicates whether the value is a known member of the DatastorePubSubType enum.
 func (e DatastorePubSubType) Valid() bool {
 	switch e {
-	case AmqpPubSub:
+	case DatastorePubSubTypeAmqpPubSub:
 		return true
-	case GooglePubSub:
+	case DatastorePubSubTypeEmpty:
 		return true
-	case KafkaPubSub:
+	case DatastorePubSubTypeGooglePubSub:
 		return true
-	case SqsPubSub:
+	case DatastorePubSubTypeKafkaPubSub:
+		return true
+	case DatastorePubSubTypeSqsPubSub:
 		return true
 	default:
 		return false
@@ -354,19 +402,22 @@ func (e DatastorePubSubType) Valid() bool {
 
 // Defines values for DatastoreSourceProvider.
 const (
-	GithubSourceProvider  DatastoreSourceProvider = "github"
-	ShopifySourceProvider DatastoreSourceProvider = "shopify"
-	TwitterSourceProvider DatastoreSourceProvider = "twitter"
+	DatastoreSourceProviderEmpty                 DatastoreSourceProvider = ""
+	DatastoreSourceProviderGithubSourceProvider  DatastoreSourceProvider = "github"
+	DatastoreSourceProviderShopifySourceProvider DatastoreSourceProvider = "shopify"
+	DatastoreSourceProviderTwitterSourceProvider DatastoreSourceProvider = "twitter"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreSourceProvider enum.
 func (e DatastoreSourceProvider) Valid() bool {
 	switch e {
-	case GithubSourceProvider:
+	case DatastoreSourceProviderEmpty:
 		return true
-	case ShopifySourceProvider:
+	case DatastoreSourceProviderGithubSourceProvider:
 		return true
-	case TwitterSourceProvider:
+	case DatastoreSourceProviderShopifySourceProvider:
+		return true
+	case DatastoreSourceProviderTwitterSourceProvider:
 		return true
 	default:
 		return false
@@ -375,22 +426,25 @@ func (e DatastoreSourceProvider) Valid() bool {
 
 // Defines values for DatastoreSourceType.
 const (
-	DBChangeStream DatastoreSourceType = "db_change_stream"
-	HTTPSource     DatastoreSourceType = "http"
-	PubSubSource   DatastoreSourceType = "pub_sub"
-	RestApiSource  DatastoreSourceType = "rest_api"
+	DatastoreSourceTypeDBChangeStream DatastoreSourceType = "db_change_stream"
+	DatastoreSourceTypeEmpty          DatastoreSourceType = ""
+	DatastoreSourceTypeHTTPSource     DatastoreSourceType = "http"
+	DatastoreSourceTypePubSubSource   DatastoreSourceType = "pub_sub"
+	DatastoreSourceTypeRestApiSource  DatastoreSourceType = "rest_api"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreSourceType enum.
 func (e DatastoreSourceType) Valid() bool {
 	switch e {
-	case DBChangeStream:
+	case DatastoreSourceTypeDBChangeStream:
 		return true
-	case HTTPSource:
+	case DatastoreSourceTypeEmpty:
 		return true
-	case PubSubSource:
+	case DatastoreSourceTypeHTTPSource:
 		return true
-	case RestApiSource:
+	case DatastoreSourceTypePubSubSource:
+		return true
+	case DatastoreSourceTypeRestApiSource:
 		return true
 	default:
 		return false
@@ -399,16 +453,19 @@ func (e DatastoreSourceType) Valid() bool {
 
 // Defines values for DatastoreStrategyProvider.
 const (
-	ExponentialStrategyProvider DatastoreStrategyProvider = "exponential"
-	LinearStrategyProvider      DatastoreStrategyProvider = "linear"
+	DatastoreStrategyProviderEmpty                       DatastoreStrategyProvider = ""
+	DatastoreStrategyProviderExponentialStrategyProvider DatastoreStrategyProvider = "exponential"
+	DatastoreStrategyProviderLinearStrategyProvider      DatastoreStrategyProvider = "linear"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreStrategyProvider enum.
 func (e DatastoreStrategyProvider) Valid() bool {
 	switch e {
-	case ExponentialStrategyProvider:
+	case DatastoreStrategyProviderEmpty:
 		return true
-	case LinearStrategyProvider:
+	case DatastoreStrategyProviderExponentialStrategyProvider:
+		return true
+	case DatastoreStrategyProviderLinearStrategyProvider:
 		return true
 	default:
 		return false
@@ -417,16 +474,19 @@ func (e DatastoreStrategyProvider) Valid() bool {
 
 // Defines values for DatastoreSubscriptionType.
 const (
-	SubscriptionTypeAPI DatastoreSubscriptionType = "api"
-	SubscriptionTypeCLI DatastoreSubscriptionType = "cli"
+	DatastoreSubscriptionTypeEmpty               DatastoreSubscriptionType = ""
+	DatastoreSubscriptionTypeSubscriptionTypeAPI DatastoreSubscriptionType = "api"
+	DatastoreSubscriptionTypeSubscriptionTypeCLI DatastoreSubscriptionType = "cli"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreSubscriptionType enum.
 func (e DatastoreSubscriptionType) Valid() bool {
 	switch e {
-	case SubscriptionTypeAPI:
+	case DatastoreSubscriptionTypeEmpty:
 		return true
-	case SubscriptionTypeCLI:
+	case DatastoreSubscriptionTypeSubscriptionTypeAPI:
+		return true
+	case DatastoreSubscriptionTypeSubscriptionTypeCLI:
 		return true
 	default:
 		return false
@@ -435,22 +495,25 @@ func (e DatastoreSubscriptionType) Valid() bool {
 
 // Defines values for DatastoreVerifierType.
 const (
-	APIKeyVerifier    DatastoreVerifierType = "api_key"
-	BasicAuthVerifier DatastoreVerifierType = "basic_auth"
-	HMacVerifier      DatastoreVerifierType = "hmac"
-	NoopVerifier      DatastoreVerifierType = "noop"
+	DatastoreVerifierTypeAPIKeyVerifier    DatastoreVerifierType = "api_key"
+	DatastoreVerifierTypeBasicAuthVerifier DatastoreVerifierType = "basic_auth"
+	DatastoreVerifierTypeEmpty             DatastoreVerifierType = ""
+	DatastoreVerifierTypeHMacVerifier      DatastoreVerifierType = "hmac"
+	DatastoreVerifierTypeNoopVerifier      DatastoreVerifierType = "noop"
 )
 
 // Valid indicates whether the value is a known member of the DatastoreVerifierType enum.
 func (e DatastoreVerifierType) Valid() bool {
 	switch e {
-	case APIKeyVerifier:
+	case DatastoreVerifierTypeAPIKeyVerifier:
 		return true
-	case BasicAuthVerifier:
+	case DatastoreVerifierTypeBasicAuthVerifier:
 		return true
-	case HMacVerifier:
+	case DatastoreVerifierTypeEmpty:
 		return true
-	case NoopVerifier:
+	case DatastoreVerifierTypeHMacVerifier:
+		return true
+	case DatastoreVerifierTypeNoopVerifier:
 		return true
 	default:
 		return false
@@ -1083,7 +1146,7 @@ type DatastorePortalLinkResponse struct {
 	DeletedAt         *string                  `json:"deleted_at,omitempty"`
 	EndpointCount     *int                     `json:"endpoint_count,omitempty"`
 	Endpoints         *[]string                `json:"endpoints,omitempty"`
-	EndpointsMetadata *[]DatastoreEndpoint     `json:"endpoints_metadata,omitempty"`
+	EndpointsMetadata *[]*DatastoreEndpoint    `json:"endpoints_metadata,omitempty"`
 	Name              *string                  `json:"name,omitempty"`
 	OwnerId           *string                  `json:"owner_id,omitempty"`
 	ProjectId         *string                  `json:"project_id,omitempty"`
@@ -1277,7 +1340,7 @@ type DatastoreVerifierConfig struct {
 type DatastoreVerifierType string
 
 // HandlersStub defines model for handlers.Stub.
-type HandlersStub = map[string]interface{}
+type HandlersStub map[string]interface{}
 
 // HttpheaderHTTPHeader defines model for httpheader.HTTPHeader.
 type HttpheaderHTTPHeader map[string][]string
@@ -1357,6 +1420,11 @@ type ModelsBulkOnboardDryRunResponse struct {
 	Errors     *[]ModelsOnboardValidationError `json:"errors,omitempty"`
 	TotalRows  *int                            `json:"total_rows,omitempty"`
 	ValidCount *int                            `json:"valid_count,omitempty"`
+}
+
+// ModelsBulkOnboardRequest defines model for models.BulkOnboardRequest.
+type ModelsBulkOnboardRequest struct {
+	Items *[]ModelsOnboardItem `json:"items,omitempty"`
 }
 
 // ModelsBulkUpdateFilterRequest defines model for models.BulkUpdateFilterRequest.
@@ -1974,6 +2042,15 @@ type ModelsOAuth2SigningKey struct {
 
 	// Y Y coordinate (EC only)
 	Y *string `json:"y,omitempty"`
+}
+
+// ModelsOnboardItem defines model for models.OnboardItem.
+type ModelsOnboardItem struct {
+	AuthPassword *string `json:"auth_password,omitempty"`
+	AuthUsername *string `json:"auth_username,omitempty"`
+	EventType    *string `json:"event_type,omitempty"`
+	Name         *string `json:"name,omitempty"`
+	Url          *string `json:"url,omitempty"`
 }
 
 // ModelsOnboardValidationError defines model for models.OnboardValidationError.
@@ -2811,6 +2888,9 @@ type CreateDynamicEventJSONRequestBody = ModelsDynamicEvent
 // CreateEndpointFanoutEventJSONRequestBody defines body for CreateEndpointFanoutEvent for application/json ContentType.
 type CreateEndpointFanoutEventJSONRequestBody = ModelsFanoutEvent
 
+// BulkOnboardJSONRequestBody defines body for BulkOnboard for application/json ContentType.
+type BulkOnboardJSONRequestBody = ModelsBulkOnboardRequest
+
 // CreatePortalLinkJSONRequestBody defines body for CreatePortalLink for application/json ContentType.
 type CreatePortalLinkJSONRequestBody = DatastoreCreatePortalLinkRequest
 
@@ -3355,6 +3435,15 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
 	BulkOnboardWithBody(ctx context.Context, projectID string, params *BulkOnboardParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BulkOnboard Bulk onboard endpoints with subscriptions
+	//
+	// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
+	BulkOnboard(ctx context.Context, projectID string, params *BulkOnboardParams, body BulkOnboardJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// LoadPortalLinksPaged List all portal links
 	//
@@ -4656,6 +4745,25 @@ func (c *Client) ResendMetaEvent(ctx context.Context, projectID string, metaEven
 // Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
 func (c *Client) BulkOnboardWithBody(ctx context.Context, projectID string, params *BulkOnboardParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewBulkOnboardRequestWithBody(c.Server, projectID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// BulkOnboard Bulk onboard endpoints with subscriptions
+//
+// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
+func (c *Client) BulkOnboard(ctx context.Context, projectID string, params *BulkOnboardParams, body BulkOnboardJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBulkOnboardRequest(c.Server, projectID, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8042,6 +8150,17 @@ func NewResendMetaEventRequest(server string, projectID string, metaEventID stri
 	return req, nil
 }
 
+// NewBulkOnboardRequest calls the generic BulkOnboard builder with application/json body
+func NewBulkOnboardRequest(server string, projectID string, params *BulkOnboardParams, body BulkOnboardJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBulkOnboardRequestWithBody(server, projectID, params, "application/json", bodyReader)
+}
+
 // NewBulkOnboardRequestWithBody constructs an http.Request for the BulkOnboard method, with any body, and a specified content type
 func NewBulkOnboardRequestWithBody(server string, projectID string, params *BulkOnboardParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
@@ -10217,6 +10336,15 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
 	BulkOnboardWithBodyWithResponse(ctx context.Context, projectID string, params *BulkOnboardParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BulkOnboardResponse, error)
+
+	// BulkOnboardWithResponse Bulk onboard endpoints with subscriptions
+	//
+	// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
+	BulkOnboardWithResponse(ctx context.Context, projectID string, params *BulkOnboardParams, body BulkOnboardJSONRequestBody, reqEditors ...RequestEditorFn) (*BulkOnboardResponse, error)
 
 	// LoadPortalLinksPagedWithResponse List all portal links
 	//
@@ -17801,6 +17929,21 @@ func (c *ClientWithResponses) ResendMetaEventWithResponse(ctx context.Context, p
 // Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
 func (c *ClientWithResponses) BulkOnboardWithBodyWithResponse(ctx context.Context, projectID string, params *BulkOnboardParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BulkOnboardResponse, error) {
 	rsp, err := c.BulkOnboardWithBody(ctx, projectID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBulkOnboardResponse(rsp)
+}
+
+// BulkOnboardWithResponse Bulk onboard endpoints with subscriptions
+//
+// This endpoint accepts a CSV file or JSON body to bulk-create endpoints with subscriptions.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /v1/projects/{projectID}/onboard (the `BulkOnboard` operationId).
+func (c *ClientWithResponses) BulkOnboardWithResponse(ctx context.Context, projectID string, params *BulkOnboardParams, body BulkOnboardJSONRequestBody, reqEditors ...RequestEditorFn) (*BulkOnboardResponse, error) {
+	rsp, err := c.BulkOnboard(ctx, projectID, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
