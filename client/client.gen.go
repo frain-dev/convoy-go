@@ -1171,6 +1171,10 @@ type DatastoreProjectConfig struct {
 	Signature                      *DatastoreSignatureConfiguration      `json:"signature,omitempty"`
 	Ssl                            *DatastoreSSLConfiguration            `json:"ssl,omitempty"`
 	Strategy                       *DatastoreStrategyConfiguration       `json:"strategy,omitempty"`
+
+	// SyncDynamicEventAck SyncDynamicEventAck waits for endpoint/subscription resolve before
+	// returning 2xx from POST /events/dynamic. Default false keeps 201-on-queue.
+	SyncDynamicEventAck *bool `json:"sync_dynamic_event_ack,omitempty"`
 }
 
 // DatastoreProjectStatistics defines model for datastore.ProjectStatistics.
@@ -2115,6 +2119,10 @@ type ModelsProjectConfig struct {
 
 	// Strategy Strategy is used to configure the project's retry strategies for failing events.
 	Strategy *ModelsStrategyConfiguration `json:"strategy,omitempty"`
+
+	// SyncDynamicEventAck SyncDynamicEventAck waits for dynamic endpoint/subscription resolve before
+	// acknowledging POST /events/dynamic. When false, the handler returns 201 after enqueue.
+	SyncDynamicEventAck *bool `json:"sync_dynamic_event_ack,omitempty"`
 }
 
 // ModelsProjectResponse defines model for models.ProjectResponse.
