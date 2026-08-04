@@ -10,8 +10,11 @@ import (
 	"net/http/httputil"
 )
 
+// Marshal is a public variable that can be used to override the default JSON marshalling function.
+var Marshal func(v interface{}) ([]byte, error) = json.Marshal
+
 func postJSON(ctx context.Context, c *Client, url string, body interface{}, res interface{}) error {
-	buf, err := json.Marshal(body)
+	buf, err := Marshal(body)
 	if err != nil {
 		return err
 	}
@@ -30,7 +33,7 @@ func putResource(ctx context.Context, c *Client, url string, body interface{}, r
 		body = `{}`
 	}
 
-	buf, err := json.Marshal(body)
+	buf, err := Marshal(body)
 	if err != nil {
 		return err
 	}
