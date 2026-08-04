@@ -918,19 +918,23 @@ type DatastoreEvent struct {
 	EndpointMetadata *[]DatastoreEndpoint    `json:"endpoint_metadata,omitempty"`
 	Endpoints        *[]string               `json:"endpoints,omitempty"`
 	EventType        *string                 `json:"event_type,omitempty"`
-	Headers          *HttpheaderHTTPHeader   `json:"headers,omitempty"`
-	IdempotencyKey   *string                 `json:"idempotency_key,omitempty"`
-	IsDuplicateEvent *bool                   `json:"is_duplicate_event,omitempty"`
-	Metadata         *string                 `json:"metadata,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	Raw              *string                 `json:"raw,omitempty"`
-	SourceId         *string                 `json:"source_id,omitempty"`
-	SourceMetadata   *DatastoreSource        `json:"source_metadata,omitempty"`
-	Status           *DatastoreEventStatus   `json:"status,omitempty"`
-	Uid              *string                 `json:"uid,omitempty"`
-	UpdatedAt        *string                 `json:"updated_at,omitempty"`
-	UrlPath          *string                 `json:"url_path,omitempty"`
-	UrlQueryParams   *string                 `json:"url_query_params,omitempty"`
+
+	// FailureReason FailureReason explains a Failure status to whoever is looking at the
+	// dashboard. It carries operator facing text only, never endpoint
+	// credentials, headers, or payload content.
+	FailureReason    *string               `json:"failure_reason,omitempty"`
+	Headers          *HttpheaderHTTPHeader `json:"headers,omitempty"`
+	IdempotencyKey   *string               `json:"idempotency_key,omitempty"`
+	IsDuplicateEvent *bool                 `json:"is_duplicate_event,omitempty"`
+	ProjectId        *string               `json:"project_id,omitempty"`
+	Raw              *string               `json:"raw,omitempty"`
+	SourceId         *string               `json:"source_id,omitempty"`
+	SourceMetadata   *DatastoreSource      `json:"source_metadata,omitempty"`
+	Status           *DatastoreEventStatus `json:"status,omitempty"`
+	Uid              *string               `json:"uid,omitempty"`
+	UpdatedAt        *string               `json:"updated_at,omitempty"`
+	UrlPath          *string               `json:"url_path,omitempty"`
+	UrlQueryParams   *string               `json:"url_query_params,omitempty"`
 }
 
 // DatastoreEventDeliveryStatus defines model for datastore.EventDeliveryStatus.
@@ -1789,19 +1793,23 @@ type ModelsEventResponse struct {
 	EndpointMetadata *[]DatastoreEndpoint    `json:"endpoint_metadata,omitempty"`
 	Endpoints        *[]string               `json:"endpoints,omitempty"`
 	EventType        *string                 `json:"event_type,omitempty"`
-	Headers          *HttpheaderHTTPHeader   `json:"headers,omitempty"`
-	IdempotencyKey   *string                 `json:"idempotency_key,omitempty"`
-	IsDuplicateEvent *bool                   `json:"is_duplicate_event,omitempty"`
-	Metadata         *string                 `json:"metadata,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	Raw              *string                 `json:"raw,omitempty"`
-	SourceId         *string                 `json:"source_id,omitempty"`
-	SourceMetadata   *DatastoreSource        `json:"source_metadata,omitempty"`
-	Status           *DatastoreEventStatus   `json:"status,omitempty"`
-	Uid              *string                 `json:"uid,omitempty"`
-	UpdatedAt        *string                 `json:"updated_at,omitempty"`
-	UrlPath          *string                 `json:"url_path,omitempty"`
-	UrlQueryParams   *string                 `json:"url_query_params,omitempty"`
+
+	// FailureReason FailureReason explains a Failure status to whoever is looking at the
+	// dashboard. It carries operator facing text only, never endpoint
+	// credentials, headers, or payload content.
+	FailureReason    *string               `json:"failure_reason,omitempty"`
+	Headers          *HttpheaderHTTPHeader `json:"headers,omitempty"`
+	IdempotencyKey   *string               `json:"idempotency_key,omitempty"`
+	IsDuplicateEvent *bool                 `json:"is_duplicate_event,omitempty"`
+	ProjectId        *string               `json:"project_id,omitempty"`
+	Raw              *string               `json:"raw,omitempty"`
+	SourceId         *string               `json:"source_id,omitempty"`
+	SourceMetadata   *DatastoreSource      `json:"source_metadata,omitempty"`
+	Status           *DatastoreEventStatus `json:"status,omitempty"`
+	Uid              *string               `json:"uid,omitempty"`
+	UpdatedAt        *string               `json:"updated_at,omitempty"`
+	UrlPath          *string               `json:"url_path,omitempty"`
+	UrlQueryParams   *string               `json:"url_query_params,omitempty"`
 }
 
 // ModelsEventTypeResponse defines model for models.EventTypeResponse.
