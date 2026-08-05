@@ -1162,7 +1162,12 @@ type DatastorePortalLinkResponse struct {
 
 // DatastoreProjectConfig defines model for datastore.ProjectConfig.
 type DatastoreProjectConfig struct {
-	AddEventIdTraceHeaders         *bool                                 `json:"add_event_id_trace_headers,omitempty"`
+	AddEventIdTraceHeaders *bool `json:"add_event_id_trace_headers,omitempty"`
+
+	// AllowUnmatchedDynamicUrls AllowUnmatchedDynamicURLs lets a dynamic event URL that matches none of the
+	// project's endpoint URL templates auto-create an endpoint. Default false
+	// rejects unmatched URLs.
+	AllowUnmatchedDynamicUrls      *bool                                 `json:"allow_unmatched_dynamic_urls,omitempty"`
 	CircuitBreaker                 *DatastoreCircuitBreakerConfiguration `json:"circuit_breaker,omitempty"`
 	DisableEndpoint                *bool                                 `json:"disable_endpoint,omitempty"`
 	MaxPayloadReadSize             *int                                  `json:"max_payload_read_size,omitempty"`
@@ -1176,9 +1181,9 @@ type DatastoreProjectConfig struct {
 	Ssl                            *DatastoreSSLConfiguration            `json:"ssl,omitempty"`
 	Strategy                       *DatastoreStrategyConfiguration       `json:"strategy,omitempty"`
 
-	// SyncDynamicEventAck SyncDynamicEventAck waits for endpoint/subscription resolve before
+	// VerifyDynamicEvents VerifyDynamicEvents waits for endpoint/subscription resolve before
 	// returning 2xx from POST /events/dynamic. Default false keeps 201-on-queue.
-	SyncDynamicEventAck *bool `json:"sync_dynamic_event_ack,omitempty"`
+	VerifyDynamicEvents *bool `json:"verify_dynamic_events,omitempty"`
 }
 
 // DatastoreProjectStatistics defines model for datastore.ProjectStatistics.
@@ -2090,6 +2095,11 @@ type ModelsProjectConfig struct {
 	// AddEventIdTraceHeaders Controls of the Event ID and Event Delivery ID Headers are added to the request when events are dispatched to endpoints
 	AddEventIdTraceHeaders *bool `json:"add_event_id_trace_headers,omitempty"`
 
+	// AllowUnmatchedDynamicUrls AllowUnmatchedDynamicURLs lets a dynamic event URL that matches none of the project's
+	// endpoint URL templates auto-create an endpoint instead of failing. When false (the
+	// default), a project with templates configured rejects unmatched URLs.
+	AllowUnmatchedDynamicUrls *bool `json:"allow_unmatched_dynamic_urls,omitempty"`
+
 	// CircuitBreaker CircuitBreaker is used to configure the project's circuit breaker settings
 	CircuitBreaker *DatastoreCircuitBreakerConfiguration `json:"circuit_breaker,omitempty"`
 
@@ -2128,9 +2138,9 @@ type ModelsProjectConfig struct {
 	// Strategy Strategy is used to configure the project's retry strategies for failing events.
 	Strategy *ModelsStrategyConfiguration `json:"strategy,omitempty"`
 
-	// SyncDynamicEventAck SyncDynamicEventAck waits for dynamic endpoint/subscription resolve before
+	// VerifyDynamicEvents VerifyDynamicEvents waits for dynamic endpoint/subscription resolve before
 	// acknowledging POST /events/dynamic. When false, the handler returns 201 after enqueue.
-	SyncDynamicEventAck *bool `json:"sync_dynamic_event_ack,omitempty"`
+	VerifyDynamicEvents *bool `json:"verify_dynamic_events,omitempty"`
 }
 
 // ModelsProjectResponse defines model for models.ProjectResponse.
