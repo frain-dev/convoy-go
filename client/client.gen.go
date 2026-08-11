@@ -1459,7 +1459,7 @@ type ModelsCountResponse struct {
 // ModelsCreateEndpoint defines model for models.CreateEndpoint.
 type ModelsCreateEndpoint struct {
 	// AdvancedSignatures Convoy supports two [signature formats](https://getconvoy.io/docs/product-manual/signatures)
-	// -- simple or advanced. If left unspecified, we default to false.
+	// -- simple or advanced. Only applies to outgoing projects, where it defaults to true when omitted. Incoming projects always use advanced signatures.
 	AdvancedSignatures *bool `json:"advanced_signatures,omitempty"`
 
 	// AppID Deprecated but necessary for backward compatibility
@@ -2327,7 +2327,7 @@ type ModelsUpdateCustomResponse struct {
 // ModelsUpdateEndpoint defines model for models.UpdateEndpoint.
 type ModelsUpdateEndpoint struct {
 	// AdvancedSignatures Convoy supports two [signature formats](https://getconvoy.io/docs/product-manual/signatures)
-	// -- simple or advanced. If left unspecified, we default to false.
+	// -- simple or advanced. Only applies to outgoing projects; omit it to keep the current value. Incoming projects always use advanced signatures.
 	AdvancedSignatures *bool `json:"advanced_signatures,omitempty"`
 
 	// Authentication This is used to define any custom authentication required by the endpoint. This
