@@ -1706,6 +1706,15 @@ type ModelsEndpointAuthentication struct {
 	Type      *DatastoreEndpointAuthenticationType `json:"type,omitempty"`
 }
 
+// ModelsEndpointPeriodFailureRate defines model for models.EndpointPeriodFailureRate.
+type ModelsEndpointPeriodFailureRate struct {
+	FailureCount      *int     `json:"failure_count,omitempty"`
+	PeriodFailureRate *float32 `json:"period_failure_rate,omitempty"`
+	RetryCount        *int     `json:"retry_count,omitempty"`
+	SuccessCount      *int     `json:"success_count,omitempty"`
+	Uid               *string  `json:"uid,omitempty"`
+}
+
 // ModelsEndpointResponse defines model for models.EndpointResponse.
 type ModelsEndpointResponse struct {
 	AdvancedSignatures *bool                            `json:"advanced_signatures,omitempty"`
@@ -2555,6 +2564,18 @@ type GetEndpointsParams struct {
 // GetEndpointsParamsDirection defines parameters for GetEndpoints.
 type GetEndpointsParamsDirection string
 
+// GetEndpointPeriodFailureRatesParams defines parameters for GetEndpointPeriodFailureRates.
+type GetEndpointPeriodFailureRatesParams struct {
+	// EndpointId Endpoint IDs
+	EndpointId *[]string `form:"endpointId,omitempty" json:"endpointId,omitempty"`
+
+	// StartDate Start date
+	StartDate *string `form:"startDate,omitempty" json:"startDate,omitempty"`
+
+	// EndDate End date
+	EndDate *string `form:"endDate,omitempty" json:"endDate,omitempty"`
+}
+
 // GetEventDeliveriesPagedParams defines parameters for GetEventDeliveriesPaged.
 type GetEventDeliveriesPagedParams struct {
 	Direction *GetEventDeliveriesPagedParamsDirection `form:"direction,omitempty" json:"direction,omitempty"`
@@ -3133,6 +3154,13 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /v1/projects/{projectID}/endpoints/oauth2/test (the `TestOAuth2Connection` operationId).
 	TestOAuth2Connection(ctx context.Context, projectID string, body TestOAuth2ConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetEndpointPeriodFailureRates Endpoint period failure rates
+	//
+	// Display-only delivery rates for the given endpoint ids over a date range (default last 7 days). Independent of the list so a slow COUNT cannot delay the table.
+	//
+	// Corresponds with GET /v1/projects/{projectID}/endpoints/period-failure-rates (the `GetEndpointPeriodFailureRates` operationId).
+	GetEndpointPeriodFailureRates(ctx context.Context, projectID string, params *GetEndpointPeriodFailureRatesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteEndpoint Delete endpoint
 	//
@@ -4033,6 +4061,23 @@ func (c *Client) TestOAuth2ConnectionWithBody(ctx context.Context, projectID str
 // Corresponds with POST /v1/projects/{projectID}/endpoints/oauth2/test (the `TestOAuth2Connection` operationId).
 func (c *Client) TestOAuth2Connection(ctx context.Context, projectID string, body TestOAuth2ConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewTestOAuth2ConnectionRequest(c.Server, projectID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetEndpointPeriodFailureRates Endpoint period failure rates
+//
+// Display-only delivery rates for the given endpoint ids over a date range (default last 7 days). Independent of the list so a slow COUNT cannot delay the table.
+//
+// Corresponds with GET /v1/projects/{projectID}/endpoints/period-failure-rates (the `GetEndpointPeriodFailureRates` operationId).
+func (c *Client) GetEndpointPeriodFailureRates(ctx context.Context, projectID string, params *GetEndpointPeriodFailureRatesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEndpointPeriodFailureRatesRequest(c.Server, projectID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6022,6 +6067,91 @@ func NewTestOAuth2ConnectionRequestWithBody(server string, projectID string, con
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetEndpointPeriodFailureRatesRequest constructs an http.Request for the GetEndpointPeriodFailureRates method
+func NewGetEndpointPeriodFailureRatesRequest(server string, projectID string, params *GetEndpointPeriodFailureRatesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "projectID", projectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/projects/%s/endpoints/period-failure-rates", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.EndpointId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "endpointId", *params.EndpointId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.StartDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "startDate", *params.StartDate, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.EndDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "endDate", *params.EndDate, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -9995,6 +10125,15 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /v1/projects/{projectID}/endpoints/oauth2/test (the `TestOAuth2Connection` operationId).
 	TestOAuth2ConnectionWithResponse(ctx context.Context, projectID string, body TestOAuth2ConnectionJSONRequestBody, reqEditors ...RequestEditorFn) (*TestOAuth2ConnectionResponse, error)
 
+	// GetEndpointPeriodFailureRatesWithResponse Endpoint period failure rates
+	//
+	// Display-only delivery rates for the given endpoint ids over a date range (default last 7 days). Independent of the list so a slow COUNT cannot delay the table.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /v1/projects/{projectID}/endpoints/period-failure-rates (the `GetEndpointPeriodFailureRates` operationId).
+	GetEndpointPeriodFailureRatesWithResponse(ctx context.Context, projectID string, params *GetEndpointPeriodFailureRatesParams, reqEditors ...RequestEditorFn) (*GetEndpointPeriodFailureRatesResponse, error)
+
 	// DeleteEndpointWithResponse Delete endpoint
 	//
 	// This endpoint deletes an endpoint.
@@ -11564,6 +11703,100 @@ func (r TestOAuth2ConnectionResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r TestOAuth2ConnectionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetEndpointPeriodFailureRatesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		Data    *[]ModelsEndpointPeriodFailureRate `json:"data,omitempty"`
+		Message *string                            `json:"message,omitempty"`
+		Status  *bool                              `json:"status,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *struct {
+		Data    *HandlersStub `json:"data,omitempty"`
+		Message *string       `json:"message,omitempty"`
+		Status  *bool         `json:"status,omitempty"`
+	}
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *struct {
+		Data    *HandlersStub `json:"data,omitempty"`
+		Message *string       `json:"message,omitempty"`
+		Status  *bool         `json:"status,omitempty"`
+	}
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *struct {
+		Data    *HandlersStub `json:"data,omitempty"`
+		Message *string       `json:"message,omitempty"`
+		Status  *bool         `json:"status,omitempty"`
+	}
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetEndpointPeriodFailureRatesResponse) GetJSON200() *struct {
+	Data    *[]ModelsEndpointPeriodFailureRate `json:"data,omitempty"`
+	Message *string                            `json:"message,omitempty"`
+	Status  *bool                              `json:"status,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetEndpointPeriodFailureRatesResponse) GetJSON400() *struct {
+	Data    *HandlersStub `json:"data,omitempty"`
+	Message *string       `json:"message,omitempty"`
+	Status  *bool         `json:"status,omitempty"`
+} {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetEndpointPeriodFailureRatesResponse) GetJSON401() *struct {
+	Data    *HandlersStub `json:"data,omitempty"`
+	Message *string       `json:"message,omitempty"`
+	Status  *bool         `json:"status,omitempty"`
+} {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r GetEndpointPeriodFailureRatesResponse) GetJSON404() *struct {
+	Data    *HandlersStub `json:"data,omitempty"`
+	Message *string       `json:"message,omitempty"`
+	Status  *bool         `json:"status,omitempty"`
+} {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r GetEndpointPeriodFailureRatesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEndpointPeriodFailureRatesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEndpointPeriodFailureRatesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetEndpointPeriodFailureRatesResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -17347,6 +17580,21 @@ func (c *ClientWithResponses) TestOAuth2ConnectionWithResponse(ctx context.Conte
 	return ParseTestOAuth2ConnectionResponse(rsp)
 }
 
+// GetEndpointPeriodFailureRatesWithResponse Endpoint period failure rates
+//
+// Display-only delivery rates for the given endpoint ids over a date range (default last 7 days). Independent of the list so a slow COUNT cannot delay the table.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /v1/projects/{projectID}/endpoints/period-failure-rates (the `GetEndpointPeriodFailureRates` operationId).
+func (c *ClientWithResponses) GetEndpointPeriodFailureRatesWithResponse(ctx context.Context, projectID string, params *GetEndpointPeriodFailureRatesParams, reqEditors ...RequestEditorFn) (*GetEndpointPeriodFailureRatesResponse, error) {
+	rsp, err := c.GetEndpointPeriodFailureRates(ctx, projectID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEndpointPeriodFailureRatesResponse(rsp)
+}
+
 // DeleteEndpointWithResponse Delete endpoint
 //
 // This endpoint deletes an endpoint.
@@ -19114,6 +19362,69 @@ func ParseTestOAuth2ConnectionResponse(rsp *http.Response) (*TestOAuth2Connectio
 			Data    *ModelsTestOAuth2Response `json:"data,omitempty"`
 			Message *string                   `json:"message,omitempty"`
 			Status  *bool                     `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Data    *HandlersStub `json:"data,omitempty"`
+			Message *string       `json:"message,omitempty"`
+			Status  *bool         `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest struct {
+			Data    *HandlersStub `json:"data,omitempty"`
+			Message *string       `json:"message,omitempty"`
+			Status  *bool         `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest struct {
+			Data    *HandlersStub `json:"data,omitempty"`
+			Message *string       `json:"message,omitempty"`
+			Status  *bool         `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEndpointPeriodFailureRatesResponse parses an HTTP response from a GetEndpointPeriodFailureRatesWithResponse call
+func ParseGetEndpointPeriodFailureRatesResponse(rsp *http.Response) (*GetEndpointPeriodFailureRatesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEndpointPeriodFailureRatesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Data    *[]ModelsEndpointPeriodFailureRate `json:"data,omitempty"`
+			Message *string                            `json:"message,omitempty"`
+			Status  *bool                              `json:"status,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
