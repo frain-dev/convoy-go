@@ -12931,6 +12931,12 @@ type GetEventDeliveriesPagedResponse struct {
 		Message *string       `json:"message,omitempty"`
 		Status  *bool         `json:"status,omitempty"`
 	}
+	// JSON504 the response for an HTTP 504 `application/json` response
+	JSON504 *struct {
+		Data    *HandlersStub `json:"data,omitempty"`
+		Message *string       `json:"message,omitempty"`
+		Status  *bool         `json:"status,omitempty"`
+	}
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
@@ -12970,6 +12976,15 @@ func (r GetEventDeliveriesPagedResponse) GetJSON404() *struct {
 	Status  *bool         `json:"status,omitempty"`
 } {
 	return r.JSON404
+}
+
+// GetJSON504 returns the response for an HTTP 504 `application/json` response
+func (r GetEventDeliveriesPagedResponse) GetJSON504() *struct {
+	Data    *HandlersStub `json:"data,omitempty"`
+	Message *string       `json:"message,omitempty"`
+	Status  *bool         `json:"status,omitempty"`
+} {
+	return r.JSON504
 }
 
 // GetBody returns the raw response body bytes
@@ -20316,6 +20331,17 @@ func ParseGetEventDeliveriesPagedResponse(rsp *http.Response) (*GetEventDeliveri
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest struct {
+			Data    *HandlersStub `json:"data,omitempty"`
+			Message *string       `json:"message,omitempty"`
+			Status  *bool         `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
