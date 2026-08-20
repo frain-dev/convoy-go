@@ -1177,10 +1177,14 @@ type DatastoreProjectConfig struct {
 	Ratelimit                      *DatastoreRateLimitConfiguration      `json:"ratelimit,omitempty"`
 	ReplayAttacksPreventionEnabled *bool                                 `json:"replay_attacks_prevention_enabled,omitempty"`
 	RequestIdHeader                *ConfigRequestIDHeaderProvider        `json:"request_id_header,omitempty"`
-	SearchPolicy                   *string                               `json:"search_policy,omitempty"`
-	Signature                      *DatastoreSignatureConfiguration      `json:"signature,omitempty"`
-	Ssl                            *DatastoreSSLConfiguration            `json:"ssl,omitempty"`
-	Strategy                       *DatastoreStrategyConfiguration       `json:"strategy,omitempty"`
+
+	// SearchPolicy SearchPolicy is an optional Go duration (e.g. "24h") shown in project settings.
+	// When set, the dashboard explains that payload/JSON search is additionally clamped
+	// to this lookback intersected with the Events log date picker. Empty means opt-out.
+	SearchPolicy *string                          `json:"search_policy,omitempty"`
+	Signature    *DatastoreSignatureConfiguration `json:"signature,omitempty"`
+	Ssl          *DatastoreSSLConfiguration       `json:"ssl,omitempty"`
+	Strategy     *DatastoreStrategyConfiguration  `json:"strategy,omitempty"`
 
 	// VerifyDynamicEvents VerifyDynamicEvents waits for endpoint/subscription resolve before
 	// returning 2xx from POST /events/dynamic. Default false keeps 201-on-queue.
@@ -2678,6 +2682,9 @@ type BatchRetryEventDeliveryParamsDirection string
 
 // GetEventsPagedParams defines parameters for GetEventsPaged.
 type GetEventsPagedParams struct {
+	// Body URL-encoded JSON object matched against the event payload.
+	// Combined with query as AND when both are set.
+	Body      *string                        `form:"body,omitempty" json:"body,omitempty"`
 	Direction *GetEventsPagedParamsDirection `form:"direction,omitempty" json:"direction,omitempty"`
 
 	// EndDate The end date
@@ -2698,7 +2705,8 @@ type GetEventsPagedParams struct {
 	// PrevPageCursor A pagination cursor to fetch the previous page of a list
 	PrevPageCursor *string `form:"prev_page_cursor,omitempty" json:"prev_page_cursor,omitempty"`
 
-	// Query Any arbitrary value to filter the events payload
+	// Query Matches event id prefix, idempotency key, event type, and source name.
+	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
@@ -2716,6 +2724,9 @@ type GetEventsPagedParamsDirection string
 
 // BatchReplayEventsParams defines parameters for BatchReplayEvents.
 type BatchReplayEventsParams struct {
+	// Body URL-encoded JSON object matched against the event payload.
+	// Combined with query as AND when both are set.
+	Body      *string                           `form:"body,omitempty" json:"body,omitempty"`
 	Direction *BatchReplayEventsParamsDirection `form:"direction,omitempty" json:"direction,omitempty"`
 
 	// EndDate The end date
@@ -2736,7 +2747,8 @@ type BatchReplayEventsParams struct {
 	// PrevPageCursor A pagination cursor to fetch the previous page of a list
 	PrevPageCursor *string `form:"prev_page_cursor,omitempty" json:"prev_page_cursor,omitempty"`
 
-	// Query Any arbitrary value to filter the events payload
+	// Query Matches event id prefix, idempotency key, event type, and source name.
+	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
@@ -2754,6 +2766,9 @@ type BatchReplayEventsParamsDirection string
 
 // CountAffectedEventsParams defines parameters for CountAffectedEvents.
 type CountAffectedEventsParams struct {
+	// Body URL-encoded JSON object matched against the event payload.
+	// Combined with query as AND when both are set.
+	Body      *string                             `form:"body,omitempty" json:"body,omitempty"`
 	Direction *CountAffectedEventsParamsDirection `form:"direction,omitempty" json:"direction,omitempty"`
 
 	// EndDate The end date
@@ -2774,7 +2789,8 @@ type CountAffectedEventsParams struct {
 	// PrevPageCursor A pagination cursor to fetch the previous page of a list
 	PrevPageCursor *string `form:"prev_page_cursor,omitempty" json:"prev_page_cursor,omitempty"`
 
-	// Query Any arbitrary value to filter the events payload
+	// Query Matches event id prefix, idempotency key, event type, and source name.
+	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
@@ -7326,6 +7342,18 @@ func NewGetEventsPagedRequest(server string, projectID string, params *GetEvents
 		// per the OpenAPI spec (e.g. "color=blue,black,brown").
 		var rawQueryFragments []string
 
+		if params.Body != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "body", *params.Body, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.Direction != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "direction", *params.Direction, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7554,6 +7582,18 @@ func NewBatchReplayEventsRequest(server string, projectID string, params *BatchR
 		// per the OpenAPI spec (e.g. "color=blue,black,brown").
 		var rawQueryFragments []string
 
+		if params.Body != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "body", *params.Body, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.Direction != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "direction", *params.Direction, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7781,6 +7821,18 @@ func NewCountAffectedEventsRequest(server string, projectID string, params *Coun
 		// styled parameters, preserving literal commas as delimiters
 		// per the OpenAPI spec (e.g. "color=blue,black,brown").
 		var rawQueryFragments []string
+
+		if params.Body != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "body", *params.Body, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
 
 		if params.Direction != nil {
 
@@ -13537,8 +13589,20 @@ type GetEventsPagedResponse struct {
 		Message *string       `json:"message,omitempty"`
 		Status  *bool         `json:"status,omitempty"`
 	}
+	// JSON403 the response for an HTTP 403 `application/json` response
+	JSON403 *struct {
+		Data    *HandlersStub `json:"data,omitempty"`
+		Message *string       `json:"message,omitempty"`
+		Status  *bool         `json:"status,omitempty"`
+	}
 	// JSON404 the response for an HTTP 404 `application/json` response
 	JSON404 *struct {
+		Data    *HandlersStub `json:"data,omitempty"`
+		Message *string       `json:"message,omitempty"`
+		Status  *bool         `json:"status,omitempty"`
+	}
+	// JSON504 the response for an HTTP 504 `application/json` response
+	JSON504 *struct {
 		Data    *HandlersStub `json:"data,omitempty"`
 		Message *string       `json:"message,omitempty"`
 		Status  *bool         `json:"status,omitempty"`
@@ -13575,6 +13639,15 @@ func (r GetEventsPagedResponse) GetJSON401() *struct {
 	return r.JSON401
 }
 
+// GetJSON403 returns the response for an HTTP 403 `application/json` response
+func (r GetEventsPagedResponse) GetJSON403() *struct {
+	Data    *HandlersStub `json:"data,omitempty"`
+	Message *string       `json:"message,omitempty"`
+	Status  *bool         `json:"status,omitempty"`
+} {
+	return r.JSON403
+}
+
 // GetJSON404 returns the response for an HTTP 404 `application/json` response
 func (r GetEventsPagedResponse) GetJSON404() *struct {
 	Data    *HandlersStub `json:"data,omitempty"`
@@ -13582,6 +13655,15 @@ func (r GetEventsPagedResponse) GetJSON404() *struct {
 	Status  *bool         `json:"status,omitempty"`
 } {
 	return r.JSON404
+}
+
+// GetJSON504 returns the response for an HTTP 504 `application/json` response
+func (r GetEventsPagedResponse) GetJSON504() *struct {
+	Data    *HandlersStub `json:"data,omitempty"`
+	Message *string       `json:"message,omitempty"`
+	Status  *bool         `json:"status,omitempty"`
+} {
+	return r.JSON504
 }
 
 // GetBody returns the raw response body bytes
@@ -20668,6 +20750,17 @@ func ParseGetEventsPagedResponse(rsp *http.Response) (*GetEventsPagedResponse, e
 		}
 		response.JSON401 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest struct {
+			Data    *HandlersStub `json:"data,omitempty"`
+			Message *string       `json:"message,omitempty"`
+			Status  *bool         `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest struct {
 			Data    *HandlersStub `json:"data,omitempty"`
@@ -20678,6 +20771,17 @@ func ParseGetEventsPagedResponse(rsp *http.Response) (*GetEventsPagedResponse, e
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest struct {
+			Data    *HandlersStub `json:"data,omitempty"`
+			Message *string       `json:"message,omitempty"`
+			Status  *bool         `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 
