@@ -884,6 +884,7 @@ type DatastoreEndpoint struct {
 	Status            *DatastoreEndpointStatus `json:"status,omitempty"`
 	SuccessCount      *int                     `json:"success_count,omitempty"`
 	SupportEmail      *string                  `json:"support_email,omitempty"`
+	TeamsWebhookUrl   *string                  `json:"teams_webhook_url,omitempty"`
 	Uid               *string                  `json:"uid,omitempty"`
 	UpdatedAt         *string                  `json:"updated_at,omitempty"`
 	Url               *string                  `json:"url,omitempty"`
@@ -1511,6 +1512,11 @@ type ModelsCreateEndpoint struct {
 	// changes. You should always turn this on when disabling endpoints are enabled.
 	SupportEmail *string `json:"support_email,omitempty"`
 
+	// TeamsWebhookUrl Microsoft Teams webhook URL is an alternative method to support email where endpoint
+	// developers can receive failure notifications in a Teams channel. Use a Workflows
+	// (Power Automate) webhook URL; retired Office 365 connector URLs no longer deliver.
+	TeamsWebhookUrl *string `json:"teams_webhook_url,omitempty"`
+
 	// Url URL is the endpoint's URL prefixed with https. non-https urls are currently
 	// not supported.
 	Url *string `json:"url,omitempty"`
@@ -1755,6 +1761,7 @@ type ModelsEndpointResponse struct {
 	Status            *DatastoreEndpointStatus `json:"status,omitempty"`
 	SuccessCount      *int                     `json:"success_count,omitempty"`
 	SupportEmail      *string                  `json:"support_email,omitempty"`
+	TeamsWebhookUrl   *string                  `json:"teams_webhook_url,omitempty"`
 	Uid               *string                  `json:"uid,omitempty"`
 	UpdatedAt         *string                  `json:"updated_at,omitempty"`
 	Url               *string                  `json:"url,omitempty"`
@@ -2382,6 +2389,11 @@ type ModelsUpdateEndpoint struct {
 	// SupportEmail Endpoint developers support email. This is used for communicating endpoint state
 	// changes. You should always turn this on when disabling endpoints are enabled.
 	SupportEmail *string `json:"support_email,omitempty"`
+
+	// TeamsWebhookUrl Microsoft Teams webhook URL is an alternative method to support email where endpoint
+	// developers can receive failure notifications in a Teams channel. Use a Workflows
+	// (Power Automate) webhook URL; retired Office 365 connector URLs no longer deliver.
+	TeamsWebhookUrl *string `json:"teams_webhook_url,omitempty"`
 
 	// Url URL is the endpoint's URL prefixed with https. non-https urls are currently
 	// not supported.
