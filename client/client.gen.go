@@ -2620,6 +2620,9 @@ type GetEventDeliveriesPagedParams struct {
 	// PrevPageCursor A pagination cursor to fetch the previous page of a list
 	PrevPageCursor *string `form:"prev_page_cursor,omitempty" json:"prev_page_cursor,omitempty"`
 
+	// Query Matches delivery id, event id, event type prefix, and endpoint name.
+	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
 
@@ -2663,6 +2666,9 @@ type BatchRetryEventDeliveryParams struct {
 
 	// PrevPageCursor A pagination cursor to fetch the previous page of a list
 	PrevPageCursor *string `form:"prev_page_cursor,omitempty" json:"prev_page_cursor,omitempty"`
+
+	// Query Matches delivery id, event id, event type prefix, and endpoint name.
+	Query *string `form:"query,omitempty" json:"query,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
@@ -6822,6 +6828,18 @@ func NewGetEventDeliveriesPagedRequest(server string, projectID string, params *
 
 		}
 
+		if params.Query != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.Sort != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sort", *params.Sort, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7018,6 +7036,18 @@ func NewBatchRetryEventDeliveryRequest(server string, projectID string, params *
 		if params.PrevPageCursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "prev_page_cursor", *params.PrevPageCursor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Query != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
