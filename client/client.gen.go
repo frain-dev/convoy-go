@@ -1803,6 +1803,15 @@ type ModelsEventDeliveryResponse struct {
 	UrlQueryParams *string                       `json:"url_query_params,omitempty"`
 }
 
+// ModelsEventQueuedResponse defines model for models.EventQueuedResponse.
+type ModelsEventQueuedResponse struct {
+	EventType      *string `json:"event_type,omitempty"`
+	IdempotencyKey *string `json:"idempotency_key,omitempty"`
+
+	// Uid UID is the event id.
+	Uid *string `json:"uid,omitempty"`
+}
+
 // ModelsEventResponse defines model for models.EventResponse.
 type ModelsEventResponse struct {
 	AcknowledgedAt *string `json:"acknowledged_at,omitempty"`
@@ -3397,7 +3406,8 @@ type ClientInterface interface {
 
 	// CreateEndpointEventWithBody Create an event
 	//
-	// This endpoint creates an endpoint event.
+	// This endpoint creates an endpoint event
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -3406,7 +3416,8 @@ type ClientInterface interface {
 
 	// CreateEndpointEvent Create an event
 	//
-	// This endpoint creates an endpoint event.
+	// This endpoint creates an endpoint event
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -3423,6 +3434,7 @@ type ClientInterface interface {
 	// CreateBroadcastEventWithBody Create a broadcast event
 	//
 	// This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -3432,6 +3444,7 @@ type ClientInterface interface {
 	// CreateBroadcastEvent Create a broadcast event
 	//
 	// This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -3447,7 +3460,8 @@ type ClientInterface interface {
 
 	// CreateDynamicEventWithBody Dynamic Events
 	//
-	// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+	// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -3456,7 +3470,8 @@ type ClientInterface interface {
 
 	// CreateDynamicEvent Dynamic Events
 	//
-	// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+	// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -3466,6 +3481,7 @@ type ClientInterface interface {
 	// CreateEndpointFanoutEventWithBody Fan out an event
 	//
 	// This endpoint uses the owner_id to fan out an event to multiple endpoints.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -3475,6 +3491,7 @@ type ClientInterface interface {
 	// CreateEndpointFanoutEvent Fan out an event
 	//
 	// This endpoint uses the owner_id to fan out an event to multiple endpoints.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -4573,7 +4590,8 @@ func (c *Client) GetEventsPaged(ctx context.Context, projectID string, params *G
 
 // CreateEndpointEventWithBody Create an event
 //
-// This endpoint creates an endpoint event.
+// This endpoint creates an endpoint event
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4592,7 +4610,8 @@ func (c *Client) CreateEndpointEventWithBody(ctx context.Context, projectID stri
 
 // CreateEndpointEvent Create an event
 //
-// This endpoint creates an endpoint event.
+// This endpoint creates an endpoint event
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4629,6 +4648,7 @@ func (c *Client) BatchReplayEvents(ctx context.Context, projectID string, params
 // CreateBroadcastEventWithBody Create a broadcast event
 //
 // This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4648,6 +4668,7 @@ func (c *Client) CreateBroadcastEventWithBody(ctx context.Context, projectID str
 // CreateBroadcastEvent Create a broadcast event
 //
 // This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4683,7 +4704,8 @@ func (c *Client) CountAffectedEvents(ctx context.Context, projectID string, para
 
 // CreateDynamicEventWithBody Dynamic Events
 //
-// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4702,7 +4724,8 @@ func (c *Client) CreateDynamicEventWithBody(ctx context.Context, projectID strin
 
 // CreateDynamicEvent Dynamic Events
 //
-// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -4722,6 +4745,7 @@ func (c *Client) CreateDynamicEvent(ctx context.Context, projectID string, body 
 // CreateEndpointFanoutEventWithBody Fan out an event
 //
 // This endpoint uses the owner_id to fan out an event to multiple endpoints.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type.
 //
@@ -4741,6 +4765,7 @@ func (c *Client) CreateEndpointFanoutEventWithBody(ctx context.Context, projectI
 // CreateEndpointFanoutEvent Fan out an event
 //
 // This endpoint uses the owner_id to fan out an event to multiple endpoints.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -10455,7 +10480,8 @@ type ClientWithResponsesInterface interface {
 
 	// CreateEndpointEventWithBodyWithResponse Create an event
 	//
-	// This endpoint creates an endpoint event.
+	// This endpoint creates an endpoint event
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10464,7 +10490,8 @@ type ClientWithResponsesInterface interface {
 
 	// CreateEndpointEventWithResponse Create an event
 	//
-	// This endpoint creates an endpoint event.
+	// This endpoint creates an endpoint event
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10483,6 +10510,7 @@ type ClientWithResponsesInterface interface {
 	// CreateBroadcastEventWithBodyWithResponse Create a broadcast event
 	//
 	// This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10492,6 +10520,7 @@ type ClientWithResponsesInterface interface {
 	// CreateBroadcastEventWithResponse Create a broadcast event
 	//
 	// This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10509,7 +10538,8 @@ type ClientWithResponsesInterface interface {
 
 	// CreateDynamicEventWithBodyWithResponse Dynamic Events
 	//
-	// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+	// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10518,7 +10548,8 @@ type ClientWithResponsesInterface interface {
 
 	// CreateDynamicEventWithResponse Dynamic Events
 	//
-	// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+	// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10528,6 +10559,7 @@ type ClientWithResponsesInterface interface {
 	// CreateEndpointFanoutEventWithBodyWithResponse Fan out an event
 	//
 	// This endpoint uses the owner_id to fan out an event to multiple endpoints.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10537,6 +10569,7 @@ type ClientWithResponsesInterface interface {
 	// CreateEndpointFanoutEventWithResponse Fan out an event
 	//
 	// This endpoint uses the owner_id to fan out an event to multiple endpoints.
+	// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -13745,9 +13778,9 @@ type CreateEndpointEventResponse struct {
 	HTTPResponse *http.Response
 	// JSON201 the response for an HTTP 201 `application/json` response
 	JSON201 *struct {
-		Data    *HandlersStub `json:"data,omitempty"`
-		Message *string       `json:"message,omitempty"`
-		Status  *bool         `json:"status,omitempty"`
+		Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+		Message *string                    `json:"message,omitempty"`
+		Status  *bool                      `json:"status,omitempty"`
 	}
 	// JSON400 the response for an HTTP 400 `application/json` response
 	JSON400 *struct {
@@ -13771,9 +13804,9 @@ type CreateEndpointEventResponse struct {
 
 // GetJSON201 returns the response for an HTTP 201 `application/json` response
 func (r CreateEndpointEventResponse) GetJSON201() *struct {
-	Data    *HandlersStub `json:"data,omitempty"`
-	Message *string       `json:"message,omitempty"`
-	Status  *bool         `json:"status,omitempty"`
+	Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+	Message *string                    `json:"message,omitempty"`
+	Status  *bool                      `json:"status,omitempty"`
 } {
 	return r.JSON201
 }
@@ -13933,9 +13966,9 @@ type CreateBroadcastEventResponse struct {
 	HTTPResponse *http.Response
 	// JSON201 the response for an HTTP 201 `application/json` response
 	JSON201 *struct {
-		Data    *ModelsEventResponse `json:"data,omitempty"`
-		Message *string              `json:"message,omitempty"`
-		Status  *bool                `json:"status,omitempty"`
+		Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+		Message *string                    `json:"message,omitempty"`
+		Status  *bool                      `json:"status,omitempty"`
 	}
 	// JSON400 the response for an HTTP 400 `application/json` response
 	JSON400 *struct {
@@ -13959,9 +13992,9 @@ type CreateBroadcastEventResponse struct {
 
 // GetJSON201 returns the response for an HTTP 201 `application/json` response
 func (r CreateBroadcastEventResponse) GetJSON201() *struct {
-	Data    *ModelsEventResponse `json:"data,omitempty"`
-	Message *string              `json:"message,omitempty"`
-	Status  *bool                `json:"status,omitempty"`
+	Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+	Message *string                    `json:"message,omitempty"`
+	Status  *bool                      `json:"status,omitempty"`
 } {
 	return r.JSON201
 }
@@ -14121,9 +14154,9 @@ type CreateDynamicEventResponse struct {
 	HTTPResponse *http.Response
 	// JSON201 the response for an HTTP 201 `application/json` response
 	JSON201 *struct {
-		Data    *HandlersStub `json:"data,omitempty"`
-		Message *string       `json:"message,omitempty"`
-		Status  *bool         `json:"status,omitempty"`
+		Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+		Message *string                    `json:"message,omitempty"`
+		Status  *bool                      `json:"status,omitempty"`
 	}
 	// JSON400 the response for an HTTP 400 `application/json` response
 	JSON400 *struct {
@@ -14147,9 +14180,9 @@ type CreateDynamicEventResponse struct {
 
 // GetJSON201 returns the response for an HTTP 201 `application/json` response
 func (r CreateDynamicEventResponse) GetJSON201() *struct {
-	Data    *HandlersStub `json:"data,omitempty"`
-	Message *string       `json:"message,omitempty"`
-	Status  *bool         `json:"status,omitempty"`
+	Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+	Message *string                    `json:"message,omitempty"`
+	Status  *bool                      `json:"status,omitempty"`
 } {
 	return r.JSON201
 }
@@ -14215,9 +14248,9 @@ type CreateEndpointFanoutEventResponse struct {
 	HTTPResponse *http.Response
 	// JSON201 the response for an HTTP 201 `application/json` response
 	JSON201 *struct {
-		Data    *HandlersStub `json:"data,omitempty"`
-		Message *string       `json:"message,omitempty"`
-		Status  *bool         `json:"status,omitempty"`
+		Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+		Message *string                    `json:"message,omitempty"`
+		Status  *bool                      `json:"status,omitempty"`
 	}
 	// JSON400 the response for an HTTP 400 `application/json` response
 	JSON400 *struct {
@@ -14241,9 +14274,9 @@ type CreateEndpointFanoutEventResponse struct {
 
 // GetJSON201 returns the response for an HTTP 201 `application/json` response
 func (r CreateEndpointFanoutEventResponse) GetJSON201() *struct {
-	Data    *HandlersStub `json:"data,omitempty"`
-	Message *string       `json:"message,omitempty"`
-	Status  *bool         `json:"status,omitempty"`
+	Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+	Message *string                    `json:"message,omitempty"`
+	Status  *bool                      `json:"status,omitempty"`
 } {
 	return r.JSON201
 }
@@ -18111,7 +18144,8 @@ func (c *ClientWithResponses) GetEventsPagedWithResponse(ctx context.Context, pr
 
 // CreateEndpointEventWithBodyWithResponse Create an event
 //
-// This endpoint creates an endpoint event.
+// This endpoint creates an endpoint event
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18126,7 +18160,8 @@ func (c *ClientWithResponses) CreateEndpointEventWithBodyWithResponse(ctx contex
 
 // CreateEndpointEventWithResponse Create an event
 //
-// This endpoint creates an endpoint event.
+// This endpoint creates an endpoint event
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18157,6 +18192,7 @@ func (c *ClientWithResponses) BatchReplayEventsWithResponse(ctx context.Context,
 // CreateBroadcastEventWithBodyWithResponse Create a broadcast event
 //
 // This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18172,6 +18208,7 @@ func (c *ClientWithResponses) CreateBroadcastEventWithBodyWithResponse(ctx conte
 // CreateBroadcastEventWithResponse Create a broadcast event
 //
 // This endpoint creates a event that is broadcast to every endpoint whose subscription matches the given event type.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18201,7 +18238,8 @@ func (c *ClientWithResponses) CountAffectedEventsWithResponse(ctx context.Contex
 
 // CreateDynamicEventWithBodyWithResponse Dynamic Events
 //
-// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18216,7 +18254,8 @@ func (c *ClientWithResponses) CreateDynamicEventWithBodyWithResponse(ctx context
 
 // CreateDynamicEventWithResponse Dynamic Events
 //
-// This endpoint does not require creating endpoint and subscriptions ahead of time. Instead, you supply the endpoint and the payload, and Convoy delivers the events
+// This endpoint creates a dynamic event without creating the endpoint and subscription ahead of time.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18232,6 +18271,7 @@ func (c *ClientWithResponses) CreateDynamicEventWithResponse(ctx context.Context
 // CreateEndpointFanoutEventWithBodyWithResponse Fan out an event
 //
 // This endpoint uses the owner_id to fan out an event to multiple endpoints.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -18247,6 +18287,7 @@ func (c *ClientWithResponses) CreateEndpointFanoutEventWithBodyWithResponse(ctx 
 // CreateEndpointFanoutEventWithResponse Fan out an event
 //
 // This endpoint uses the owner_id to fan out an event to multiple endpoints.
+// The 201 body includes uid (the event id). Use GET /events/{eventID} or GET /eventdeliveries?eventId= to follow the send.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -20860,9 +20901,9 @@ func ParseCreateEndpointEventResponse(rsp *http.Response) (*CreateEndpointEventR
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
 		var dest struct {
-			Data    *HandlersStub `json:"data,omitempty"`
-			Message *string       `json:"message,omitempty"`
-			Status  *bool         `json:"status,omitempty"`
+			Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+			Message *string                    `json:"message,omitempty"`
+			Status  *bool                      `json:"status,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -20986,9 +21027,9 @@ func ParseCreateBroadcastEventResponse(rsp *http.Response) (*CreateBroadcastEven
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
 		var dest struct {
-			Data    *ModelsEventResponse `json:"data,omitempty"`
-			Message *string              `json:"message,omitempty"`
-			Status  *bool                `json:"status,omitempty"`
+			Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+			Message *string                    `json:"message,omitempty"`
+			Status  *bool                      `json:"status,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -21112,9 +21153,9 @@ func ParseCreateDynamicEventResponse(rsp *http.Response) (*CreateDynamicEventRes
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
 		var dest struct {
-			Data    *HandlersStub `json:"data,omitempty"`
-			Message *string       `json:"message,omitempty"`
-			Status  *bool         `json:"status,omitempty"`
+			Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+			Message *string                    `json:"message,omitempty"`
+			Status  *bool                      `json:"status,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -21175,9 +21216,9 @@ func ParseCreateEndpointFanoutEventResponse(rsp *http.Response) (*CreateEndpoint
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
 		var dest struct {
-			Data    *HandlersStub `json:"data,omitempty"`
-			Message *string       `json:"message,omitempty"`
-			Status  *bool         `json:"status,omitempty"`
+			Data    *ModelsEventQueuedResponse `json:"data,omitempty"`
+			Message *string                    `json:"message,omitempty"`
+			Status  *bool                      `json:"status,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
