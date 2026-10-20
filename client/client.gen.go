@@ -2490,6 +2490,9 @@ type ModelsUpdateSource struct {
 	// Name Source name.
 	Name *string `json:"name,omitempty"`
 
+	// Provider Use this to specify one of our predefined source types.
+	Provider *DatastoreSourceProvider `json:"provider,omitempty"`
+
 	// PubSub PubSub are used to specify message broker sources for outgoing
 	// webhooks projects, you only need to specify this when the source type is `pub_sub`.
 	PubSub *ModelsPubSubConfig `json:"pub_sub,omitempty"`
@@ -2615,10 +2618,18 @@ type GetEventDeliveriesPagedParams struct {
 	EventId *string `form:"eventId,omitempty" json:"eventId,omitempty"`
 
 	// EventType EventType to filter by
-	EventType *string `form:"event_type,omitempty" json:"event_type,omitempty"`
+	EventType *string `form:"eventType,omitempty" json:"eventType,omitempty"`
 
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
+
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// Matches deliveries of events ingested with it. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
+	// MinTrials Only return deliveries with at least this many attempts; 2 or more means retried.
+	// Requires idempotencyValue, eventId, or endpointId.
+	MinTrials *int `form:"minTrials,omitempty" json:"minTrials,omitempty"`
 
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
@@ -2634,6 +2645,9 @@ type GetEventDeliveriesPagedParams struct {
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// SourceId Limits idempotencyValue matching to these source IDs.
+	SourceId *[]string `form:"sourceId,omitempty" json:"sourceId,omitempty"`
 
 	// StartDate The start date
 	StartDate *string `form:"startDate,omitempty" json:"startDate,omitempty"`
@@ -2662,10 +2676,18 @@ type BatchRetryEventDeliveryParams struct {
 	EventId *string `form:"eventId,omitempty" json:"eventId,omitempty"`
 
 	// EventType EventType to filter by
-	EventType *string `form:"event_type,omitempty" json:"event_type,omitempty"`
+	EventType *string `form:"eventType,omitempty" json:"eventType,omitempty"`
 
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
+
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// Matches deliveries of events ingested with it. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
+	// MinTrials Only return deliveries with at least this many attempts; 2 or more means retried.
+	// Requires idempotencyValue, eventId, or endpointId.
+	MinTrials *int `form:"minTrials,omitempty" json:"minTrials,omitempty"`
 
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
@@ -2681,6 +2703,9 @@ type BatchRetryEventDeliveryParams struct {
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// SourceId Limits idempotencyValue matching to these source IDs.
+	SourceId *[]string `form:"sourceId,omitempty" json:"sourceId,omitempty"`
 
 	// StartDate The start date
 	StartDate *string `form:"startDate,omitempty" json:"startDate,omitempty"`
@@ -2711,6 +2736,10 @@ type GetEventsPagedParams struct {
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
 
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// List only; pass sourceId if several sources qualify. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
 
@@ -2723,6 +2752,9 @@ type GetEventsPagedParams struct {
 	// Query Matches event id prefix, idempotency key, event type, and source name.
 	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
+	// QueryMode Set to text to search metadata literally, without interpreting JSON in query.
+	QueryMode *string `form:"queryMode,omitempty" json:"queryMode,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
@@ -2753,6 +2785,10 @@ type BatchReplayEventsParams struct {
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
 
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// List only; pass sourceId if several sources qualify. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
 
@@ -2765,6 +2801,9 @@ type BatchReplayEventsParams struct {
 	// Query Matches event id prefix, idempotency key, event type, and source name.
 	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
+	// QueryMode Set to text to search metadata literally, without interpreting JSON in query.
+	QueryMode *string `form:"queryMode,omitempty" json:"queryMode,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
@@ -2795,6 +2834,10 @@ type CountAffectedEventsParams struct {
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
 
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// List only; pass sourceId if several sources qualify. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
 
@@ -2807,6 +2850,9 @@ type CountAffectedEventsParams struct {
 	// Query Matches event id prefix, idempotency key, event type, and source name.
 	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
+	// QueryMode Set to text to search metadata literally, without interpreting JSON in query.
+	QueryMode *string `form:"queryMode,omitempty" json:"queryMode,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
@@ -6795,7 +6841,7 @@ func NewGetEventDeliveriesPagedRequest(server string, projectID string, params *
 
 		if params.EventType != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "event_type", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "eventType", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -6808,6 +6854,30 @@ func NewGetEventDeliveriesPagedRequest(server string, projectID string, params *
 		if params.IdempotencyKey != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyKey", *params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.MinTrials != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "minTrials", *params.MinTrials, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -6868,6 +6938,18 @@ func NewGetEventDeliveriesPagedRequest(server string, projectID string, params *
 		if params.Sort != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sort", *params.Sort, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SourceId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sourceId", *params.SourceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7012,7 +7094,7 @@ func NewBatchRetryEventDeliveryRequest(server string, projectID string, params *
 
 		if params.EventType != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "event_type", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "eventType", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7025,6 +7107,30 @@ func NewBatchRetryEventDeliveryRequest(server string, projectID string, params *
 		if params.IdempotencyKey != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyKey", *params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.MinTrials != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "minTrials", *params.MinTrials, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7085,6 +7191,18 @@ func NewBatchRetryEventDeliveryRequest(server string, projectID string, params *
 		if params.Sort != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sort", *params.Sort, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SourceId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sourceId", *params.SourceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7457,6 +7575,18 @@ func NewGetEventsPagedRequest(server string, projectID string, params *GetEvents
 
 		}
 
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.NextPageCursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "next_page_cursor", *params.NextPageCursor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7496,6 +7626,18 @@ func NewGetEventsPagedRequest(server string, projectID string, params *GetEvents
 		if params.Query != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.QueryMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "queryMode", *params.QueryMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7697,6 +7839,18 @@ func NewBatchReplayEventsRequest(server string, projectID string, params *BatchR
 
 		}
 
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.NextPageCursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "next_page_cursor", *params.NextPageCursor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7736,6 +7890,18 @@ func NewBatchReplayEventsRequest(server string, projectID string, params *BatchR
 		if params.Query != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.QueryMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "queryMode", *params.QueryMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7937,6 +8103,18 @@ func NewCountAffectedEventsRequest(server string, projectID string, params *Coun
 
 		}
 
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.NextPageCursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "next_page_cursor", *params.NextPageCursor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7976,6 +8154,18 @@ func NewCountAffectedEventsRequest(server string, projectID string, params *Coun
 		if params.Query != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.QueryMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "queryMode", *params.QueryMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
