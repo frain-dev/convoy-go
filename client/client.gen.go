@@ -2490,6 +2490,9 @@ type ModelsUpdateSource struct {
 	// Name Source name.
 	Name *string `json:"name,omitempty"`
 
+	// Provider Use this to specify one of our predefined source types.
+	Provider *DatastoreSourceProvider `json:"provider,omitempty"`
+
 	// PubSub PubSub are used to specify message broker sources for outgoing
 	// webhooks projects, you only need to specify this when the source type is `pub_sub`.
 	PubSub *ModelsPubSubConfig `json:"pub_sub,omitempty"`
@@ -2615,10 +2618,18 @@ type GetEventDeliveriesPagedParams struct {
 	EventId *string `form:"eventId,omitempty" json:"eventId,omitempty"`
 
 	// EventType EventType to filter by
-	EventType *string `form:"event_type,omitempty" json:"event_type,omitempty"`
+	EventType *string `form:"eventType,omitempty" json:"eventType,omitempty"`
 
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
+
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// Matches deliveries of events ingested with it. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
+	// MinTrials Only return deliveries with at least this many attempts; 2 or more means retried.
+	// Requires idempotencyValue, eventId, or endpointId.
+	MinTrials *int `form:"minTrials,omitempty" json:"minTrials,omitempty"`
 
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
@@ -2634,6 +2645,9 @@ type GetEventDeliveriesPagedParams struct {
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// SourceId Limits idempotencyValue matching to these source IDs.
+	SourceId *[]string `form:"sourceId,omitempty" json:"sourceId,omitempty"`
 
 	// StartDate The start date
 	StartDate *string `form:"startDate,omitempty" json:"startDate,omitempty"`
@@ -2662,10 +2676,18 @@ type BatchRetryEventDeliveryParams struct {
 	EventId *string `form:"eventId,omitempty" json:"eventId,omitempty"`
 
 	// EventType EventType to filter by
-	EventType *string `form:"event_type,omitempty" json:"event_type,omitempty"`
+	EventType *string `form:"eventType,omitempty" json:"eventType,omitempty"`
 
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
+
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// Matches deliveries of events ingested with it. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
+	// MinTrials Only return deliveries with at least this many attempts; 2 or more means retried.
+	// Requires idempotencyValue, eventId, or endpointId.
+	MinTrials *int `form:"minTrials,omitempty" json:"minTrials,omitempty"`
 
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
@@ -2682,6 +2704,9 @@ type BatchRetryEventDeliveryParams struct {
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
 
+	// SourceId Limits idempotencyValue matching to these source IDs.
+	SourceId *[]string `form:"sourceId,omitempty" json:"sourceId,omitempty"`
+
 	// StartDate The start date
 	StartDate *string `form:"startDate,omitempty" json:"startDate,omitempty"`
 
@@ -2694,6 +2719,15 @@ type BatchRetryEventDeliveryParams struct {
 
 // BatchRetryEventDeliveryParamsDirection defines parameters for BatchRetryEventDelivery.
 type BatchRetryEventDeliveryParamsDirection string
+
+// GetDeliveryAttemptsParams defines parameters for GetDeliveryAttempts.
+type GetDeliveryAttemptsParams struct {
+	// Paginated Return a page of ten attempts and next_cursor
+	Paginated *bool `form:"paginated,omitempty" json:"paginated,omitempty"`
+
+	// Before Exclusive attempt cursor from next_cursor; requires paginated=true
+	Before *string `form:"before,omitempty" json:"before,omitempty"`
+}
 
 // GetEventsPagedParams defines parameters for GetEventsPaged.
 type GetEventsPagedParams struct {
@@ -2711,6 +2745,10 @@ type GetEventsPagedParams struct {
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
 
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// List only; pass sourceId if several sources qualify. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
 
@@ -2723,6 +2761,9 @@ type GetEventsPagedParams struct {
 	// Query Matches event id prefix, idempotency key, event type, and source name.
 	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
+	// QueryMode Set to text to search metadata literally, without interpreting JSON in query.
+	QueryMode *string `form:"queryMode,omitempty" json:"queryMode,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
@@ -2753,6 +2794,10 @@ type BatchReplayEventsParams struct {
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
 
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// List only; pass sourceId if several sources qualify. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
 
@@ -2765,6 +2810,9 @@ type BatchReplayEventsParams struct {
 	// Query Matches event id prefix, idempotency key, event type, and source name.
 	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
+	// QueryMode Set to text to search metadata literally, without interpreting JSON in query.
+	QueryMode *string `form:"queryMode,omitempty" json:"queryMode,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
@@ -2795,6 +2843,10 @@ type CountAffectedEventsParams struct {
 	// IdempotencyKey IdempotencyKey to filter by
 	IdempotencyKey *string `form:"idempotencyKey,omitempty" json:"idempotencyKey,omitempty"`
 
+	// IdempotencyValue Raw value of a source's single idempotency key location, e.g. a provider delivery ID.
+	// List only; pass sourceId if several sources qualify. Not combinable with idempotencyKey.
+	IdempotencyValue *string `form:"idempotencyValue,omitempty" json:"idempotencyValue,omitempty"`
+
 	// NextPageCursor A pagination cursor to fetch the next page of a list
 	NextPageCursor *string `form:"next_page_cursor,omitempty" json:"next_page_cursor,omitempty"`
 
@@ -2807,6 +2859,9 @@ type CountAffectedEventsParams struct {
 	// Query Matches event id prefix, idempotency key, event type, and source name.
 	// A JSON object uses payload containment, same as body. Text plus JSON ANDs both.
 	Query *string `form:"query,omitempty" json:"query,omitempty"`
+
+	// QueryMode Set to text to search metadata literally, without interpreting JSON in query.
+	QueryMode *string `form:"queryMode,omitempty" json:"queryMode,omitempty"`
 
 	// Sort Sort order, values are `ASC` or `DESC`, defaults to `DESC`
 	Sort *string `form:"sort,omitempty" json:"sort,omitempty"`
@@ -3378,10 +3433,11 @@ type ClientInterface interface {
 
 	// GetDeliveryAttempts List delivery attempts
 	//
-	// This endpoint fetches an app message's delivery attempts.
+	// This endpoint fetches an app message's delivery attempts
+	// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 	//
 	// Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-	GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDeliveryAttempt Retrieve a delivery attempt
 	//
@@ -4522,11 +4578,12 @@ func (c *Client) GetEventDelivery(ctx context.Context, projectID string, eventDe
 
 // GetDeliveryAttempts List delivery attempts
 //
-// This endpoint fetches an app message's delivery attempts.
+// This endpoint fetches an app message's delivery attempts
+// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 //
 // Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-func (c *Client) GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDeliveryAttemptsRequest(c.Server, projectID, eventDeliveryID)
+func (c *Client) GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDeliveryAttemptsRequest(c.Server, projectID, eventDeliveryID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6795,7 +6852,7 @@ func NewGetEventDeliveriesPagedRequest(server string, projectID string, params *
 
 		if params.EventType != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "event_type", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "eventType", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -6808,6 +6865,30 @@ func NewGetEventDeliveriesPagedRequest(server string, projectID string, params *
 		if params.IdempotencyKey != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyKey", *params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.MinTrials != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "minTrials", *params.MinTrials, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -6868,6 +6949,18 @@ func NewGetEventDeliveriesPagedRequest(server string, projectID string, params *
 		if params.Sort != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sort", *params.Sort, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SourceId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sourceId", *params.SourceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7012,7 +7105,7 @@ func NewBatchRetryEventDeliveryRequest(server string, projectID string, params *
 
 		if params.EventType != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "event_type", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "eventType", *params.EventType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7025,6 +7118,30 @@ func NewBatchRetryEventDeliveryRequest(server string, projectID string, params *
 		if params.IdempotencyKey != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyKey", *params.IdempotencyKey, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.MinTrials != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "minTrials", *params.MinTrials, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7085,6 +7202,18 @@ func NewBatchRetryEventDeliveryRequest(server string, projectID string, params *
 		if params.Sort != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sort", *params.Sort, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SourceId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sourceId", *params.SourceId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7233,7 +7362,7 @@ func NewGetEventDeliveryRequest(server string, projectID string, eventDeliveryID
 }
 
 // NewGetDeliveryAttemptsRequest constructs an http.Request for the GetDeliveryAttempts method
-func NewGetDeliveryAttemptsRequest(server string, projectID string, eventDeliveryID string) (*http.Request, error) {
+func NewGetDeliveryAttemptsRequest(server string, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -7263,6 +7392,45 @@ func NewGetDeliveryAttemptsRequest(server string, projectID string, eventDeliver
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Paginated != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "paginated", *params.Paginated, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Before != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "before", *params.Before, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -7457,6 +7625,18 @@ func NewGetEventsPagedRequest(server string, projectID string, params *GetEvents
 
 		}
 
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.NextPageCursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "next_page_cursor", *params.NextPageCursor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7496,6 +7676,18 @@ func NewGetEventsPagedRequest(server string, projectID string, params *GetEvents
 		if params.Query != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.QueryMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "queryMode", *params.QueryMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7697,6 +7889,18 @@ func NewBatchReplayEventsRequest(server string, projectID string, params *BatchR
 
 		}
 
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.NextPageCursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "next_page_cursor", *params.NextPageCursor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7736,6 +7940,18 @@ func NewBatchReplayEventsRequest(server string, projectID string, params *BatchR
 		if params.Query != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.QueryMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "queryMode", *params.QueryMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7937,6 +8153,18 @@ func NewCountAffectedEventsRequest(server string, projectID string, params *Coun
 
 		}
 
+		if params.IdempotencyValue != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "idempotencyValue", *params.IdempotencyValue, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.NextPageCursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "next_page_cursor", *params.NextPageCursor, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -7976,6 +8204,18 @@ func NewCountAffectedEventsRequest(server string, projectID string, params *Coun
 		if params.Query != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "query", *params.Query, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.QueryMode != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "queryMode", *params.QueryMode, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -10444,12 +10684,13 @@ type ClientWithResponsesInterface interface {
 
 	// GetDeliveryAttemptsWithResponse List delivery attempts
 	//
-	// This endpoint fetches an app message's delivery attempts.
+	// This endpoint fetches an app message's delivery attempts
+	// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-	GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error)
+	GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error)
 
 	// GetDeliveryAttemptWithResponse Retrieve a delivery attempt
 	//
@@ -18084,13 +18325,14 @@ func (c *ClientWithResponses) GetEventDeliveryWithResponse(ctx context.Context, 
 
 // GetDeliveryAttemptsWithResponse List delivery attempts
 //
-// This endpoint fetches an app message's delivery attempts.
+// This endpoint fetches an app message's delivery attempts
+// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-func (c *ClientWithResponses) GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error) {
-	rsp, err := c.GetDeliveryAttempts(ctx, projectID, eventDeliveryID, reqEditors...)
+func (c *ClientWithResponses) GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error) {
+	rsp, err := c.GetDeliveryAttempts(ctx, projectID, eventDeliveryID, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
