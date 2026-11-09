@@ -5,7 +5,7 @@ set -euo pipefail
 # client/client.gen.go. The hand-written client (repo root package) and
 # webhook verify (webhook.go) are not generated and never touched here.
 #
-# Requires: go 1.22+, curl. Run from the repo root.
+# Requires: go 1.24+, curl, python3. Run from the repo root.
 
 SPEC_URL="${SPEC_URL:-https://raw.githubusercontent.com/frain-dev/convoy/main/docs/v3/openapi3.yaml}"
 # Pin so regeneration output is reproducible; bump deliberately.
@@ -18,6 +18,8 @@ curl -fsSL "$SPEC_URL" -o "$tmp/openapi3.yaml"
 
 go run "github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@${GENERATOR_VERSION}" \
   -config .oapi-codegen.yaml "$tmp/openapi3.yaml"
+
+python3 scripts/preserve-compatibility.py
 
 gofmt -w client/client.gen.go
 
