@@ -217,3 +217,23 @@ The following table identifies which version of the Convoy API is supported by t
 
 ## License
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
+
+### Delivery-attempt pagination and compatibility
+
+Existing `GetDeliveryAttempts(ctx, projectID, deliveryID, editors...)`,
+`GetDeliveryAttemptsWithResponse(...)`, and `NewGetDeliveryAttemptsRequest(...)`
+retain their original signatures and array response types. Existing client
+interfaces do not require any new methods.
+
+Use `GetDeliveryAttemptsWithParams` or
+`GetDeliveryAttemptsWithParamsWithResponse` with `GetDeliveryAttemptsParams`
+for the optional `Paginated` and `Before` query parameters. Paginated responses
+contain `content` and `next_cursor`; use the returned cursor as `Before` for
+older history. The generated response type supports both array and page data.
+Custom clients used with `ClientWithResponses` can opt in by implementing
+`DeliveryAttemptsWithParamsClient`.
+
+`scripts/generate.sh` runs the checked-in compatibility transform after
+`oapi-codegen`. Do not bypass it or hand-edit the generated file. Run
+`./scripts/check-compatibility.sh` after generation; both PR CI and the SDK
+approval workflow require these tests, and fail if a required test disappears.

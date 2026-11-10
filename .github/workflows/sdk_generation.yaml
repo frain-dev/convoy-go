@@ -70,6 +70,9 @@ jobs:
         # verify tests. PR CI (go.yml) re-proves this on the PR itself.
         run: go build ./... && go test ./...
 
+      - name: Verify consumer compatibility before approval
+        run: ./scripts/check-compatibility.sh
+
       - name: Detect changes
         id: diff
         run: |
