@@ -2720,6 +2720,15 @@ type BatchRetryEventDeliveryParams struct {
 // BatchRetryEventDeliveryParamsDirection defines parameters for BatchRetryEventDelivery.
 type BatchRetryEventDeliveryParamsDirection string
 
+// GetDeliveryAttemptsParams defines parameters for GetDeliveryAttempts.
+type GetDeliveryAttemptsParams struct {
+	// Paginated Return a page of ten attempts and next_cursor
+	Paginated *bool `form:"paginated,omitempty" json:"paginated,omitempty"`
+
+	// Before Exclusive attempt cursor from next_cursor; requires paginated=true
+	Before *string `form:"before,omitempty" json:"before,omitempty"`
+}
+
 // GetEventsPagedParams defines parameters for GetEventsPaged.
 type GetEventsPagedParams struct {
 	// Body URL-encoded JSON object matched against the event payload.
@@ -3424,10 +3433,11 @@ type ClientInterface interface {
 
 	// GetDeliveryAttempts List delivery attempts
 	//
-	// This endpoint fetches an app message's delivery attempts.
+	// This endpoint fetches an app message's delivery attempts
+	// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 	//
 	// Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-	GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDeliveryAttempt Retrieve a delivery attempt
 	//
@@ -4568,11 +4578,12 @@ func (c *Client) GetEventDelivery(ctx context.Context, projectID string, eventDe
 
 // GetDeliveryAttempts List delivery attempts
 //
-// This endpoint fetches an app message's delivery attempts.
+// This endpoint fetches an app message's delivery attempts
+// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 //
 // Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-func (c *Client) GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDeliveryAttemptsRequest(c.Server, projectID, eventDeliveryID)
+func (c *Client) GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDeliveryAttemptsRequest(c.Server, projectID, eventDeliveryID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -7351,7 +7362,7 @@ func NewGetEventDeliveryRequest(server string, projectID string, eventDeliveryID
 }
 
 // NewGetDeliveryAttemptsRequest constructs an http.Request for the GetDeliveryAttempts method
-func NewGetDeliveryAttemptsRequest(server string, projectID string, eventDeliveryID string) (*http.Request, error) {
+func NewGetDeliveryAttemptsRequest(server string, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -7381,6 +7392,45 @@ func NewGetDeliveryAttemptsRequest(server string, projectID string, eventDeliver
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Paginated != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "paginated", *params.Paginated, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Before != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "before", *params.Before, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -10634,12 +10684,13 @@ type ClientWithResponsesInterface interface {
 
 	// GetDeliveryAttemptsWithResponse List delivery attempts
 	//
-	// This endpoint fetches an app message's delivery attempts.
+	// This endpoint fetches an app message's delivery attempts
+	// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-	GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error)
+	GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error)
 
 	// GetDeliveryAttemptWithResponse Retrieve a delivery attempt
 	//
@@ -18274,13 +18325,14 @@ func (c *ClientWithResponses) GetEventDeliveryWithResponse(ctx context.Context, 
 
 // GetDeliveryAttemptsWithResponse List delivery attempts
 //
-// This endpoint fetches an app message's delivery attempts.
+// This endpoint fetches an app message's delivery attempts
+// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-func (c *ClientWithResponses) GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error) {
-	rsp, err := c.GetDeliveryAttempts(ctx, projectID, eventDeliveryID, reqEditors...)
+func (c *ClientWithResponses) GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error) {
+	rsp, err := c.GetDeliveryAttempts(ctx, projectID, eventDeliveryID, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
