@@ -2720,13 +2720,29 @@ type BatchRetryEventDeliveryParams struct {
 // BatchRetryEventDeliveryParamsDirection defines parameters for BatchRetryEventDelivery.
 type BatchRetryEventDeliveryParamsDirection string
 
-// GetDeliveryAttemptsParams defines parameters for GetDeliveryAttempts.
+// GetDeliveryAttemptsParams defines parameters for GetDeliveryAttemptsWithParams.
 type GetDeliveryAttemptsParams struct {
 	// Paginated Return a page of ten attempts and next_cursor
 	Paginated *bool `form:"paginated,omitempty" json:"paginated,omitempty"`
 
 	// Before Exclusive attempt cursor from next_cursor; requires paginated=true
 	Before *string `form:"before,omitempty" json:"before,omitempty"`
+}
+
+// GetDeliveryAttempts200JSONResponseBodyData0 defines parameters for GetDeliveryAttemptsWithParams.
+type GetDeliveryAttempts200JSONResponseBodyData0 = []DatastoreDeliveryAttempt
+
+// GetDeliveryAttempts200JSONResponseBodyData1 defines parameters for GetDeliveryAttemptsWithParams.
+type GetDeliveryAttempts200JSONResponseBodyData1 struct {
+	Content []DatastoreDeliveryAttempt `json:"content"`
+
+	// NextCursor Pass as before to fetch older attempts. Empty on the last page.
+	NextCursor string `json:"next_cursor"`
+}
+
+// GetDeliveryAttempts200JSONResponseBody_Data defines parameters for GetDeliveryAttemptsWithParams.
+type GetDeliveryAttempts200JSONResponseBody_Data struct {
+	union json.RawMessage
 }
 
 // GetEventsPagedParams defines parameters for GetEventsPaged.
@@ -3078,6 +3094,68 @@ type TestFilterJSONRequestBody = ModelsTestFilterRequest
 
 // UpdateFilterJSONRequestBody defines body for UpdateFilter for application/json ContentType.
 type UpdateFilterJSONRequestBody = ModelsUpdateFilterRequest
+
+// AsGetDeliveryAttempts200JSONResponseBodyData0 returns the union data inside the GetDeliveryAttempts200JSONResponseBody_Data as a GetDeliveryAttempts200JSONResponseBodyData0
+func (t GetDeliveryAttempts200JSONResponseBody_Data) AsGetDeliveryAttempts200JSONResponseBodyData0() (GetDeliveryAttempts200JSONResponseBodyData0, error) {
+	var body GetDeliveryAttempts200JSONResponseBodyData0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGetDeliveryAttempts200JSONResponseBodyData0 overwrites any union data inside the GetDeliveryAttempts200JSONResponseBody_Data as the provided GetDeliveryAttempts200JSONResponseBodyData0
+func (t *GetDeliveryAttempts200JSONResponseBody_Data) FromGetDeliveryAttempts200JSONResponseBodyData0(v GetDeliveryAttempts200JSONResponseBodyData0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGetDeliveryAttempts200JSONResponseBodyData0 performs a merge with any union data inside the GetDeliveryAttempts200JSONResponseBody_Data, using the provided GetDeliveryAttempts200JSONResponseBodyData0
+func (t *GetDeliveryAttempts200JSONResponseBody_Data) MergeGetDeliveryAttempts200JSONResponseBodyData0(v GetDeliveryAttempts200JSONResponseBodyData0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsGetDeliveryAttempts200JSONResponseBodyData1 returns the union data inside the GetDeliveryAttempts200JSONResponseBody_Data as a GetDeliveryAttempts200JSONResponseBodyData1
+func (t GetDeliveryAttempts200JSONResponseBody_Data) AsGetDeliveryAttempts200JSONResponseBodyData1() (GetDeliveryAttempts200JSONResponseBodyData1, error) {
+	var body GetDeliveryAttempts200JSONResponseBodyData1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGetDeliveryAttempts200JSONResponseBodyData1 overwrites any union data inside the GetDeliveryAttempts200JSONResponseBody_Data as the provided GetDeliveryAttempts200JSONResponseBodyData1
+func (t *GetDeliveryAttempts200JSONResponseBody_Data) FromGetDeliveryAttempts200JSONResponseBodyData1(v GetDeliveryAttempts200JSONResponseBodyData1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGetDeliveryAttempts200JSONResponseBodyData1 performs a merge with any union data inside the GetDeliveryAttempts200JSONResponseBody_Data, using the provided GetDeliveryAttempts200JSONResponseBodyData1
+func (t *GetDeliveryAttempts200JSONResponseBody_Data) MergeGetDeliveryAttempts200JSONResponseBodyData1(v GetDeliveryAttempts200JSONResponseBodyData1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t GetDeliveryAttempts200JSONResponseBody_Data) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *GetDeliveryAttempts200JSONResponseBody_Data) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -3437,7 +3515,7 @@ type ClientInterface interface {
 	// Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 	//
 	// Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-	GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDeliveryAttempt Retrieve a delivery attempt
 	//
@@ -4576,14 +4654,14 @@ func (c *Client) GetEventDelivery(ctx context.Context, projectID string, eventDe
 	return c.Client.Do(req)
 }
 
-// GetDeliveryAttempts List delivery attempts
+// GetDeliveryAttemptsWithParams List delivery attempts
 //
 // This endpoint fetches an app message's delivery attempts
 // Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
 //
 // Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-func (c *Client) GetDeliveryAttempts(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDeliveryAttemptsRequest(c.Server, projectID, eventDeliveryID, params)
+func (c *Client) GetDeliveryAttemptsWithParams(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDeliveryAttemptsWithParamsRequest(c.Server, projectID, eventDeliveryID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -7361,8 +7439,8 @@ func NewGetEventDeliveryRequest(server string, projectID string, eventDeliveryID
 	return req, nil
 }
 
-// NewGetDeliveryAttemptsRequest constructs an http.Request for the GetDeliveryAttempts method
-func NewGetDeliveryAttemptsRequest(server string, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams) (*http.Request, error) {
+// NewGetDeliveryAttemptsWithParamsRequest constructs an http.Request for the GetDeliveryAttemptsWithParams method
+func NewGetDeliveryAttemptsWithParamsRequest(server string, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10690,7 +10768,7 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-	GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error)
+	GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error)
 
 	// GetDeliveryAttemptWithResponse Retrieve a delivery attempt
 	//
@@ -13602,14 +13680,14 @@ func (r GetEventDeliveryResponse) ContentType() string {
 	return ""
 }
 
-type GetDeliveryAttemptsResponse struct {
+type GetDeliveryAttemptsWithParamsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
 	JSON200 *struct {
-		Data    *[]DatastoreDeliveryAttempt `json:"data,omitempty"`
-		Message *string                     `json:"message,omitempty"`
-		Status  *bool                       `json:"status,omitempty"`
+		Data    *GetDeliveryAttempts200JSONResponseBody_Data `json:"data,omitempty"`
+		Message *string                                      `json:"message,omitempty"`
+		Status  *bool                                        `json:"status,omitempty"`
 	}
 	// JSON400 the response for an HTTP 400 `application/json` response
 	JSON400 *struct {
@@ -13632,16 +13710,16 @@ type GetDeliveryAttemptsResponse struct {
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetDeliveryAttemptsResponse) GetJSON200() *struct {
-	Data    *[]DatastoreDeliveryAttempt `json:"data,omitempty"`
-	Message *string                     `json:"message,omitempty"`
-	Status  *bool                       `json:"status,omitempty"`
+func (r GetDeliveryAttemptsWithParamsResponse) GetJSON200() *struct {
+	Data    *GetDeliveryAttempts200JSONResponseBody_Data `json:"data,omitempty"`
+	Message *string                                      `json:"message,omitempty"`
+	Status  *bool                                        `json:"status,omitempty"`
 } {
 	return r.JSON200
 }
 
 // GetJSON400 returns the response for an HTTP 400 `application/json` response
-func (r GetDeliveryAttemptsResponse) GetJSON400() *struct {
+func (r GetDeliveryAttemptsWithParamsResponse) GetJSON400() *struct {
 	Data    *HandlersStub `json:"data,omitempty"`
 	Message *string       `json:"message,omitempty"`
 	Status  *bool         `json:"status,omitempty"`
@@ -13650,7 +13728,7 @@ func (r GetDeliveryAttemptsResponse) GetJSON400() *struct {
 }
 
 // GetJSON401 returns the response for an HTTP 401 `application/json` response
-func (r GetDeliveryAttemptsResponse) GetJSON401() *struct {
+func (r GetDeliveryAttemptsWithParamsResponse) GetJSON401() *struct {
 	Data    *HandlersStub `json:"data,omitempty"`
 	Message *string       `json:"message,omitempty"`
 	Status  *bool         `json:"status,omitempty"`
@@ -13659,7 +13737,7 @@ func (r GetDeliveryAttemptsResponse) GetJSON401() *struct {
 }
 
 // GetJSON404 returns the response for an HTTP 404 `application/json` response
-func (r GetDeliveryAttemptsResponse) GetJSON404() *struct {
+func (r GetDeliveryAttemptsWithParamsResponse) GetJSON404() *struct {
 	Data    *HandlersStub `json:"data,omitempty"`
 	Message *string       `json:"message,omitempty"`
 	Status  *bool         `json:"status,omitempty"`
@@ -13668,12 +13746,12 @@ func (r GetDeliveryAttemptsResponse) GetJSON404() *struct {
 }
 
 // GetBody returns the raw response body bytes
-func (r GetDeliveryAttemptsResponse) GetBody() []byte {
+func (r GetDeliveryAttemptsWithParamsResponse) GetBody() []byte {
 	return r.Body
 }
 
 // Status returns HTTPResponse.Status
-func (r GetDeliveryAttemptsResponse) Status() string {
+func (r GetDeliveryAttemptsWithParamsResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -13681,7 +13759,7 @@ func (r GetDeliveryAttemptsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetDeliveryAttemptsResponse) StatusCode() int {
+func (r GetDeliveryAttemptsWithParamsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -13689,7 +13767,7 @@ func (r GetDeliveryAttemptsResponse) StatusCode() int {
 }
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetDeliveryAttemptsResponse) ContentType() string {
+func (r GetDeliveryAttemptsWithParamsResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -14135,6 +14213,12 @@ type BatchReplayEventsResponse struct {
 		Message *string       `json:"message,omitempty"`
 		Status  *bool         `json:"status,omitempty"`
 	}
+	// JSON409 the response for an HTTP 409 `application/json` response
+	JSON409 *struct {
+		Data    *HandlersStub `json:"data,omitempty"`
+		Message *string       `json:"message,omitempty"`
+		Status  *bool         `json:"status,omitempty"`
+	}
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
@@ -14171,6 +14255,15 @@ func (r BatchReplayEventsResponse) GetJSON404() *struct {
 	Status  *bool         `json:"status,omitempty"`
 } {
 	return r.JSON404
+}
+
+// GetJSON409 returns the response for an HTTP 409 `application/json` response
+func (r BatchReplayEventsResponse) GetJSON409() *struct {
+	Data    *HandlersStub `json:"data,omitempty"`
+	Message *string       `json:"message,omitempty"`
+	Status  *bool         `json:"status,omitempty"`
+} {
+	return r.JSON409
 }
 
 // GetBody returns the raw response body bytes
@@ -18323,7 +18416,7 @@ func (c *ClientWithResponses) GetEventDeliveryWithResponse(ctx context.Context, 
 	return ParseGetEventDeliveryResponse(rsp)
 }
 
-// GetDeliveryAttemptsWithResponse List delivery attempts
+// GetDeliveryAttemptsWithParamsWithResponse List delivery attempts
 //
 // This endpoint fetches an app message's delivery attempts
 // Default: latest ten attempts as an array. With paginated=true: content and next_cursor. Pass next_cursor as before for older history; empty means last page. Pages are oldest first.
@@ -18331,12 +18424,12 @@ func (c *ClientWithResponses) GetEventDeliveryWithResponse(ctx context.Context, 
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /v1/projects/{projectID}/eventdeliveries/{eventDeliveryID}/deliveryattempts (the `GetDeliveryAttempts` operationId).
-func (c *ClientWithResponses) GetDeliveryAttemptsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsResponse, error) {
-	rsp, err := c.GetDeliveryAttempts(ctx, projectID, eventDeliveryID, params, reqEditors...)
+func (c *ClientWithResponses) GetDeliveryAttemptsWithParamsWithResponse(ctx context.Context, projectID string, eventDeliveryID string, params *GetDeliveryAttemptsParams, reqEditors ...RequestEditorFn) (*GetDeliveryAttemptsWithParamsResponse, error) {
+	rsp, err := c.GetDeliveryAttemptsWithParams(ctx, projectID, eventDeliveryID, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetDeliveryAttemptsResponse(rsp)
+	return ParseGetDeliveryAttemptsWithParamsResponse(rsp)
 }
 
 // GetDeliveryAttemptWithResponse Retrieve a delivery attempt
@@ -20850,15 +20943,15 @@ func ParseGetEventDeliveryResponse(rsp *http.Response) (*GetEventDeliveryRespons
 	return response, nil
 }
 
-// ParseGetDeliveryAttemptsResponse parses an HTTP response from a GetDeliveryAttemptsWithResponse call
-func ParseGetDeliveryAttemptsResponse(rsp *http.Response) (*GetDeliveryAttemptsResponse, error) {
+// ParseGetDeliveryAttemptsWithParamsResponse parses an HTTP response from a GetDeliveryAttemptsWithParamsWithResponse call
+func ParseGetDeliveryAttemptsWithParamsResponse(rsp *http.Response) (*GetDeliveryAttemptsWithParamsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetDeliveryAttemptsResponse{
+	response := &GetDeliveryAttemptsWithParamsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -20866,9 +20959,9 @@ func ParseGetDeliveryAttemptsResponse(rsp *http.Response) (*GetDeliveryAttemptsR
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			Data    *[]DatastoreDeliveryAttempt `json:"data,omitempty"`
-			Message *string                     `json:"message,omitempty"`
-			Status  *bool                       `json:"status,omitempty"`
+			Data    *GetDeliveryAttempts200JSONResponseBody_Data `json:"data,omitempty"`
+			Message *string                                      `json:"message,omitempty"`
+			Status  *bool                                        `json:"status,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -21247,6 +21340,17 @@ func ParseBatchReplayEventsResponse(rsp *http.Response) (*BatchReplayEventsRespo
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest struct {
+			Data    *HandlersStub `json:"data,omitempty"`
+			Message *string       `json:"message,omitempty"`
+			Status  *bool         `json:"status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
